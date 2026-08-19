@@ -54,7 +54,9 @@ export const ModelName = {
   User: 'User',
   Department: 'Department',
   Role: 'Role',
-  InviteToken: 'InviteToken'
+  Service: 'Service',
+  InviteToken: 'InviteToken',
+  PasswordResetToken: 'PasswordResetToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -79,6 +81,8 @@ export const UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   phone: 'phone',
+  bio: 'bio',
+  profilePictureUrl: 'profilePictureUrl',
   status: 'status',
   departmentId: 'departmentId',
   roleId: 'roleId',
@@ -115,19 +119,39 @@ export const RoleScalarFieldEnum = {
 export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
 
 
+export const ServiceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
 export const InviteTokenScalarFieldEnum = {
   id: 'id',
-  email: 'email',
-  fullName: 'fullName',
+  userId: 'userId',
   token: 'token',
-  departmentId: 'departmentId',
-  roleId: 'roleId',
   expiresAt: 'expiresAt',
   acceptedAt: 'acceptedAt',
   createdAt: 'createdAt'
 } as const
 
 export type InviteTokenScalarFieldEnum = (typeof InviteTokenScalarFieldEnum)[keyof typeof InviteTokenScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
 export const SortOrder = {

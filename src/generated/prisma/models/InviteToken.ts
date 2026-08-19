@@ -26,11 +26,8 @@ export type AggregateInviteToken = {
 
 export type InviteTokenMinAggregateOutputType = {
   id: string | null
-  email: string | null
-  fullName: string | null
+  userId: string | null
   token: string | null
-  departmentId: string | null
-  roleId: string | null
   expiresAt: Date | null
   acceptedAt: Date | null
   createdAt: Date | null
@@ -38,11 +35,8 @@ export type InviteTokenMinAggregateOutputType = {
 
 export type InviteTokenMaxAggregateOutputType = {
   id: string | null
-  email: string | null
-  fullName: string | null
+  userId: string | null
   token: string | null
-  departmentId: string | null
-  roleId: string | null
   expiresAt: Date | null
   acceptedAt: Date | null
   createdAt: Date | null
@@ -50,11 +44,8 @@ export type InviteTokenMaxAggregateOutputType = {
 
 export type InviteTokenCountAggregateOutputType = {
   id: number
-  email: number
-  fullName: number
+  userId: number
   token: number
-  departmentId: number
-  roleId: number
   expiresAt: number
   acceptedAt: number
   createdAt: number
@@ -64,11 +55,8 @@ export type InviteTokenCountAggregateOutputType = {
 
 export type InviteTokenMinAggregateInputType = {
   id?: true
-  email?: true
-  fullName?: true
+  userId?: true
   token?: true
-  departmentId?: true
-  roleId?: true
   expiresAt?: true
   acceptedAt?: true
   createdAt?: true
@@ -76,11 +64,8 @@ export type InviteTokenMinAggregateInputType = {
 
 export type InviteTokenMaxAggregateInputType = {
   id?: true
-  email?: true
-  fullName?: true
+  userId?: true
   token?: true
-  departmentId?: true
-  roleId?: true
   expiresAt?: true
   acceptedAt?: true
   createdAt?: true
@@ -88,11 +73,8 @@ export type InviteTokenMaxAggregateInputType = {
 
 export type InviteTokenCountAggregateInputType = {
   id?: true
-  email?: true
-  fullName?: true
+  userId?: true
   token?: true
-  departmentId?: true
-  roleId?: true
   expiresAt?: true
   acceptedAt?: true
   createdAt?: true
@@ -173,11 +155,8 @@ export type InviteTokenGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type InviteTokenGroupByOutputType = {
   id: string
-  email: string
-  fullName: string
+  userId: string
   token: string
-  departmentId: string | null
-  roleId: string | null
   expiresAt: Date
   acceptedAt: Date | null
   createdAt: Date
@@ -206,50 +185,41 @@ export type InviteTokenWhereInput = {
   OR?: Prisma.InviteTokenWhereInput[]
   NOT?: Prisma.InviteTokenWhereInput | Prisma.InviteTokenWhereInput[]
   id?: Prisma.StringFilter<"InviteToken"> | string
-  email?: Prisma.StringFilter<"InviteToken"> | string
-  fullName?: Prisma.StringFilter<"InviteToken"> | string
+  userId?: Prisma.StringFilter<"InviteToken"> | string
   token?: Prisma.StringFilter<"InviteToken"> | string
-  departmentId?: Prisma.StringNullableFilter<"InviteToken"> | string | null
-  roleId?: Prisma.StringNullableFilter<"InviteToken"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"InviteToken"> | Date | string
   acceptedAt?: Prisma.DateTimeNullableFilter<"InviteToken"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"InviteToken"> | Date | string
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type InviteTokenOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   token?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  roleId?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type InviteTokenWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  userId?: string
   token?: string
   AND?: Prisma.InviteTokenWhereInput | Prisma.InviteTokenWhereInput[]
   OR?: Prisma.InviteTokenWhereInput[]
   NOT?: Prisma.InviteTokenWhereInput | Prisma.InviteTokenWhereInput[]
-  email?: Prisma.StringFilter<"InviteToken"> | string
-  fullName?: Prisma.StringFilter<"InviteToken"> | string
-  departmentId?: Prisma.StringNullableFilter<"InviteToken"> | string | null
-  roleId?: Prisma.StringNullableFilter<"InviteToken"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"InviteToken"> | Date | string
   acceptedAt?: Prisma.DateTimeNullableFilter<"InviteToken"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"InviteToken"> | Date | string
-}, "id" | "token">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+}, "id" | "userId" | "token">
 
 export type InviteTokenOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   token?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  roleId?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -263,11 +233,8 @@ export type InviteTokenScalarWhereWithAggregatesInput = {
   OR?: Prisma.InviteTokenScalarWhereWithAggregatesInput[]
   NOT?: Prisma.InviteTokenScalarWhereWithAggregatesInput | Prisma.InviteTokenScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"InviteToken"> | string
-  email?: Prisma.StringWithAggregatesFilter<"InviteToken"> | string
-  fullName?: Prisma.StringWithAggregatesFilter<"InviteToken"> | string
+  userId?: Prisma.StringWithAggregatesFilter<"InviteToken"> | string
   token?: Prisma.StringWithAggregatesFilter<"InviteToken"> | string
-  departmentId?: Prisma.StringNullableWithAggregatesFilter<"InviteToken"> | string | null
-  roleId?: Prisma.StringNullableWithAggregatesFilter<"InviteToken"> | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"InviteToken"> | Date | string
   acceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InviteToken"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InviteToken"> | Date | string
@@ -275,23 +242,17 @@ export type InviteTokenScalarWhereWithAggregatesInput = {
 
 export type InviteTokenCreateInput = {
   id?: string
-  email: string
-  fullName: string
   token: string
-  departmentId?: string | null
-  roleId?: string | null
   expiresAt: Date | string
   acceptedAt?: Date | string | null
   createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutInviteTokenInput
 }
 
 export type InviteTokenUncheckedCreateInput = {
   id?: string
-  email: string
-  fullName: string
+  userId: string
   token: string
-  departmentId?: string | null
-  roleId?: string | null
   expiresAt: Date | string
   acceptedAt?: Date | string | null
   createdAt?: Date | string
@@ -299,23 +260,17 @@ export type InviteTokenUncheckedCreateInput = {
 
 export type InviteTokenUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
-  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutInviteTokenNestedInput
 }
 
 export type InviteTokenUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
-  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,11 +278,8 @@ export type InviteTokenUncheckedUpdateInput = {
 
 export type InviteTokenCreateManyInput = {
   id?: string
-  email: string
-  fullName: string
+  userId: string
   token: string
-  departmentId?: string | null
-  roleId?: string | null
   expiresAt: Date | string
   acceptedAt?: Date | string | null
   createdAt?: Date | string
@@ -335,11 +287,7 @@ export type InviteTokenCreateManyInput = {
 
 export type InviteTokenUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
-  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -347,23 +295,22 @@ export type InviteTokenUpdateManyMutationInput = {
 
 export type InviteTokenUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
-  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type InviteTokenNullableScalarRelationFilter = {
+  is?: Prisma.InviteTokenWhereInput | null
+  isNot?: Prisma.InviteTokenWhereInput | null
+}
+
 export type InviteTokenCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   token?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -371,11 +318,8 @@ export type InviteTokenCountOrderByAggregateInput = {
 
 export type InviteTokenMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   token?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -383,78 +327,154 @@ export type InviteTokenMaxOrderByAggregateInput = {
 
 export type InviteTokenMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   token?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type InviteTokenCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.InviteTokenCreateWithoutUserInput, Prisma.InviteTokenUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.InviteTokenCreateOrConnectWithoutUserInput
+  connect?: Prisma.InviteTokenWhereUniqueInput
+}
+
+export type InviteTokenUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.InviteTokenCreateWithoutUserInput, Prisma.InviteTokenUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.InviteTokenCreateOrConnectWithoutUserInput
+  connect?: Prisma.InviteTokenWhereUniqueInput
+}
+
+export type InviteTokenUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.InviteTokenCreateWithoutUserInput, Prisma.InviteTokenUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.InviteTokenCreateOrConnectWithoutUserInput
+  upsert?: Prisma.InviteTokenUpsertWithoutUserInput
+  disconnect?: Prisma.InviteTokenWhereInput | boolean
+  delete?: Prisma.InviteTokenWhereInput | boolean
+  connect?: Prisma.InviteTokenWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InviteTokenUpdateToOneWithWhereWithoutUserInput, Prisma.InviteTokenUpdateWithoutUserInput>, Prisma.InviteTokenUncheckedUpdateWithoutUserInput>
+}
+
+export type InviteTokenUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.InviteTokenCreateWithoutUserInput, Prisma.InviteTokenUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.InviteTokenCreateOrConnectWithoutUserInput
+  upsert?: Prisma.InviteTokenUpsertWithoutUserInput
+  disconnect?: Prisma.InviteTokenWhereInput | boolean
+  delete?: Prisma.InviteTokenWhereInput | boolean
+  connect?: Prisma.InviteTokenWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InviteTokenUpdateToOneWithWhereWithoutUserInput, Prisma.InviteTokenUpdateWithoutUserInput>, Prisma.InviteTokenUncheckedUpdateWithoutUserInput>
+}
+
+export type InviteTokenCreateWithoutUserInput = {
+  id?: string
+  token: string
+  expiresAt: Date | string
+  acceptedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type InviteTokenUncheckedCreateWithoutUserInput = {
+  id?: string
+  token: string
+  expiresAt: Date | string
+  acceptedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type InviteTokenCreateOrConnectWithoutUserInput = {
+  where: Prisma.InviteTokenWhereUniqueInput
+  create: Prisma.XOR<Prisma.InviteTokenCreateWithoutUserInput, Prisma.InviteTokenUncheckedCreateWithoutUserInput>
+}
+
+export type InviteTokenUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.InviteTokenUpdateWithoutUserInput, Prisma.InviteTokenUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.InviteTokenCreateWithoutUserInput, Prisma.InviteTokenUncheckedCreateWithoutUserInput>
+  where?: Prisma.InviteTokenWhereInput
+}
+
+export type InviteTokenUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.InviteTokenWhereInput
+  data: Prisma.XOR<Prisma.InviteTokenUpdateWithoutUserInput, Prisma.InviteTokenUncheckedUpdateWithoutUserInput>
+}
+
+export type InviteTokenUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InviteTokenUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type InviteTokenSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  email?: boolean
-  fullName?: boolean
+  userId?: boolean
   token?: boolean
-  departmentId?: boolean
-  roleId?: boolean
   expiresAt?: boolean
   acceptedAt?: boolean
   createdAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inviteToken"]>
 
 export type InviteTokenSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  email?: boolean
-  fullName?: boolean
+  userId?: boolean
   token?: boolean
-  departmentId?: boolean
-  roleId?: boolean
   expiresAt?: boolean
   acceptedAt?: boolean
   createdAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inviteToken"]>
 
 export type InviteTokenSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  email?: boolean
-  fullName?: boolean
+  userId?: boolean
   token?: boolean
-  departmentId?: boolean
-  roleId?: boolean
   expiresAt?: boolean
   acceptedAt?: boolean
   createdAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inviteToken"]>
 
 export type InviteTokenSelectScalar = {
   id?: boolean
-  email?: boolean
-  fullName?: boolean
+  userId?: boolean
   token?: boolean
-  departmentId?: boolean
-  roleId?: boolean
   expiresAt?: boolean
   acceptedAt?: boolean
   createdAt?: boolean
 }
 
-export type InviteTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "fullName" | "token" | "departmentId" | "roleId" | "expiresAt" | "acceptedAt" | "createdAt", ExtArgs["result"]["inviteToken"]>
+export type InviteTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "token" | "expiresAt" | "acceptedAt" | "createdAt", ExtArgs["result"]["inviteToken"]>
+export type InviteTokenInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type InviteTokenIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type InviteTokenIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $InviteTokenPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InviteToken"
-  objects: {}
+  objects: {
+    user: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    email: string
-    fullName: string
+    userId: string
     token: string
-    departmentId: string | null
-    roleId: string | null
     expiresAt: Date
     acceptedAt: Date | null
     createdAt: Date
@@ -852,6 +872,7 @@ readonly fields: InviteTokenFieldRefs;
  */
 export interface Prisma__InviteTokenClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -882,11 +903,8 @@ export interface Prisma__InviteTokenClient<T, Null = never, ExtArgs extends runt
  */
 export interface InviteTokenFieldRefs {
   readonly id: Prisma.FieldRef<"InviteToken", 'String'>
-  readonly email: Prisma.FieldRef<"InviteToken", 'String'>
-  readonly fullName: Prisma.FieldRef<"InviteToken", 'String'>
+  readonly userId: Prisma.FieldRef<"InviteToken", 'String'>
   readonly token: Prisma.FieldRef<"InviteToken", 'String'>
-  readonly departmentId: Prisma.FieldRef<"InviteToken", 'String'>
-  readonly roleId: Prisma.FieldRef<"InviteToken", 'String'>
   readonly expiresAt: Prisma.FieldRef<"InviteToken", 'DateTime'>
   readonly acceptedAt: Prisma.FieldRef<"InviteToken", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"InviteToken", 'DateTime'>
@@ -907,6 +925,10 @@ export type InviteTokenFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
+  /**
    * Filter, which InviteToken to fetch.
    */
   where: Prisma.InviteTokenWhereUniqueInput
@@ -925,6 +947,10 @@ export type InviteTokenFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
+  /**
    * Filter, which InviteToken to fetch.
    */
   where: Prisma.InviteTokenWhereUniqueInput
@@ -942,6 +968,10 @@ export type InviteTokenFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the InviteToken
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
   /**
    * Filter, which InviteToken to fetch.
    */
@@ -991,6 +1021,10 @@ export type InviteTokenFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
+  /**
    * Filter, which InviteToken to fetch.
    */
   where?: Prisma.InviteTokenWhereInput
@@ -1038,6 +1072,10 @@ export type InviteTokenFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the InviteToken
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
   /**
    * Filter, which InviteTokens to fetch.
    */
@@ -1087,6 +1125,10 @@ export type InviteTokenCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
+  /**
    * The data needed to create a InviteToken.
    */
   data: Prisma.XOR<Prisma.InviteTokenCreateInput, Prisma.InviteTokenUncheckedCreateInput>
@@ -1120,6 +1162,10 @@ export type InviteTokenCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    */
   data: Prisma.InviteTokenCreateManyInput | Prisma.InviteTokenCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1134,6 +1180,10 @@ export type InviteTokenUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the InviteToken
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
   /**
    * The data needed to update a InviteToken.
    */
@@ -1186,6 +1236,10 @@ export type InviteTokenUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many InviteTokens to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1200,6 +1254,10 @@ export type InviteTokenUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the InviteToken
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
   /**
    * The filter to search for the InviteToken to update in case it exists.
    */
@@ -1226,6 +1284,10 @@ export type InviteTokenDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the InviteToken
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
   /**
    * Filter which InviteToken to delete.
    */
@@ -1258,4 +1320,8 @@ export type InviteTokenDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the InviteToken
    */
   omit?: Prisma.InviteTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteTokenInclude<ExtArgs> | null
 }

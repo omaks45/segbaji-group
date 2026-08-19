@@ -1,72 +1,63 @@
-/* eslint-disable prettier/prettier */
-/**
- * Seeds the departments and roles from the PRD, plus one Super Admin
- * account so there's a way to log in once auth lands in Phase 2.
- *
- * Idempotent by design (upsert on unique fields) — safe to re-run after
- * `prisma migrate reset` or on a fresh environment without creating
- * duplicates or crashing on a unique-constraint error.
- */
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
 import * as bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 const DEPARTMENTS = [
+    'Legal & Documentation',
+    'Projects',
+    'Engineering',
+    'Operations',
+    'Surveying & Mapping',
+    'Design',
+    'Interior Finishing',
+    'Renovation & Remodeling',
     'Administration',
-    'Consultancy',
+];
+
+const SERVICES = [
+    'Construction',
     'Engineering',
     'Surveying & Mapping',
     'Project Management',
-    'Construction',
-    'Property & Real Estate',
     'Architecture & Design',
-    'Finishing & Remodeling',
-    'Renovations & Remodeling',
+    'Finishing & Interior Works',
+    'Renovation & Remodeling',
     'Infrastructure Development',
+    'Consultancy',
 ];
 
-// Simplified permission tiers (see Backend Requirements v2, Section 4.5)
-// mapped onto the client's named roles. "*" = unrestricted (Super Admin
-// only). Real per-role permission editing can replace this later without
-// changing the Role table's shape.
+// Simplified permission tiers, same approach as Phase 1 — real per-role
+// editing can replace this later without changing the table shape.
 const MANAGE = ['*:read', '*:write'];
 const EDIT = ['content:read', 'content:write', 'leads:read'];
 const VIEW = ['content:read', 'leads:read'];
 
+// Note: "Architecture" is seeded exactly as given in the filter list —
+// worth double-checking with whoever supplied it whether "Architect" was
+// meant instead, since every other entry here is a job title and this
+// one reads as a discipline name.
 const ROLES: { name: string; permissions: string[] }[] = [
-    { name: 'Super Admin', permissions: ['*'] },
-    { name: 'Team Lead', permissions: MANAGE },
-    { name: 'Operations Manager', permissions: MANAGE },
+    { name: 'Super Admin', permissions: ['*'] }, // not in the client's list — kept so seeding always has a working login
+    { name: 'Team Leader', permissions: MANAGE },
+    { name: 'Operation Manager', permissions: MANAGE },
     { name: 'Attorney', permissions: VIEW },
+    { name: 'Electrician', permissions: EDIT },
     { name: 'Site Engineer', permissions: EDIT },
     { name: 'Surveyor', permissions: EDIT },
-    { name: 'Project Manager', permissions: MANAGE },
-    { name: 'Architect', permissions: EDIT },
-    { name: 'Admin Coordinator', permissions: MANAGE },
-    { name: 'Admin Officer', permissions: EDIT },
-    { name: 'Analyst', permissions: VIEW },
-    { name: 'Sales Executive', permissions: EDIT },
-    { name: 'Accountant', permissions: VIEW },
-    { name: 'Real Estate Manager', permissions: MANAGE },
-    { name: 'Procurement Officer', permissions: EDIT },
-    { name: 'Property Manager', permissions: EDIT },
-    { name: 'Technician', permissions: VIEW },
+    { name: 'Architecture', permissions: EDIT },
     { name: 'Interior Designer', permissions: EDIT },
-    { name: 'Supervisor', permissions: EDIT },
-    { name: 'Development Officer', permissions: EDIT },
-    { name: 'Renovation Manager', permissions: MANAGE },
-    { name: 'Project Consultant', permissions: VIEW },
+    { name: 'Engineer', permissions: EDIT },
+    { name: 'Plumber', permissions: EDIT },
 ];
 
 async function main() {
     console.log('Seeding departments...');
     for (const name of DEPARTMENTS) {
-        await prisma.department.upsert({
-        where: { name },
-        update: {},
-        create: { name },
-        });
+        await prisma.department.upsert({ where: { name }, update: {}, create: { name } });
     }
 
     console.log('Seeding roles...');
@@ -78,33 +69,27 @@ async function main() {
         });
     }
 
+    console.log('Seeding services...');
+    for (const name of SERVICES) {
+        await prisma.service.upsert({ where: { name }, update: {}, create: { name } });
+    }
+
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
 
     if (!superAdminEmail || !superAdminPassword) {
-        console.warn(
-        'SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD not set — skipping super admin creation. ' +
-            'Set them in .env and re-run `npm run prisma:seed` to create the first login.',
-        );
+        console.warn('SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD not set — skipping super admin creation.');
     } else {
         console.log(`Seeding super admin (${superAdminEmail})...`);
-        const superAdminRole = await prisma.role.findUniqueOrThrow({
-        where: { name: 'Super Admin' },
-        });
-        const administrationDept = await prisma.department.findUniqueOrThrow({
-        where: { name: 'Administration' },
-        });
-
-        // Cost factor 12: deliberately above bcrypt's default (10) since this
-        // hash only needs to be computed once at seed time, but is worth
-        // slowing down for anyone attempting an offline brute-force later.
+        const superAdminRole = await prisma.role.findUniqueOrThrow({ where: { name: 'Super Admin' } });
+        const administrationDept = await prisma.department.findUniqueOrThrow({ where: { name: 'Administration' } });
         const passwordHash = await bcrypt.hash(superAdminPassword, 12);
 
         await prisma.user.upsert({
         where: { email: superAdminEmail },
         update: {},
         create: {
-            fullName: 'Super Admin',
+            fullName: 'Segbaji Group Super Admin',
             email: superAdminEmail,
             passwordHash,
             status: 'ACTIVE',
@@ -116,13 +101,8 @@ async function main() {
     }
 
     console.log('Seed complete.');
-    }
+}
 
-    main()
-    .catch((err) => {
-        console.error('Seed failed:', err);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+main()
+    .catch((err) => { console.error('Seed failed:', err); process.exit(1); })
+    .finally(async () => { await prisma.$disconnect(); });

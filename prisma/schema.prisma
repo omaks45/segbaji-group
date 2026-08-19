@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider     = "prisma-client"
   output       = "../src/generated/prisma"
@@ -19,31 +14,48 @@ enum UserStatus {
   INACTIVE
 }
 
+// Declared now per request, ahead of the Project model itself — not
+// attached to anything yet since Project doesn't exist. Wire this to
+// Project.status once that model lands in its own phase.
+enum ProjectStatus {
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
 model User {
-  id           String     @id @default(cuid())
-  fullName     String
-  email        String     @unique
-  passwordHash String
-  phone        String?
-  status       UserStatus @default(PENDING)
+  id                String     @id @default(cuid())
+  fullName          String?    // unknown until the invitee completes registration
+  email             String     @unique
+  passwordHash      String?    // unset until registration is completed
+  phone             String?
+  bio               String?
+  profilePictureUrl String?
+  status            UserStatus @default(PENDING)
+
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])
   roleId       String?
   role         Role?       @relation(fields: [roleId], references: [id])
-  invitedAt    DateTime?
-  joinedAt     DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+
+  invitedAt DateTime?
+  joinedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inviteToken         InviteToken?
+  passwordResetTokens PasswordResetToken[]
 
   @@index([departmentId])
   @@index([roleId])
 }
 
 model Department {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
-  isActive    Boolean  @default(true)
+  isActive    Boolean @default(true)
   users       User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -59,16 +71,35 @@ model Role {
   updatedAt   DateTime @updatedAt
 }
 
-model InviteToken {
-  id           String    @id @default(cuid())
-  email        String
-  fullName     String
-  token        String    @unique
-  departmentId String?
-  roleId       String?
-  expiresAt    DateTime
-  acceptedAt   DateTime?
-  createdAt    DateTime  @default(now())
+model Service {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  @@index([email])
+model InviteToken {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String    @unique
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([token])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([token])
 }

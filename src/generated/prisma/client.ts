@@ -55,7 +55,17 @@ export type Department = Prisma.DepartmentModel
  */
 export type Role = Prisma.RoleModel
 /**
+ * Model Service
+ * 
+ */
+export type Service = Prisma.ServiceModel
+/**
  * Model InviteToken
  * 
  */
 export type InviteToken = Prisma.InviteTokenModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
