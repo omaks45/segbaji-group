@@ -1,4 +1,11 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateTeamMemberDto } from './create-team-member.dto';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
-export class UpdateTeamMemberDto extends PartialType(CreateTeamMemberDto) {}
+export class UpdateTeamMemberDto {
+    @ApiPropertyOptional() @IsOptional() @IsString() departmentId?: string;
+    @ApiPropertyOptional() @IsOptional() @IsString() roleId?: string;
+
+    @ApiPropertyOptional({ enum: ['ACTIVE', 'INACTIVE'] })
+    @IsOptional() @IsIn(['ACTIVE', 'INACTIVE'])
+    status?: 'ACTIVE' | 'INACTIVE';
+}
