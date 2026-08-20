@@ -32,17 +32,18 @@ export class AuthService {
       this.prisma.role.findUnique({ where: { id: dto.roleId } }),
       this.prisma.department.findUnique({ where: { id: dto.departmentId } }),
     ]);
-    if (!role) throw new BadRequestException('roleId does not match an existing role');
-    if (!department) throw new BadRequestException('departmentId does not match an existing department');
+    if (!role || !role.isActive) {
+      throw new BadRequestException('roleId does not match an active role');
+    }
+    if (!department || !department.isActive) {
+      throw new BadRequestException('departmentId does not match an active department');
+    }
 
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing && existing.status !== 'PENDING') {
       throw new BadRequestException('A user with this email already has an active account');
     }
 
-    // Resending to a still-pending invite reuses the same user row and
-    // just issues a fresh token — avoids a duplicate-email error and
-    // matches what an admin actually means by "invite again."
     const user = existing
       ? await this.prisma.user.update({
           where: { id: existing.id },
@@ -58,24 +59,54 @@ export class AuthService {
           },
         });
 
+    await this.issueInviteToken(user.id, dto.email, role.name, department.name);
+
+    return { message: 'Invite sent', userId: user.id };
+  }
+
+  /** Used by TeamMembersService to re-send an invite without re-collecting role/department. */
+  async resendInvite(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { role: true, department: true },
+    });
+    if (!user) throw new NotFoundException('Team member not found');
+    if (user.status !== 'PENDING') {
+      throw new BadRequestException('Only pending invites can be resent');
+    }
+    if (!user.role || !user.department) {
+      throw new BadRequestException('This user is missing a role or department — cannot resend invite');
+    }
+
+    await this.prisma.user.update({ where: { id: userId }, data: { invitedAt: new Date() } });
+    await this.issueInviteToken(user.id, user.email, user.role.name, user.department.name);
+
+    return { message: 'Invite resent' };
+  }
+
+  /** Shared by inviteUser() and resendInvite() — one place that generates/stores/emails the token. */
+  private async issueInviteToken(
+    userId: string,
+    email: string,
+    roleName: string,
+    departmentName: string,
+  ) {
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000);
 
     await this.prisma.inviteToken.upsert({
-      where: { userId: user.id },
+      where: { userId },
       update: { token, expiresAt, acceptedAt: null },
-      create: { userId: user.id, token, expiresAt },
+      create: { userId, token, expiresAt },
     });
 
     const acceptUrl = `${this.config.get<string>('appUrl')}/invite/accept?token=${token}`;
     await this.mail.sendMail(
-      dto.email,
+      email,
       "You've been invited to Segbaji & Son",
-      `<p>You've been invited to join the Segbaji & Son admin portal as a <strong>${role.name}</strong> in <strong>${department.name}</strong>.</p>
+      `<p>You've been invited to join the Segbaji & Son admin portal as a <strong>${roleName}</strong> in <strong>${departmentName}</strong>.</p>
         <p><a href="${acceptUrl}">Complete your registration</a> — this link expires in ${INVITE_TOKEN_TTL_HOURS} hours.</p>`,
     );
-
-    return { message: 'Invite sent', userId: user.id };
   }
 
   async validateInviteToken(token: string) {
@@ -153,13 +184,10 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
-    // Always the same response, whether or not the email exists — an
-    // attacker shouldn't be able to use this endpoint to find out which
-    // emails have accounts.
     if (user && user.status === 'ACTIVE') {
       await this.prisma.passwordResetToken.updateMany({
         where: { userId: user.id, usedAt: null },
-        data: { usedAt: new Date() }, // invalidate any earlier unused tokens
+        data: { usedAt: new Date() },
       });
 
       const token = crypto.randomBytes(32).toString('hex');
@@ -190,10 +218,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.newPassword, 12);
 
     await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: { id: resetToken.userId },
-        data: { passwordHash },
-      }),
+      this.prisma.user.update({ where: { id: resetToken.userId }, data: { passwordHash } }),
       this.prisma.passwordResetToken.update({
         where: { id: resetToken.id },
         data: { usedAt: new Date() },
