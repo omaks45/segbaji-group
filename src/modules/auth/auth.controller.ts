@@ -19,6 +19,9 @@ import {
 } from './dto/auth-responses.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from './decorators/current-user.decorator';
+import { PermissionsGuard } from '../../common/permissions/permissions.guard';
+import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
+import { PERMISSIONS } from '../../common/permissions/permission.constants';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -29,7 +32,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Invite a new team member by email, role, and department' })
   @ApiResponse({ status: 201, type: InviteResponseDto })
   @ApiResponse({ status: 401, description: 'Missing or invalid bearer token' })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: 'Missing team:write permission' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.TEAM_WRITE)
   @Post('invite')
   invite(@Body() dto: InviteUserDto) {
     return this.authService.inviteUser(dto);

@@ -72,7 +72,7 @@ export class AuthService {
       dto.email,
       "You've been invited to Segbaji & Son",
       `<p>You've been invited to join the Segbaji & Son admin portal as a <strong>${role.name}</strong> in <strong>${department.name}</strong>.</p>
-       <p><a href="${acceptUrl}">Complete your registration</a> — this link expires in ${INVITE_TOKEN_TTL_HOURS} hours.</p>`,
+        <p><a href="${acceptUrl}">Complete your registration</a> — this link expires in ${INVITE_TOKEN_TTL_HOURS} hours.</p>`,
     );
 
     return { message: 'Invite sent', userId: user.id };
@@ -123,8 +123,6 @@ export class AuthService {
       include: { role: true },
     });
 
-    // Same generic error whether the email doesn't exist or the password
-    // is wrong — don't help an attacker enumerate valid accounts.
     const invalidCredentials = () => new UnauthorizedException('Invalid email or password');
 
     if (!user || !user.passwordHash) throw invalidCredentials();
@@ -135,7 +133,11 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatches) throw invalidCredentials();
 
-    const accessToken = this.jwt.sign({ sub: user.id, role: user.role?.name ?? null });
+    const accessToken = this.jwt.sign({
+      sub: user.id,
+      role: user.role?.name ?? null,
+      permissions: user.role?.permissions ?? [],
+    });
 
     return {
       accessToken,
@@ -171,8 +173,8 @@ export class AuthService {
         email,
         'Reset your Segbaji & Son password',
         `<p>Click below to reset your password. This link expires in ${RESET_TOKEN_TTL_HOURS} hour.</p>
-         <p><a href="${resetUrl}">Reset password</a></p>
-         <p>If you didn't request this, you can ignore this email.</p>`,
+          <p><a href="${resetUrl}">Reset password</a></p>
+          <p>If you didn't request this, you can ignore this email.</p>`,
       );
     }
 
