@@ -32,6 +32,7 @@ model User {
   phone             String?
   bio               String?
   profilePictureUrl String?
+  profilePicturePublicId String?
   status            UserStatus @default(PENDING)
 
   departmentId String?

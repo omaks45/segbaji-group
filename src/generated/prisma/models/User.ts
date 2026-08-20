@@ -32,6 +32,7 @@ export type UserMinAggregateOutputType = {
   phone: string | null
   bio: string | null
   profilePictureUrl: string | null
+  profilePicturePublicId: string | null
   status: $Enums.UserStatus | null
   departmentId: string | null
   roleId: string | null
@@ -49,6 +50,7 @@ export type UserMaxAggregateOutputType = {
   phone: string | null
   bio: string | null
   profilePictureUrl: string | null
+  profilePicturePublicId: string | null
   status: $Enums.UserStatus | null
   departmentId: string | null
   roleId: string | null
@@ -66,6 +68,7 @@ export type UserCountAggregateOutputType = {
   phone: number
   bio: number
   profilePictureUrl: number
+  profilePicturePublicId: number
   status: number
   departmentId: number
   roleId: number
@@ -85,6 +88,7 @@ export type UserMinAggregateInputType = {
   phone?: true
   bio?: true
   profilePictureUrl?: true
+  profilePicturePublicId?: true
   status?: true
   departmentId?: true
   roleId?: true
@@ -102,6 +106,7 @@ export type UserMaxAggregateInputType = {
   phone?: true
   bio?: true
   profilePictureUrl?: true
+  profilePicturePublicId?: true
   status?: true
   departmentId?: true
   roleId?: true
@@ -119,6 +124,7 @@ export type UserCountAggregateInputType = {
   phone?: true
   bio?: true
   profilePictureUrl?: true
+  profilePicturePublicId?: true
   status?: true
   departmentId?: true
   roleId?: true
@@ -209,6 +215,7 @@ export type UserGroupByOutputType = {
   phone: string | null
   bio: string | null
   profilePictureUrl: string | null
+  profilePicturePublicId: string | null
   status: $Enums.UserStatus
   departmentId: string | null
   roleId: string | null
@@ -247,6 +254,7 @@ export type UserWhereInput = {
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   profilePictureUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  profilePicturePublicId?: Prisma.StringNullableFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   departmentId?: Prisma.StringNullableFilter<"User"> | string | null
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -268,6 +276,7 @@ export type UserOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePictureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePicturePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -292,6 +301,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   profilePictureUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  profilePicturePublicId?: Prisma.StringNullableFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   departmentId?: Prisma.StringNullableFilter<"User"> | string | null
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -313,6 +323,7 @@ export type UserOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePictureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePicturePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -336,6 +347,7 @@ export type UserScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   bio?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   profilePictureUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  profilePicturePublicId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   departmentId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   roleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -353,6 +365,7 @@ export type UserCreateInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -372,6 +385,7 @@ export type UserUncheckedCreateInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   departmentId?: string | null
   roleId?: string | null
@@ -391,6 +405,7 @@ export type UserUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -410,6 +425,7 @@ export type UserUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -429,6 +445,7 @@ export type UserCreateManyInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   departmentId?: string | null
   roleId?: string | null
@@ -446,6 +463,7 @@ export type UserUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -461,6 +479,7 @@ export type UserUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -478,6 +497,7 @@ export type UserCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   profilePictureUrl?: Prisma.SortOrder
+  profilePicturePublicId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
@@ -495,6 +515,7 @@ export type UserMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   profilePictureUrl?: Prisma.SortOrder
+  profilePicturePublicId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
@@ -512,6 +533,7 @@ export type UserMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   profilePictureUrl?: Prisma.SortOrder
+  profilePicturePublicId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
@@ -676,6 +698,7 @@ export type UserCreateWithoutDepartmentInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -694,6 +717,7 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -741,6 +765,7 @@ export type UserScalarWhereInput = {
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   profilePictureUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  profilePicturePublicId?: Prisma.StringNullableFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   departmentId?: Prisma.StringNullableFilter<"User"> | string | null
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -758,6 +783,7 @@ export type UserCreateWithoutRoleInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -776,6 +802,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   departmentId?: string | null
   invitedAt?: Date | string | null
@@ -820,6 +847,7 @@ export type UserCreateWithoutInviteTokenInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -838,6 +866,7 @@ export type UserUncheckedCreateWithoutInviteTokenInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   departmentId?: string | null
   roleId?: string | null
@@ -872,6 +901,7 @@ export type UserUpdateWithoutInviteTokenInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -890,6 +920,7 @@ export type UserUncheckedUpdateWithoutInviteTokenInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -908,6 +939,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -926,6 +958,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   departmentId?: string | null
   roleId?: string | null
@@ -960,6 +993,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -978,6 +1012,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -996,6 +1031,7 @@ export type UserCreateManyDepartmentInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -1012,6 +1048,7 @@ export type UserUpdateWithoutDepartmentInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1030,6 +1067,7 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1048,6 +1086,7 @@ export type UserUncheckedUpdateManyWithoutDepartmentInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1064,6 +1103,7 @@ export type UserCreateManyRoleInput = {
   phone?: string | null
   bio?: string | null
   profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
   departmentId?: string | null
   invitedAt?: Date | string | null
@@ -1080,6 +1120,7 @@ export type UserUpdateWithoutRoleInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1098,6 +1139,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1116,6 +1158,7 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1163,6 +1206,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   phone?: boolean
   bio?: boolean
   profilePictureUrl?: boolean
+  profilePicturePublicId?: boolean
   status?: boolean
   departmentId?: boolean
   roleId?: boolean
@@ -1185,6 +1229,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   bio?: boolean
   profilePictureUrl?: boolean
+  profilePicturePublicId?: boolean
   status?: boolean
   departmentId?: boolean
   roleId?: boolean
@@ -1204,6 +1249,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   bio?: boolean
   profilePictureUrl?: boolean
+  profilePicturePublicId?: boolean
   status?: boolean
   departmentId?: boolean
   roleId?: boolean
@@ -1223,6 +1269,7 @@ export type UserSelectScalar = {
   phone?: boolean
   bio?: boolean
   profilePictureUrl?: boolean
+  profilePicturePublicId?: boolean
   status?: boolean
   departmentId?: boolean
   roleId?: boolean
@@ -1232,7 +1279,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "phone" | "bio" | "profilePictureUrl" | "status" | "departmentId" | "roleId" | "invitedAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "phone" | "bio" | "profilePictureUrl" | "profilePicturePublicId" | "status" | "departmentId" | "roleId" | "invitedAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
@@ -1265,6 +1312,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     phone: string | null
     bio: string | null
     profilePictureUrl: string | null
+    profilePicturePublicId: string | null
     status: $Enums.UserStatus
     departmentId: string | null
     roleId: string | null
@@ -1706,6 +1754,7 @@ export interface UserFieldRefs {
   readonly phone: Prisma.FieldRef<"User", 'String'>
   readonly bio: Prisma.FieldRef<"User", 'String'>
   readonly profilePictureUrl: Prisma.FieldRef<"User", 'String'>
+  readonly profilePicturePublicId: Prisma.FieldRef<"User", 'String'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly departmentId: Prisma.FieldRef<"User", 'String'>
   readonly roleId: Prisma.FieldRef<"User", 'String'>

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
@@ -20,6 +20,14 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // strips any field not declared in the DTO
+      forbidNonWhitelisted: true, // rejects the request instead of silently dropping extra fields
+      transform: true, // lets @Type()/implicit conversions work
+    }),
+  );
+
   // Swagger — only mounted outside production. Nobody outside the team
   // should be able to browse the full endpoint list once this is live.
   if (config.get<string>('NODE_ENV') !== 'production') {
@@ -27,7 +35,10 @@ async function bootstrap() {
       .setTitle('Segbaji & Son API')
       .setDescription('Backend API for the Segbaji & Son website and admin portal')
       .setVersion('0.1')
-      .addBearerAuth() // ready for Phase 2's JWT auth, unused until then
+      .addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'access-token', // must match the string passed to every @ApiBearerAuth() in controllers
+      )
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);

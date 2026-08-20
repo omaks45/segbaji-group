@@ -1,10 +1,5 @@
-/**
- * Groups validated env vars into a structured config object. Kept as a
- * plain object literal, not a class or DI-heavy abstraction — this is
- * read once at boot and passed around by NestJS's ConfigModule, so
- * there's nothing here that needs more machinery than a function.
- */
 export interface AppConfig {
+    appUrl: string;
     app: {
         port: number;
         nodeEnv: string;
@@ -24,6 +19,15 @@ export interface AppConfig {
         user: string;
         password: string;
         fromName: string;
+    };
+    jwt: {
+        secret: string;
+        expiresIn: string;
+    };
+    cloudinary: {
+        cloudName: string;
+        apiKey: string;
+        apiSecret: string;
     };
 }
 
@@ -51,4 +55,14 @@ export default (): AppConfig => ({
         password: process.env.MAIL_PASSWORD!,
         fromName: process.env.MAIL_FROM_NAME ?? 'Segbaji & Son',
     },
+    jwt: {
+        secret: process.env.JWT_SECRET!,
+        expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
+    },
+    cloudinary: {
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+        apiKey: process.env.CLOUDINARY_API_KEY!,
+        apiSecret: process.env.CLOUDINARY_API_SECRET!,
+    },
+    appUrl: process.env.APP_URL!,
 });
