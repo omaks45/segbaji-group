@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DepartmentsService } from './departments.service';
 import { DepartmentResponseDto } from './dto/department-response.dto';
@@ -42,20 +42,11 @@ export class DepartmentsController {
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Update a department' })
+  @ApiOperation({ summary: 'Update a department, including activating/deactivating it' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.DEPARTMENTS_WRITE)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateDepartmentDto) {
     return this.departmentsService.update(id, dto);
-  }
-
-  @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Delete a department (blocked if any users are assigned)' })
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.DEPARTMENTS_WRITE)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.departmentsService.remove(id);
   }
 }

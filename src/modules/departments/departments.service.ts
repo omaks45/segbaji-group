@@ -13,7 +13,6 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 export class DepartmentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Public dropdown list — unchanged from before. */
   findAll() {
     return this.prisma.department.findMany({
       where: { isActive: true },
@@ -45,24 +44,22 @@ export class DepartmentsService {
   }
 
   async update(id: string, dto: UpdateDepartmentDto) {
-    await this.findOneOrThrow(id);
+    const department = await this.findOneOrThrow(id);
+
+    if (dto.isActive === false) {
+      const userCount = await this.prisma.user.count({ where: { departmentId: id } });
+      if (userCount > 0) {
+        throw new BadRequestException(
+          `Cannot deactivate "${department.name}" — ${userCount} user(s) are still assigned to it. Reassign them first.`,
+        );
+      }
+    }
+
     try {
       return await this.prisma.department.update({ where: { id }, data: dto });
     } catch (err) {
       throw this.translateUniqueConstraintError(err);
     }
-  }
-
-  async remove(id: string) {
-    const department = await this.findOneOrThrow(id);
-    const userCount = await this.prisma.user.count({ where: { departmentId: id } });
-    if (userCount > 0) {
-      throw new BadRequestException(
-        `Cannot delete "${department.name}" — ${userCount} user(s) are still assigned to it. Reassign or deactivate it instead.`,
-      );
-    }
-    await this.prisma.department.delete({ where: { id } });
-    return { message: 'Department deleted' };
   }
 
   private async findOneOrThrow(id: string) {
