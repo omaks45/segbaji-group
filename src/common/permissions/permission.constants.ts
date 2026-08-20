@@ -9,7 +9,7 @@ export const PERMISSIONS = {
     DEPARTMENTS_READ: 'departments:read',
     DEPARTMENTS_WRITE: 'departments:write',
     ROLES_READ: 'roles:read',
-    ROLES_WRITE: 'roles:write',
+    TEAM_READ: 'team:read',
     TEAM_WRITE: 'team:write',
 } as const;
 
