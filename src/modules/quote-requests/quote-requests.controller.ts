@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
+import { ConvertToClientResponseDto } from '../clients/dto/client-responses.dto';
 
 @ApiTags('Quote Requests')
 @Controller('quote-requests')
@@ -59,5 +60,15 @@ export class QuoteRequestsController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateQuoteRequestStatusDto) {
     return this.quoteRequestsService.updateStatus(id, dto);
+  }
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Convert this quote request into a Client record' })
+  @ApiOkResponse({ type: ConvertToClientResponseDto })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_WRITE)
+  @Post(':id/convert-to-client')
+  convertToClient(@Param('id') id: string) {
+    return this.quoteRequestsService.convertToClient(id);
   }
 }
