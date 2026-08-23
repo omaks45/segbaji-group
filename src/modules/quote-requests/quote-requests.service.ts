@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -7,6 +7,7 @@ import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination
 import { CreateQuoteRequestDto } from './dto/create-quote-request.dto';
 import { QuoteRequestQueryDto } from './dto/quote-request-query.dto';
 import { UpdateQuoteRequestStatusDto } from './dto/update-quote-request-status.dto';
+import { ClientsService } from '../clients/clients.service';
 
 @Injectable()
 export class QuoteRequestsService {
@@ -14,6 +15,7 @@ export class QuoteRequestsService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly clientsService: ClientsService,
   ) {}
 
   async create(dto: CreateQuoteRequestDto) {
@@ -33,14 +35,14 @@ export class QuoteRequestsService {
         this.config.get<string>('mail.adminNotificationEmail')!,
         `New quote request — ${service.name}`,
         `<p><strong>${dto.fullName}</strong> (${dto.email}, ${dto.phone}) requested a quote for <strong>${service.name}</strong>.</p>
-         <p>Location: ${dto.projectLocation}<br/>Budget: ${dto.budgetRange}<br/>Desired start: ${dto.desiredStartDate}</p>
-         <p>${dto.description}</p>`,
+          <p>Location: ${dto.projectLocation}<br/>Budget: ${dto.budgetRange}<br/>Desired start: ${dto.desiredStartDate}</p>
+          <p>${dto.description}</p>`,
       ),
       this.mail.sendMail(
         dto.email,
         "We've received your quote request — Segbaji & Son",
         `<p>Hi ${dto.fullName},</p>
-         <p>Thanks for reaching out about <strong>${service.name}</strong>. Our team will review your request and get back to you shortly.</p>`,
+          <p>Thanks for reaching out about <strong>${service.name}</strong>. Our team will review your request and get back to you shortly.</p>`,
       ),
     ]);
 
@@ -102,5 +104,33 @@ export class QuoteRequestsService {
   async updateStatus(id: string, dto: UpdateQuoteRequestStatusDto) {
     await this.findOne(id); // 404s cleanly before attempting the update
     return this.prisma.quoteRequest.update({ where: { id }, data: { status: dto.status } });
+  }
+
+
+  // new method:
+  async convertToClient(id: string) {
+    const quoteRequest = await this.prisma.quoteRequest.findUnique({ where: { id } });
+    if (!quoteRequest) throw new NotFoundException('Quote request not found');
+    if (quoteRequest.convertedToClientId) {
+      throw new BadRequestException('This quote request has already been converted to a client');
+    }
+
+    const { client, created } = await this.clientsService.findOrCreateFromLead({
+      fullName: quoteRequest.fullName,
+      email: quoteRequest.email,
+      phone: quoteRequest.phone,
+      source: 'QUOTE_REQUEST',
+    });
+
+    await this.prisma.quoteRequest.update({
+      where: { id },
+      data: { convertedToClientId: client.id },
+    });
+
+    return {
+      message: created ? 'Client created and linked' : 'Linked to existing client',
+      clientId: client.id,
+      created,
+    };
   }
 }
