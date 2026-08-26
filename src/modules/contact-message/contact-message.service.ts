@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -7,6 +7,7 @@ import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination
 import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { ContactMessageQueryDto } from './dto/contact-message-query.dto';
 import { UpdateContactMessageStatusDto } from './dto/update-contact-message.dto';
+import { ClientsService } from '../clients/clients.service';
 
 @Injectable()
 export class ContactMessagesService {
@@ -14,6 +15,7 @@ export class ContactMessagesService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly clientsService: ClientsService,
   ) {}
 
   async create(dto: CreateContactMessageDto) {
@@ -24,7 +26,7 @@ export class ContactMessagesService {
         this.config.get<string>('mail.adminNotificationEmail')!,
         `New contact message${dto.subject ? ` — ${dto.subject}` : ''}`,
         `<p><strong>${dto.fullName}</strong> (${dto.email}${dto.phone ? `, ${dto.phone}` : ''}) sent a message.</p>
-         <p>${dto.message}</p>`,
+          <p>${dto.message}</p>`,
       ),
       this.mail.sendMail(
         dto.email,
@@ -86,5 +88,33 @@ export class ContactMessagesService {
     const contactMessage = await this.prisma.contactMessage.findUnique({ where: { id } });
     if (!contactMessage) throw new NotFoundException('Contact message not found');
     return this.prisma.contactMessage.update({ where: { id }, data: { status: dto.status } });
+  }
+
+
+  // new method:
+  async convertToClient(id: string) {
+    const contactMessage = await this.prisma.contactMessage.findUnique({ where: { id } });
+    if (!contactMessage) throw new NotFoundException('Contact message not found');
+    if (contactMessage.convertedToClientId) {
+      throw new BadRequestException('This contact message has already been converted to a client');
+    }
+
+    const { client, created } = await this.clientsService.findOrCreateFromLead({
+      fullName: contactMessage.fullName,
+      email: contactMessage.email,
+      phone: contactMessage.phone,
+      source: 'CONTACT_MESSAGE',
+    });
+
+    await this.prisma.contactMessage.update({
+      where: { id },
+      data: { convertedToClientId: client.id },
+    });
+
+    return {
+      message: created ? 'Client created and linked' : 'Linked to existing client',
+      clientId: client.id,
+      created,
+    };
   }
 }

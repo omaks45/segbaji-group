@@ -14,6 +14,7 @@ export const envValidationSchema = Joi.object({
     MAIL_USER: Joi.string().email().required(),
     MAIL_PASSWORD: Joi.string().required(),
     MAIL_FROM_NAME: Joi.string().default('Segbaji & Son'),
+    ADMIN_NOTIFICATION_EMAIL: Joi.string().email().required(),
     JWT_SECRET: Joi.string().min(32).required(),
     JWT_EXPIRES_IN: Joi.string().pattern(/^\d+(ms|s|m|h|d|w|y)$/).default('7d'),
     APP_URL: Joi.string().uri().required(),

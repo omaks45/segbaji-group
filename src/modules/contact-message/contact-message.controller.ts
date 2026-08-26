@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
+import { ConvertToClientResponseDto } from '../clients/dto/client-responses.dto';
 
 @ApiTags('Contact Messages')
 @Controller('contact-messages')
@@ -59,5 +60,16 @@ export class ContactMessagesController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateContactMessageStatusDto) {
     return this.contactMessagesService.updateStatus(id, dto);
+  }
+
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Convert this contact message into a Client record' })
+  @ApiOkResponse({ type: ConvertToClientResponseDto })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_WRITE)
+  @Post(':id/convert-to-client')
+  convertToClient(@Param('id') id: string) {
+    return this.contactMessagesService.convertToClient(id);
   }
 }

@@ -26,3 +26,31 @@ export const ProjectStatus = {
 } as const
 
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
+
+
+export const QuoteRequestStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  WON: 'WON',
+  LOST: 'LOST'
+} as const
+
+export type QuoteRequestStatus = (typeof QuoteRequestStatus)[keyof typeof QuoteRequestStatus]
+
+
+export const ContactMessageStatus = {
+  UNREAD: 'UNREAD',
+  READ: 'READ',
+  RESPONDED: 'RESPONDED'
+} as const
+
+export type ContactMessageStatus = (typeof ContactMessageStatus)[keyof typeof ContactMessageStatus]
+
+
+export const ClientSource = {
+  QUOTE_REQUEST: 'QUOTE_REQUEST',
+  CONTACT_MESSAGE: 'CONTACT_MESSAGE',
+  MANUAL: 'MANUAL'
+} as const
+
+export type ClientSource = (typeof ClientSource)[keyof typeof ClientSource]

@@ -19,6 +19,7 @@ export interface AppConfig {
         user: string;
         password: string;
         fromName: string;
+        adminNotificationEmail: string;
     };
     jwt: {
         secret: string;
@@ -54,6 +55,7 @@ export default (): AppConfig => ({
         user: process.env.MAIL_USER!,
         password: process.env.MAIL_PASSWORD!,
         fromName: process.env.MAIL_FROM_NAME ?? 'Segbaji & Son',
+        adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL!,
     },
     jwt: {
         secret: process.env.JWT_SECRET!,

@@ -24,6 +24,25 @@ enum ProjectStatus {
   CANCELLED
 }
 
+  enum QuoteRequestStatus {
+  NEW
+  CONTACTED
+  WON
+  LOST
+}
+
+enum ContactMessageStatus {
+  UNREAD
+  READ
+  RESPONDED
+}
+
+enum ClientSource {
+  QUOTE_REQUEST
+  CONTACT_MESSAGE
+  MANUAL
+}
+
 model User {
   id                String     @id @default(cuid())
   fullName          String?    // unknown until the invitee completes registration
@@ -73,11 +92,34 @@ model Role {
 }
 
 model Service {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String           @id @default(cuid())
+  slug              String?          @unique
+  name              String           @unique
+  summary           String?
+  heroImageUrl      String?
+  heroImagePublicId String?
+  isActive          Boolean          @default(true)
+  order             Int              @default(0)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  features          ServiceFeature[]
+  quoteRequests     QuoteRequest[]
+
+  @@index([isActive])
+}
+
+model ServiceFeature {
+  id          String   @id @default(cuid())
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  icon        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([serviceId])
 }
 
 model InviteToken {
@@ -103,4 +145,65 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([token])
+}
+
+
+model QuoteRequest {
+  id               String             @id @default(cuid())
+  serviceId        String
+  service          Service            @relation(fields: [serviceId], references: [id])
+  fullName         String
+  email            String
+  phone            String
+  projectLocation  String
+  budgetRange      String             // free text, per your call
+  desiredStartDate DateTime
+  description      String
+  status           QuoteRequestStatus @default(NEW)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  convertedToClientId String?
+  convertedToClient   Client? @relation(fields: [convertedToClientId], references: [id])
+  @@index([convertedToClientId])
+
+  @@index([status])
+  @@index([serviceId])
+}
+
+model ContactMessage {
+
+  id        String                @id @default(cuid())
+  fullName  String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    ContactMessageStatus  @default(UNREAD)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+    convertedToClientId String?
+  convertedToClient   Client? @relation(fields: [convertedToClientId], references: [id])
+
+  @@index([status])
+  @@index([convertedToClientId])
+}
+
+model Client {
+  id           String       @id @default(cuid())
+  fullName     String
+  email        String       @unique
+  phone        String?
+  organization String?
+  source       ClientSource
+  notes        String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  quoteRequests   QuoteRequest[]
+  contactMessages ContactMessage[]
+
+  @@index([isActive])
 }

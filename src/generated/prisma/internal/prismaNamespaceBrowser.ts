@@ -55,8 +55,12 @@ export const ModelName = {
   Department: 'Department',
   Role: 'Role',
   Service: 'Service',
+  ServiceFeature: 'ServiceFeature',
   InviteToken: 'InviteToken',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  QuoteRequest: 'QuoteRequest',
+  ContactMessage: 'ContactMessage',
+  Client: 'Client'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -122,13 +126,32 @@ export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof Role
 
 export const ServiceScalarFieldEnum = {
   id: 'id',
+  slug: 'slug',
   name: 'name',
+  summary: 'summary',
+  heroImageUrl: 'heroImageUrl',
+  heroImagePublicId: 'heroImagePublicId',
   isActive: 'isActive',
+  order: 'order',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
+export const ServiceFeatureScalarFieldEnum = {
+  id: 'id',
+  serviceId: 'serviceId',
+  title: 'title',
+  description: 'description',
+  icon: 'icon',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceFeatureScalarFieldEnum = (typeof ServiceFeatureScalarFieldEnum)[keyof typeof ServiceFeatureScalarFieldEnum]
 
 
 export const InviteTokenScalarFieldEnum = {
@@ -153,6 +176,57 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const QuoteRequestScalarFieldEnum = {
+  id: 'id',
+  serviceId: 'serviceId',
+  fullName: 'fullName',
+  email: 'email',
+  phone: 'phone',
+  projectLocation: 'projectLocation',
+  budgetRange: 'budgetRange',
+  desiredStartDate: 'desiredStartDate',
+  description: 'description',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  convertedToClientId: 'convertedToClientId'
+} as const
+
+export type QuoteRequestScalarFieldEnum = (typeof QuoteRequestScalarFieldEnum)[keyof typeof QuoteRequestScalarFieldEnum]
+
+
+export const ContactMessageScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  email: 'email',
+  phone: 'phone',
+  subject: 'subject',
+  message: 'message',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  convertedToClientId: 'convertedToClientId'
+} as const
+
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum]
+
+
+export const ClientScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  email: 'email',
+  phone: 'phone',
+  organization: 'organization',
+  source: 'source',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
 
 
 export const SortOrder = {

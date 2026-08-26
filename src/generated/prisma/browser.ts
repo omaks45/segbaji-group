@@ -38,6 +38,11 @@ export type Role = Prisma.RoleModel
  */
 export type Service = Prisma.ServiceModel
 /**
+ * Model ServiceFeature
+ * 
+ */
+export type ServiceFeature = Prisma.ServiceFeatureModel
+/**
  * Model InviteToken
  * 
  */
@@ -47,3 +52,18 @@ export type InviteToken = Prisma.InviteTokenModel
  * 
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model QuoteRequest
+ * 
+ */
+export type QuoteRequest = Prisma.QuoteRequestModel
+/**
+ * Model ContactMessage
+ * 
+ */
+export type ContactMessage = Prisma.ContactMessageModel
+/**
+ * Model Client
+ * 
+ */
+export type Client = Prisma.ClientModel

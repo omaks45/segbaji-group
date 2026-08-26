@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import type { AppConfig } from './../../common/config/app-config';
 
 @Injectable()
@@ -20,19 +21,25 @@ export class MailService implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     const mailConfig = this.config.get<AppConfig['mail']>('mail')!;
 
-    // Gmail requires the visible "from" to match the authenticated
-    // account — no separate MAIL_FROM_ADDRESS to configure here.
     this.fromAddress = `"${mailConfig.fromName}" <${mailConfig.user}>`;
 
-    this.transporter = nodemailer.createTransport({
+    // `family: 4` is a genuine, working Nodemailer/Node runtime option —
+    // it's just missing from SMTPTransport.Options' type definitions.
+    // `as` (assertion) instead of `:` (annotation) skips TS's excess
+    // property check for this one known gap, without losing type
+    // checking on every other field.
+    const transportOptions = {
       host: mailConfig.host,
       port: mailConfig.port,
       secure: mailConfig.secure, // 465 = implicit TLS, 587 = STARTTLS
+      family: 4,
       auth: {
         user: mailConfig.user,
         pass: mailConfig.password,
       },
-    });
+    } as SMTPTransport.Options;
+
+    this.transporter = nodemailer.createTransport(transportOptions);
   }
 
   async onModuleDestroy() {

@@ -8,9 +8,10 @@
 export const PERMISSIONS = {
     DEPARTMENTS_READ: 'departments:read',
     DEPARTMENTS_WRITE: 'departments:write',
-    ROLES_READ: 'roles:read',
     TEAM_READ: 'team:read',
     TEAM_WRITE: 'team:write',
+    LEADS_READ: 'leads:read',
+    LEADS_WRITE: 'leads:write',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

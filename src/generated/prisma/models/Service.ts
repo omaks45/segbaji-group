@@ -20,56 +20,104 @@ export type ServiceModel = runtime.Types.Result.DefaultSelection<Prisma.$Service
 
 export type AggregateService = {
   _count: ServiceCountAggregateOutputType | null
+  _avg: ServiceAvgAggregateOutputType | null
+  _sum: ServiceSumAggregateOutputType | null
   _min: ServiceMinAggregateOutputType | null
   _max: ServiceMaxAggregateOutputType | null
 }
 
+export type ServiceAvgAggregateOutputType = {
+  order: number | null
+}
+
+export type ServiceSumAggregateOutputType = {
+  order: number | null
+}
+
 export type ServiceMinAggregateOutputType = {
   id: string | null
+  slug: string | null
   name: string | null
+  summary: string | null
+  heroImageUrl: string | null
+  heroImagePublicId: string | null
   isActive: boolean | null
+  order: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ServiceMaxAggregateOutputType = {
   id: string | null
+  slug: string | null
   name: string | null
+  summary: string | null
+  heroImageUrl: string | null
+  heroImagePublicId: string | null
   isActive: boolean | null
+  order: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ServiceCountAggregateOutputType = {
   id: number
+  slug: number
   name: number
+  summary: number
+  heroImageUrl: number
+  heroImagePublicId: number
   isActive: number
+  order: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type ServiceAvgAggregateInputType = {
+  order?: true
+}
+
+export type ServiceSumAggregateInputType = {
+  order?: true
+}
+
 export type ServiceMinAggregateInputType = {
   id?: true
+  slug?: true
   name?: true
+  summary?: true
+  heroImageUrl?: true
+  heroImagePublicId?: true
   isActive?: true
+  order?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ServiceMaxAggregateInputType = {
   id?: true
+  slug?: true
   name?: true
+  summary?: true
+  heroImageUrl?: true
+  heroImagePublicId?: true
   isActive?: true
+  order?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ServiceCountAggregateInputType = {
   id?: true
+  slug?: true
   name?: true
+  summary?: true
+  heroImageUrl?: true
+  heroImagePublicId?: true
   isActive?: true
+  order?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -113,6 +161,18 @@ export type ServiceAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ServiceAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ServiceSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ServiceMinAggregateInputType
@@ -143,17 +203,26 @@ export type ServiceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: ServiceCountAggregateInputType | true
+  _avg?: ServiceAvgAggregateInputType
+  _sum?: ServiceSumAggregateInputType
   _min?: ServiceMinAggregateInputType
   _max?: ServiceMaxAggregateInputType
 }
 
 export type ServiceGroupByOutputType = {
   id: string
+  slug: string | null
   name: string
+  summary: string | null
+  heroImageUrl: string | null
+  heroImagePublicId: string | null
   isActive: boolean
+  order: number
   createdAt: Date
   updatedAt: Date
   _count: ServiceCountAggregateOutputType | null
+  _avg: ServiceAvgAggregateOutputType | null
+  _sum: ServiceSumAggregateOutputType | null
   _min: ServiceMinAggregateOutputType | null
   _max: ServiceMaxAggregateOutputType | null
 }
@@ -178,40 +247,68 @@ export type ServiceWhereInput = {
   OR?: Prisma.ServiceWhereInput[]
   NOT?: Prisma.ServiceWhereInput | Prisma.ServiceWhereInput[]
   id?: Prisma.StringFilter<"Service"> | string
+  slug?: Prisma.StringNullableFilter<"Service"> | string | null
   name?: Prisma.StringFilter<"Service"> | string
+  summary?: Prisma.StringNullableFilter<"Service"> | string | null
+  heroImageUrl?: Prisma.StringNullableFilter<"Service"> | string | null
+  heroImagePublicId?: Prisma.StringNullableFilter<"Service"> | string | null
   isActive?: Prisma.BoolFilter<"Service"> | boolean
+  order?: Prisma.IntFilter<"Service"> | number
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Service"> | Date | string
+  features?: Prisma.ServiceFeatureListRelationFilter
+  quoteRequests?: Prisma.QuoteRequestListRelationFilter
 }
 
 export type ServiceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroImagePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  features?: Prisma.ServiceFeatureOrderByRelationAggregateInput
+  quoteRequests?: Prisma.QuoteRequestOrderByRelationAggregateInput
 }
 
 export type ServiceWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  slug?: string
   name?: string
   AND?: Prisma.ServiceWhereInput | Prisma.ServiceWhereInput[]
   OR?: Prisma.ServiceWhereInput[]
   NOT?: Prisma.ServiceWhereInput | Prisma.ServiceWhereInput[]
+  summary?: Prisma.StringNullableFilter<"Service"> | string | null
+  heroImageUrl?: Prisma.StringNullableFilter<"Service"> | string | null
+  heroImagePublicId?: Prisma.StringNullableFilter<"Service"> | string | null
   isActive?: Prisma.BoolFilter<"Service"> | boolean
+  order?: Prisma.IntFilter<"Service"> | number
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Service"> | Date | string
-}, "id" | "name">
+  features?: Prisma.ServiceFeatureListRelationFilter
+  quoteRequests?: Prisma.QuoteRequestListRelationFilter
+}, "id" | "slug" | "name">
 
 export type ServiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroImagePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ServiceCountOrderByAggregateInput
+  _avg?: Prisma.ServiceAvgOrderByAggregateInput
   _max?: Prisma.ServiceMaxOrderByAggregateInput
   _min?: Prisma.ServiceMinOrderByAggregateInput
+  _sum?: Prisma.ServiceSumOrderByAggregateInput
 }
 
 export type ServiceScalarWhereWithAggregatesInput = {
@@ -219,135 +316,467 @@ export type ServiceScalarWhereWithAggregatesInput = {
   OR?: Prisma.ServiceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ServiceScalarWhereWithAggregatesInput | Prisma.ServiceScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Service"> | string
+  slug?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Service"> | string
+  summary?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
+  heroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
+  heroImagePublicId?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Service"> | boolean
+  order?: Prisma.IntWithAggregatesFilter<"Service"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Service"> | Date | string
 }
 
 export type ServiceCreateInput = {
   id?: string
+  slug?: string | null
   name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
   isActive?: boolean
+  order?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  features?: Prisma.ServiceFeatureCreateNestedManyWithoutServiceInput
+  quoteRequests?: Prisma.QuoteRequestCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceUncheckedCreateInput = {
   id?: string
+  slug?: string | null
   name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
   isActive?: boolean
+  order?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  features?: Prisma.ServiceFeatureUncheckedCreateNestedManyWithoutServiceInput
+  quoteRequests?: Prisma.QuoteRequestUncheckedCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  features?: Prisma.ServiceFeatureUpdateManyWithoutServiceNestedInput
+  quoteRequests?: Prisma.QuoteRequestUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  features?: Prisma.ServiceFeatureUncheckedUpdateManyWithoutServiceNestedInput
+  quoteRequests?: Prisma.QuoteRequestUncheckedUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceCreateManyInput = {
   id?: string
+  slug?: string | null
   name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
   isActive?: boolean
+  order?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ServiceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ServiceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ServiceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  heroImagePublicId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
+export type ServiceAvgOrderByAggregateInput = {
+  order?: Prisma.SortOrder
+}
+
 export type ServiceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  heroImagePublicId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ServiceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  heroImagePublicId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
+export type ServiceSumOrderByAggregateInput = {
+  order?: Prisma.SortOrder
+}
+
+export type ServiceScalarRelationFilter = {
+  is?: Prisma.ServiceWhereInput
+  isNot?: Prisma.ServiceWhereInput
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type ServiceCreateNestedOneWithoutFeaturesInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutFeaturesInput, Prisma.ServiceUncheckedCreateWithoutFeaturesInput>
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutFeaturesInput
+  connect?: Prisma.ServiceWhereUniqueInput
+}
+
+export type ServiceUpdateOneRequiredWithoutFeaturesNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutFeaturesInput, Prisma.ServiceUncheckedCreateWithoutFeaturesInput>
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutFeaturesInput
+  upsert?: Prisma.ServiceUpsertWithoutFeaturesInput
+  connect?: Prisma.ServiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceUpdateToOneWithWhereWithoutFeaturesInput, Prisma.ServiceUpdateWithoutFeaturesInput>, Prisma.ServiceUncheckedUpdateWithoutFeaturesInput>
+}
+
+export type ServiceCreateNestedOneWithoutQuoteRequestsInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutQuoteRequestsInput, Prisma.ServiceUncheckedCreateWithoutQuoteRequestsInput>
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutQuoteRequestsInput
+  connect?: Prisma.ServiceWhereUniqueInput
+}
+
+export type ServiceUpdateOneRequiredWithoutQuoteRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutQuoteRequestsInput, Prisma.ServiceUncheckedCreateWithoutQuoteRequestsInput>
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutQuoteRequestsInput
+  upsert?: Prisma.ServiceUpsertWithoutQuoteRequestsInput
+  connect?: Prisma.ServiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceUpdateToOneWithWhereWithoutQuoteRequestsInput, Prisma.ServiceUpdateWithoutQuoteRequestsInput>, Prisma.ServiceUncheckedUpdateWithoutQuoteRequestsInput>
+}
+
+export type ServiceCreateWithoutFeaturesInput = {
+  id?: string
+  slug?: string | null
+  name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
+  isActive?: boolean
+  order?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  quoteRequests?: Prisma.QuoteRequestCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceUncheckedCreateWithoutFeaturesInput = {
+  id?: string
+  slug?: string | null
+  name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
+  isActive?: boolean
+  order?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  quoteRequests?: Prisma.QuoteRequestUncheckedCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceCreateOrConnectWithoutFeaturesInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutFeaturesInput, Prisma.ServiceUncheckedCreateWithoutFeaturesInput>
+}
+
+export type ServiceUpsertWithoutFeaturesInput = {
+  update: Prisma.XOR<Prisma.ServiceUpdateWithoutFeaturesInput, Prisma.ServiceUncheckedUpdateWithoutFeaturesInput>
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutFeaturesInput, Prisma.ServiceUncheckedCreateWithoutFeaturesInput>
+  where?: Prisma.ServiceWhereInput
+}
+
+export type ServiceUpdateToOneWithWhereWithoutFeaturesInput = {
+  where?: Prisma.ServiceWhereInput
+  data: Prisma.XOR<Prisma.ServiceUpdateWithoutFeaturesInput, Prisma.ServiceUncheckedUpdateWithoutFeaturesInput>
+}
+
+export type ServiceUpdateWithoutFeaturesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quoteRequests?: Prisma.QuoteRequestUpdateManyWithoutServiceNestedInput
+}
+
+export type ServiceUncheckedUpdateWithoutFeaturesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quoteRequests?: Prisma.QuoteRequestUncheckedUpdateManyWithoutServiceNestedInput
+}
+
+export type ServiceCreateWithoutQuoteRequestsInput = {
+  id?: string
+  slug?: string | null
+  name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
+  isActive?: boolean
+  order?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  features?: Prisma.ServiceFeatureCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceUncheckedCreateWithoutQuoteRequestsInput = {
+  id?: string
+  slug?: string | null
+  name: string
+  summary?: string | null
+  heroImageUrl?: string | null
+  heroImagePublicId?: string | null
+  isActive?: boolean
+  order?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  features?: Prisma.ServiceFeatureUncheckedCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceCreateOrConnectWithoutQuoteRequestsInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutQuoteRequestsInput, Prisma.ServiceUncheckedCreateWithoutQuoteRequestsInput>
+}
+
+export type ServiceUpsertWithoutQuoteRequestsInput = {
+  update: Prisma.XOR<Prisma.ServiceUpdateWithoutQuoteRequestsInput, Prisma.ServiceUncheckedUpdateWithoutQuoteRequestsInput>
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutQuoteRequestsInput, Prisma.ServiceUncheckedCreateWithoutQuoteRequestsInput>
+  where?: Prisma.ServiceWhereInput
+}
+
+export type ServiceUpdateToOneWithWhereWithoutQuoteRequestsInput = {
+  where?: Prisma.ServiceWhereInput
+  data: Prisma.XOR<Prisma.ServiceUpdateWithoutQuoteRequestsInput, Prisma.ServiceUncheckedUpdateWithoutQuoteRequestsInput>
+}
+
+export type ServiceUpdateWithoutQuoteRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  features?: Prisma.ServiceFeatureUpdateManyWithoutServiceNestedInput
+}
+
+export type ServiceUncheckedUpdateWithoutQuoteRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroImagePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  features?: Prisma.ServiceFeatureUncheckedUpdateManyWithoutServiceNestedInput
+}
+
+
+/**
+ * Count Type ServiceCountOutputType
+ */
+
+export type ServiceCountOutputType = {
+  features: number
+  quoteRequests: number
+}
+
+export type ServiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  features?: boolean | ServiceCountOutputTypeCountFeaturesArgs
+  quoteRequests?: boolean | ServiceCountOutputTypeCountQuoteRequestsArgs
+}
+
+/**
+ * ServiceCountOutputType without action
+ */
+export type ServiceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ServiceCountOutputType
+   */
+  select?: Prisma.ServiceCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ServiceCountOutputType without action
+ */
+export type ServiceCountOutputTypeCountFeaturesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServiceFeatureWhereInput
+}
+
+/**
+ * ServiceCountOutputType without action
+ */
+export type ServiceCountOutputTypeCountQuoteRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QuoteRequestWhereInput
+}
 
 
 export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  slug?: boolean
   name?: boolean
+  summary?: boolean
+  heroImageUrl?: boolean
+  heroImagePublicId?: boolean
   isActive?: boolean
+  order?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  features?: boolean | Prisma.Service$featuresArgs<ExtArgs>
+  quoteRequests?: boolean | Prisma.Service$quoteRequestsArgs<ExtArgs>
+  _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["service"]>
 
 export type ServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  slug?: boolean
   name?: boolean
+  summary?: boolean
+  heroImageUrl?: boolean
+  heroImagePublicId?: boolean
   isActive?: boolean
+  order?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["service"]>
 
 export type ServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  slug?: boolean
   name?: boolean
+  summary?: boolean
+  heroImageUrl?: boolean
+  heroImagePublicId?: boolean
   isActive?: boolean
+  order?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["service"]>
 
 export type ServiceSelectScalar = {
   id?: boolean
+  slug?: boolean
   name?: boolean
+  summary?: boolean
+  heroImageUrl?: boolean
+  heroImagePublicId?: boolean
   isActive?: boolean
+  order?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
+export type ServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name" | "summary" | "heroImageUrl" | "heroImagePublicId" | "isActive" | "order" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
+export type ServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  features?: boolean | Prisma.Service$featuresArgs<ExtArgs>
+  quoteRequests?: boolean | Prisma.Service$quoteRequestsArgs<ExtArgs>
+  _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type ServiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ServiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $ServicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Service"
-  objects: {}
+  objects: {
+    features: Prisma.$ServiceFeaturePayload<ExtArgs>[]
+    quoteRequests: Prisma.$QuoteRequestPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    slug: string | null
     name: string
+    summary: string | null
+    heroImageUrl: string | null
+    heroImagePublicId: string | null
     isActive: boolean
+    order: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["service"]>
@@ -744,6 +1173,8 @@ readonly fields: ServiceFieldRefs;
  */
 export interface Prisma__ServiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  features<T extends Prisma.Service$featuresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$featuresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFeaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  quoteRequests<T extends Prisma.Service$quoteRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$quoteRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuoteRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -774,8 +1205,13 @@ export interface Prisma__ServiceClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface ServiceFieldRefs {
   readonly id: Prisma.FieldRef<"Service", 'String'>
+  readonly slug: Prisma.FieldRef<"Service", 'String'>
   readonly name: Prisma.FieldRef<"Service", 'String'>
+  readonly summary: Prisma.FieldRef<"Service", 'String'>
+  readonly heroImageUrl: Prisma.FieldRef<"Service", 'String'>
+  readonly heroImagePublicId: Prisma.FieldRef<"Service", 'String'>
   readonly isActive: Prisma.FieldRef<"Service", 'Boolean'>
+  readonly order: Prisma.FieldRef<"Service", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Service", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Service", 'DateTime'>
 }
@@ -795,6 +1231,10 @@ export type ServiceFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  /**
    * Filter, which Service to fetch.
    */
   where: Prisma.ServiceWhereUniqueInput
@@ -813,6 +1253,10 @@ export type ServiceFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  /**
    * Filter, which Service to fetch.
    */
   where: Prisma.ServiceWhereUniqueInput
@@ -830,6 +1274,10 @@ export type ServiceFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Service
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
   /**
    * Filter, which Service to fetch.
    */
@@ -879,6 +1327,10 @@ export type ServiceFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  /**
    * Filter, which Service to fetch.
    */
   where?: Prisma.ServiceWhereInput
@@ -926,6 +1378,10 @@ export type ServiceFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Service
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
   /**
    * Filter, which Services to fetch.
    */
@@ -975,6 +1431,10 @@ export type ServiceCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  /**
    * The data needed to create a Service.
    */
   data: Prisma.XOR<Prisma.ServiceCreateInput, Prisma.ServiceUncheckedCreateInput>
@@ -1022,6 +1482,10 @@ export type ServiceUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Service
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
   /**
    * The data needed to update a Service.
    */
@@ -1089,6 +1553,10 @@ export type ServiceUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  /**
    * The filter to search for the Service to update in case it exists.
    */
   where: Prisma.ServiceWhereUniqueInput
@@ -1115,6 +1583,10 @@ export type ServiceDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  /**
    * Filter which Service to delete.
    */
   where: Prisma.ServiceWhereUniqueInput
@@ -1135,6 +1607,54 @@ export type ServiceDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * Service.features
+ */
+export type Service$featuresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ServiceFeature
+   */
+  select?: Prisma.ServiceFeatureSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ServiceFeature
+   */
+  omit?: Prisma.ServiceFeatureOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceFeatureInclude<ExtArgs> | null
+  where?: Prisma.ServiceFeatureWhereInput
+  orderBy?: Prisma.ServiceFeatureOrderByWithRelationInput | Prisma.ServiceFeatureOrderByWithRelationInput[]
+  cursor?: Prisma.ServiceFeatureWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ServiceFeatureScalarFieldEnum | Prisma.ServiceFeatureScalarFieldEnum[]
+}
+
+/**
+ * Service.quoteRequests
+ */
+export type Service$quoteRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuoteRequest
+   */
+  select?: Prisma.QuoteRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QuoteRequest
+   */
+  omit?: Prisma.QuoteRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuoteRequestInclude<ExtArgs> | null
+  where?: Prisma.QuoteRequestWhereInput
+  orderBy?: Prisma.QuoteRequestOrderByWithRelationInput | Prisma.QuoteRequestOrderByWithRelationInput[]
+  cursor?: Prisma.QuoteRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QuoteRequestScalarFieldEnum | Prisma.QuoteRequestScalarFieldEnum[]
+}
+
+/**
  * Service without action
  */
 export type ServiceDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1146,4 +1666,8 @@ export type ServiceDefaultArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Service
    */
   omit?: Prisma.ServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
 }

@@ -6,10 +6,7 @@ import { RoleAdminResponseDto } from './dto/role-admin-response.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { SuperAdminGuard } from '../../common/permissions/super-admin.guard';
-import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
-import { PERMISSIONS } from '../../common/permissions/permission.constants';
 
 @ApiTags('Roles')
 @Controller('roles')
@@ -24,10 +21,9 @@ export class RolesController {
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'List all roles with permissions and user counts — admin' })
+  @ApiOperation({ summary: 'List all roles with permissions and user counts (Super Admin only)' })
   @ApiOkResponse({ type: RoleAdminResponseDto, isArray: true })
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.ROLES_READ)
+  @UseGuards(JwtAuthGuard, SuperAdminGuard)
   @Get('admin')
   findAllForAdmin() {
     return this.rolesService.findAllForAdmin();
