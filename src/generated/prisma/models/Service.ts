@@ -211,7 +211,7 @@ export type ServiceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type ServiceGroupByOutputType = {
   id: string
-  slug: string | null
+  slug: string
   name: string
   summary: string | null
   heroImageUrl: string | null
@@ -247,7 +247,7 @@ export type ServiceWhereInput = {
   OR?: Prisma.ServiceWhereInput[]
   NOT?: Prisma.ServiceWhereInput | Prisma.ServiceWhereInput[]
   id?: Prisma.StringFilter<"Service"> | string
-  slug?: Prisma.StringNullableFilter<"Service"> | string | null
+  slug?: Prisma.StringFilter<"Service"> | string
   name?: Prisma.StringFilter<"Service"> | string
   summary?: Prisma.StringNullableFilter<"Service"> | string | null
   heroImageUrl?: Prisma.StringNullableFilter<"Service"> | string | null
@@ -262,7 +262,7 @@ export type ServiceWhereInput = {
 
 export type ServiceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  slug?: Prisma.SortOrderInput | Prisma.SortOrder
+  slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -295,7 +295,7 @@ export type ServiceWhereUniqueInput = Prisma.AtLeast<{
 
 export type ServiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  slug?: Prisma.SortOrderInput | Prisma.SortOrder
+  slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -316,7 +316,7 @@ export type ServiceScalarWhereWithAggregatesInput = {
   OR?: Prisma.ServiceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ServiceScalarWhereWithAggregatesInput | Prisma.ServiceScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Service"> | string
-  slug?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
+  slug?: Prisma.StringWithAggregatesFilter<"Service"> | string
   name?: Prisma.StringWithAggregatesFilter<"Service"> | string
   summary?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
   heroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"Service"> | string | null
@@ -329,7 +329,7 @@ export type ServiceScalarWhereWithAggregatesInput = {
 
 export type ServiceCreateInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -344,7 +344,7 @@ export type ServiceCreateInput = {
 
 export type ServiceUncheckedCreateInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -359,7 +359,7 @@ export type ServiceUncheckedCreateInput = {
 
 export type ServiceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -374,7 +374,7 @@ export type ServiceUpdateInput = {
 
 export type ServiceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -389,7 +389,7 @@ export type ServiceUncheckedUpdateInput = {
 
 export type ServiceCreateManyInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -402,7 +402,7 @@ export type ServiceCreateManyInput = {
 
 export type ServiceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -415,7 +415,7 @@ export type ServiceUpdateManyMutationInput = {
 
 export type ServiceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -516,7 +516,7 @@ export type ServiceUpdateOneRequiredWithoutQuoteRequestsNestedInput = {
 
 export type ServiceCreateWithoutFeaturesInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -530,7 +530,7 @@ export type ServiceCreateWithoutFeaturesInput = {
 
 export type ServiceUncheckedCreateWithoutFeaturesInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -560,7 +560,7 @@ export type ServiceUpdateToOneWithWhereWithoutFeaturesInput = {
 
 export type ServiceUpdateWithoutFeaturesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -574,7 +574,7 @@ export type ServiceUpdateWithoutFeaturesInput = {
 
 export type ServiceUncheckedUpdateWithoutFeaturesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -588,7 +588,7 @@ export type ServiceUncheckedUpdateWithoutFeaturesInput = {
 
 export type ServiceCreateWithoutQuoteRequestsInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -602,7 +602,7 @@ export type ServiceCreateWithoutQuoteRequestsInput = {
 
 export type ServiceUncheckedCreateWithoutQuoteRequestsInput = {
   id?: string
-  slug?: string | null
+  slug: string
   name: string
   summary?: string | null
   heroImageUrl?: string | null
@@ -632,7 +632,7 @@ export type ServiceUpdateToOneWithWhereWithoutQuoteRequestsInput = {
 
 export type ServiceUpdateWithoutQuoteRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -646,7 +646,7 @@ export type ServiceUpdateWithoutQuoteRequestsInput = {
 
 export type ServiceUncheckedUpdateWithoutQuoteRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -770,7 +770,7 @@ export type $ServicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    slug: string | null
+    slug: string
     name: string
     summary: string | null
     heroImageUrl: string | null

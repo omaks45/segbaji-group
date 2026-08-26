@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { PrismaClient } from '../src/generated/prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import * as bcrypt from 'bcrypt';
+import { slugify } from '../src/common/slug/slugify.util'
 
 const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -18,16 +19,16 @@ const DEPARTMENTS = [
     'Administration',
 ];
 
-const SERVICES = [
-    'Construction',
-    'Engineering',
-    'Surveying & Mapping',
-    'Project Management',
-    'Architecture & Design',
-    'Finishing & Interior Works',
-    'Renovation & Remodeling',
-    'Infrastructure Development',
-    'Consultancy',
+const SERVICES: { name: string; summary: string }[] = [
+    { name: 'Construction', summary: 'We handle all kinds of building construction from start to finish with quality and precision.' },
+    { name: 'Engineering', summary: 'We design and construct roads, drainage, and other civil infrastructure projects.' },
+    { name: 'Surveying & Mapping', summary: 'Professional land surveying and mapping services for accurate planning and documentation.' },
+    { name: 'Project Management', summary: 'We manage your projects efficiently from concept to completion.' },
+    { name: 'Architecture & Design', summary: 'Creative architectural expertise and design solutions.' },
+    { name: 'Finishing & Interior Works', summary: 'Professional finishing and interior solutions.' },
+    { name: 'Renovation & Remodeling', summary: 'Space renovation and improvement services.' },
+    { name: 'Infrastructure Development', summary: 'Development of essential infrastructure.' },
+    { name: 'Consultancy', summary: 'Professional advice and project guidance.' },
 ];
 
 // Simplified permission tiers, same approach as Phase 1 — real per-role
@@ -70,8 +71,13 @@ async function main() {
     }
 
     console.log('Seeding services...');
-    for (const name of SERVICES) {
-        await prisma.service.upsert({ where: { name }, update: {}, create: { name } });
+    for (const service of SERVICES) {
+    const slug = slugify(service.name);
+    await prisma.service.upsert({
+        where: { name: service.name },
+        update: { slug, summary: service.summary }, // backfills existing rows, since this upsert already ran once before
+        create: { name: service.name, slug, summary: service.summary },
+    });
     }
 
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;

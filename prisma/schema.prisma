@@ -93,7 +93,7 @@ model Role {
 
 model Service {
   id                String           @id @default(cuid())
-  slug              String?          @unique
+  slug              String          @unique
   name              String           @unique
   summary           String?
   heroImageUrl      String?
