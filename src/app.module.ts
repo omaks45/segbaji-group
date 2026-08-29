@@ -41,6 +41,7 @@ import { ContactMessagesModule } from './modules/contact-message/contact-message
     TeamMembersModule,
     QuoteRequestsModule,
     ContactMessagesModule,
+    ServicesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -67,3 +67,23 @@ export type ContactMessage = Prisma.ContactMessageModel
  * 
  */
 export type Client = Prisma.ClientModel
+/**
+ * Model SiteStat
+ * 
+ */
+export type SiteStat = Prisma.SiteStatModel
+/**
+ * Model SiteSettings
+ * 
+ */
+export type SiteSettings = Prisma.SiteSettingsModel
+/**
+ * Model CoreValue
+ * 
+ */
+export type CoreValue = Prisma.CoreValueModel
+/**
+ * Model SeoMeta
+ * 
+ */
+export type SeoMeta = Prisma.SeoMetaModel

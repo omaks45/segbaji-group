@@ -54,3 +54,16 @@ export const ClientSource = {
 } as const
 
 export type ClientSource = (typeof ClientSource)[keyof typeof ClientSource]
+
+
+export const PageKey = {
+  HOME: 'HOME',
+  ABOUT: 'ABOUT',
+  SERVICES: 'SERVICES',
+  PROPERTIES: 'PROPERTIES',
+  PROJECTS: 'PROJECTS',
+  CONTACT: 'CONTACT',
+  QUOTE: 'QUOTE'
+} as const
+
+export type PageKey = (typeof PageKey)[keyof typeof PageKey]

@@ -60,7 +60,11 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   QuoteRequest: 'QuoteRequest',
   ContactMessage: 'ContactMessage',
-  Client: 'Client'
+  Client: 'Client',
+  SiteStat: 'SiteStat',
+  SiteSettings: 'SiteSettings',
+  CoreValue: 'CoreValue',
+  SeoMeta: 'SeoMeta'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -227,6 +231,67 @@ export const ClientScalarFieldEnum = {
 } as const
 
 export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
+
+
+export const SiteStatScalarFieldEnum = {
+  id: 'id',
+  yearsOfExperience: 'yearsOfExperience',
+  yearsOfExperienceSuffix: 'yearsOfExperienceSuffix',
+  projectsCompleted: 'projectsCompleted',
+  projectsCompletedSuffix: 'projectsCompletedSuffix',
+  clientSatisfactionRating: 'clientSatisfactionRating',
+  clientSatisfactionSuffix: 'clientSatisfactionSuffix',
+  skilledProfessionals: 'skilledProfessionals',
+  skilledProfessionalsSuffix: 'skilledProfessionalsSuffix',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteStatScalarFieldEnum = (typeof SiteStatScalarFieldEnum)[keyof typeof SiteStatScalarFieldEnum]
+
+
+export const SiteSettingsScalarFieldEnum = {
+  id: 'id',
+  officeAddress: 'officeAddress',
+  phonePrimary: 'phonePrimary',
+  phoneSecondary: 'phoneSecondary',
+  email: 'email',
+  officeHours: 'officeHours',
+  facebookUrl: 'facebookUrl',
+  instagramUrl: 'instagramUrl',
+  twitterUrl: 'twitterUrl',
+  linkedinUrl: 'linkedinUrl',
+  whatsappNumber: 'whatsappNumber',
+  missionStatement: 'missionStatement',
+  visionStatement: 'visionStatement',
+  companyStory: 'companyStory',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteSettingsScalarFieldEnum = (typeof SiteSettingsScalarFieldEnum)[keyof typeof SiteSettingsScalarFieldEnum]
+
+
+export const CoreValueScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  icon: 'icon',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CoreValueScalarFieldEnum = (typeof CoreValueScalarFieldEnum)[keyof typeof CoreValueScalarFieldEnum]
+
+
+export const SeoMetaScalarFieldEnum = {
+  id: 'id',
+  pageKey: 'pageKey',
+  title: 'title',
+  description: 'description',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SeoMetaScalarFieldEnum = (typeof SeoMetaScalarFieldEnum)[keyof typeof SeoMetaScalarFieldEnum]
 
 
 export const SortOrder = {

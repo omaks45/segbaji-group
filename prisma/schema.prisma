@@ -207,3 +207,62 @@ model Client {
 
   @@index([isActive])
 }
+
+model SiteStat {
+  id                         String   @id
+  yearsOfExperience          Float    @default(0)
+  yearsOfExperienceSuffix    String   @default("+")
+  projectsCompleted          Float    @default(0)
+  projectsCompletedSuffix    String   @default("+")
+  clientSatisfactionRating   Float    @default(0)
+  clientSatisfactionSuffix   String   @default("/5")
+  skilledProfessionals       Float    @default(0)
+  skilledProfessionalsSuffix String   @default("+")
+  updatedAt                  DateTime @updatedAt
+}
+
+model SiteSettings {
+  id               String   @id
+  officeAddress    String?
+  phonePrimary     String?
+  phoneSecondary   String?
+  email            String?
+  officeHours      String?
+  facebookUrl      String?
+  instagramUrl     String?
+  twitterUrl       String?
+  linkedinUrl      String?
+  whatsappNumber   String?
+  missionStatement String?
+  visionStatement  String?
+  companyStory     String?
+  updatedAt        DateTime @updatedAt
+}
+
+model CoreValue {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  icon        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum PageKey {
+  HOME
+  ABOUT
+  SERVICES
+  PROPERTIES
+  PROJECTS
+  CONTACT
+  QUOTE
+}
+
+model SeoMeta {
+  id          String   @id @default(cuid())
+  pageKey     PageKey  @unique
+  title       String
+  description String
+  updatedAt   DateTime @updatedAt
+}

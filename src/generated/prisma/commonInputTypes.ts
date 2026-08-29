@@ -243,6 +243,50 @@ export type EnumClientSourceWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumClientSourceFilter<$PrismaModel>
 }
 
+export type FloatFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
+  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
+  _min?: Prisma.NestedFloatFilter<$PrismaModel>
+  _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type EnumPageKeyFilter<$PrismaModel = never> = {
+  equals?: $Enums.PageKey | Prisma.EnumPageKeyFieldRefInput<$PrismaModel>
+  in?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPageKeyFilter<$PrismaModel> | $Enums.PageKey
+}
+
+export type EnumPageKeyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PageKey | Prisma.EnumPageKeyFieldRefInput<$PrismaModel>
+  in?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPageKeyWithAggregatesFilter<$PrismaModel> | $Enums.PageKey
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPageKeyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPageKeyFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -483,6 +527,39 @@ export type NestedEnumClientSourceWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumClientSourceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumClientSourceFilter<$PrismaModel>
+}
+
+export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
+  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
+  _min?: Prisma.NestedFloatFilter<$PrismaModel>
+  _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type NestedEnumPageKeyFilter<$PrismaModel = never> = {
+  equals?: $Enums.PageKey | Prisma.EnumPageKeyFieldRefInput<$PrismaModel>
+  in?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPageKeyFilter<$PrismaModel> | $Enums.PageKey
+}
+
+export type NestedEnumPageKeyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PageKey | Prisma.EnumPageKeyFieldRefInput<$PrismaModel>
+  in?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PageKey[] | Prisma.ListEnumPageKeyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPageKeyWithAggregatesFilter<$PrismaModel> | $Enums.PageKey
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPageKeyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPageKeyFilter<$PrismaModel>
 }
 
 

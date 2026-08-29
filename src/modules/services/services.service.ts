@@ -3,6 +3,7 @@ import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CloudinaryService } from '../../common/cloudinary/cloudinary.service';
 import { slugify } from '../../common/slug/slugify.util';
+import { assertExactIdSet } from '../../common/ordering/assert-exact-id-set.util';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { ReorderServicesDto } from './dto/reorder-services.dto';
@@ -89,7 +90,7 @@ export class ServicesService {
    * fixed) — not n sequential round trips. */
   async reorder(dto: ReorderServicesDto) {
     const existing = await this.prisma.service.findMany({ select: { id: true } });
-    this.assertExactIdSet(existing.map((s) => s.id), dto.serviceIds, 'serviceIds');
+    assertExactIdSet(existing.map((s) => s.id), dto.serviceIds, 'serviceIds');
 
     await this.prisma.$transaction(
       dto.serviceIds.map((serviceId, index) =>
@@ -131,7 +132,7 @@ export class ServicesService {
       where: { serviceId },
       select: { id: true },
     });
-    this.assertExactIdSet(existing.map((f) => f.id), dto.featureIds, 'featureIds');
+    assertExactIdSet(existing.map((f) => f.id), dto.featureIds, 'featureIds');
 
     await this.prisma.$transaction(
       dto.featureIds.map((featureId, index) =>
@@ -151,18 +152,6 @@ export class ServicesService {
     const feature = await this.prisma.serviceFeature.findFirst({ where: { id: featureId, serviceId } });
     if (!feature) throw new NotFoundException('Feature not found on this service');
     return feature;
-  }
-
-  /** Shared by both reorder methods: the provided ID list must be
-   * exactly the current set, no more, no fewer — prevents silently
-   * dropping an item's order or reordering against a stale list. */
-  private assertExactIdSet(existingIds: string[], providedIds: string[], fieldName: string) {
-    const existingSet = new Set(existingIds);
-    const providedSet = new Set(providedIds);
-    const matches = existingSet.size === providedSet.size && [...existingSet].every((id) => providedSet.has(id));
-    if (!matches) {
-      throw new BadRequestException(`${fieldName} must include exactly every current item, no more, no fewer`);
-    }
   }
 
   private translateUniqueConstraintError(err: unknown) {
