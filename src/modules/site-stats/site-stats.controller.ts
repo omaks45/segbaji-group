@@ -1,34 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SiteStatsService } from './site-stats.service';
-import { CreateSiteStatDto } from './dto/site-stats-response.dto';
-import { UpdateSiteStatDto } from './dto/update-site-stat.dto';
+import { UpdateSiteStatsDto } from './dto/update-site-stat.dto';
+import { SiteStatsResponseDto } from './dto/site-stats-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/permissions/permissions.guard';
+import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
+import { PERMISSIONS } from '../../common/permissions/permission.constants';
 
+@ApiTags('Site Stats')
 @Controller('site-stats')
 export class SiteStatsController {
   constructor(private readonly siteStatsService: SiteStatsService) {}
 
-  @Post()
-  create(@Body() createSiteStatDto: CreateSiteStatDto) {
-    return this.siteStatsService.create(createSiteStatDto);
-  }
-
+  @ApiOperation({ summary: 'Get the trust-indicator stats shown on Home/About — public' })
+  @ApiOkResponse({ type: SiteStatsResponseDto })
   @Get()
-  findAll() {
-    return this.siteStatsService.findAll();
+  find() {
+    return this.siteStatsService.find();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.siteStatsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSiteStatDto: UpdateSiteStatDto) {
-    return this.siteStatsService.update(+id, updateSiteStatDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.siteStatsService.remove(+id);
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Update the trust-indicator stats' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.CONTENT_WRITE)
+  @Patch()
+  update(@Body() dto: UpdateSiteStatsDto) {
+    return this.siteStatsService.update(dto);
   }
 }
