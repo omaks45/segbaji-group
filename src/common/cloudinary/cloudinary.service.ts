@@ -1,19 +1,14 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
+import type { AppConfig } from '../config/app-config';
 
 export interface CloudinaryUploadResult {
   url: string;
   publicId: string;
 }
 
-/**
- * Generic on purpose — profile pictures, project galleries, and service
- * images all go through the same uploadBuffer()/deleteAsset() pair,
- * distinguished only by the `folder` each call site passes in. One
- * implementation instead of one per feature.
- */
 @Injectable()
 export class CloudinaryService implements OnModuleInit {
   private readonly logger = new Logger(CloudinaryService.name);
@@ -21,11 +16,7 @@ export class CloudinaryService implements OnModuleInit {
   constructor(private readonly config: ConfigService) {}
 
   onModuleInit() {
-    const cfg = this.config.get<{
-      cloudName: string;
-      apiKey: string;
-      apiSecret: string;
-    }>('cloudinary')!;
+    const cfg = this.config.get<AppConfig['cloudinary']>('cloudinary')!;
     cloudinary.config({
       cloud_name: cfg.cloudName,
       api_key: cfg.apiKey,
@@ -33,17 +24,17 @@ export class CloudinaryService implements OnModuleInit {
     });
   }
 
-  uploadBuffer(
+  async uploadBuffer(
     buffer: Buffer,
     options: { folder: string },
   ): Promise<CloudinaryUploadResult> {
+    await this.assertIsRealImage(buffer);
+
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: options.folder,
           resource_type: 'image',
-          // Auto-resized and re-encoded — callers don't need to think
-          // about format/size, Cloudinary handles it on the way in.
           transformation: [
             { width: 1000, height: 1000, crop: 'limit' },
             { quality: 'auto', fetch_format: 'auto' },
@@ -61,6 +52,25 @@ export class CloudinaryService implements OnModuleInit {
     });
   }
 
+  /**
+   * Inspects the file's actual binary signature (magic bytes), not the
+   * client-supplied `mimetype` header — a renamed .exe claiming to be
+   * "image/jpeg" passes Multer's fileFilter (which only checks that
+   * header) but fails here, since the header is attacker-controlled and
+   * the file's actual bytes are not.
+   *
+   * `file-type` is ESM-only in current versions; dynamic import() works
+   * fine from this CommonJS file without pinning to an older major
+   * version.
+   */
+  private async assertIsRealImage(buffer: Buffer): Promise<void> {
+    const { fileTypeFromBuffer } = await import('file-type');
+    const detected = await fileTypeFromBuffer(buffer);
+    if (!detected || !detected.mime.startsWith('image/')) {
+      throw new BadRequestException('File content does not match a supported image format');
+    }
+  }
+
   /** Best-effort cleanup — logged, not thrown, so a failed delete never breaks the caller's main flow. */
   async deleteAsset(publicId: string): Promise<void> {
     try {
@@ -70,7 +80,6 @@ export class CloudinaryService implements OnModuleInit {
     }
   }
 
-  /** Used by the health check to confirm credentials actually work. */
   async verifyConnection(): Promise<boolean> {
     try {
       await cloudinary.api.ping();
