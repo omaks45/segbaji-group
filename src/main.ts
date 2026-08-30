@@ -1,12 +1,13 @@
 import 'reflect-metadata';
+import * as dns from 'dns';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import * as dns from 'dns';
+import { sanitizeRequestBody } from './common/security/sanitize-request-body.middleware';
 
-dns.setDefaultResultOrder('ipv4first');
+dns.setDefaultResultOrder('ipv4first'); // prefer IPv4 app-wide — avoids ECONNREFUSED on networks with broken IPv6 routing
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,16 +24,16 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.use(sanitizeRequestBody);
+
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // strips any field not declared in the DTO
-      forbidNonWhitelisted: true, // rejects the request instead of silently dropping extra fields
-      transform: true, // lets @Type()/implicit conversions work
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
-  // Swagger — only mounted outside production. Nobody outside the team
-  // should be able to browse the full endpoint list once this is live.
   if (config.get<string>('NODE_ENV') !== 'production') {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Segbaji & Son API')
@@ -40,7 +41,7 @@ async function bootstrap() {
       .setVersion('0.1')
       .addBearerAuth(
         { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-        'access-token', // must match the string passed to every @ApiBearerAuth() in controllers
+        'access-token',
       )
       .build();
 
