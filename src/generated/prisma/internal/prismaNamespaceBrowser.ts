@@ -64,7 +64,12 @@ export const ModelName = {
   SiteStat: 'SiteStat',
   SiteSettings: 'SiteSettings',
   CoreValue: 'CoreValue',
-  SeoMeta: 'SeoMeta'
+  SeoMeta: 'SeoMeta',
+  Project: 'Project',
+  ProjectImage: 'ProjectImage',
+  Property: 'Property',
+  PropertyImage: 'PropertyImage',
+  PropertyNearbyPlace: 'PropertyNearbyPlace'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -292,6 +297,104 @@ export const SeoMetaScalarFieldEnum = {
 } as const
 
 export type SeoMetaScalarFieldEnum = (typeof SeoMetaScalarFieldEnum)[keyof typeof SeoMetaScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  category: 'category',
+  location: 'location',
+  state: 'state',
+  status: 'status',
+  description: 'description',
+  clientName: 'clientName',
+  contractValue: 'contractValue',
+  coverImageUrl: 'coverImageUrl',
+  coverImagePublicId: 'coverImagePublicId',
+  isFeatured: 'isFeatured',
+  isPublished: 'isPublished',
+  order: 'order',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const ProjectImageScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  imageUrl: 'imageUrl',
+  publicId: 'publicId',
+  caption: 'caption',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectImageScalarFieldEnum = (typeof ProjectImageScalarFieldEnum)[keyof typeof ProjectImageScalarFieldEnum]
+
+
+export const PropertyScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  propertyType: 'propertyType',
+  landSizeValue: 'landSizeValue',
+  landSizeUnit: 'landSizeUnit',
+  price: 'price',
+  priceType: 'priceType',
+  isPriceNegotiable: 'isPriceNegotiable',
+  location: 'location',
+  state: 'state',
+  landCondition: 'landCondition',
+  titleType: 'titleType',
+  availabilityStatus: 'availabilityStatus',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  coverImageUrl: 'coverImageUrl',
+  coverImagePublicId: 'coverImagePublicId',
+  isFeatured: 'isFeatured',
+  order: 'order',
+  hasVerifiedTitle: 'hasVerifiedTitle',
+  hasDryLand: 'hasDryLand',
+  hasGoodRoadNetwork: 'hasGoodRoadNetwork',
+  hasSecureEnvironment: 'hasSecureEnvironment',
+  hasElectricityNearby: 'hasElectricityNearby',
+  hasDrainageSystem: 'hasDrainageSystem',
+  hasSurveyPlan: 'hasSurveyPlan',
+  isGovernmentApproved: 'isGovernmentApproved',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
+
+
+export const PropertyImageScalarFieldEnum = {
+  id: 'id',
+  propertyId: 'propertyId',
+  imageUrl: 'imageUrl',
+  publicId: 'publicId',
+  caption: 'caption',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type PropertyImageScalarFieldEnum = (typeof PropertyImageScalarFieldEnum)[keyof typeof PropertyImageScalarFieldEnum]
+
+
+export const PropertyNearbyPlaceScalarFieldEnum = {
+  id: 'id',
+  propertyId: 'propertyId',
+  type: 'type',
+  label: 'label',
+  distanceOrTime: 'distanceOrTime'
+} as const
+
+export type PropertyNearbyPlaceScalarFieldEnum = (typeof PropertyNearbyPlaceScalarFieldEnum)[keyof typeof PropertyNearbyPlaceScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -67,3 +67,88 @@ export const PageKey = {
 } as const
 
 export type PageKey = (typeof PageKey)[keyof typeof PageKey]
+
+
+export const ProjectCategory = {
+  RESIDENTIAL: 'RESIDENTIAL',
+  COMMERCIAL: 'COMMERCIAL',
+  INDUSTRIAL: 'INDUSTRIAL',
+  INFRASTRUCTURE: 'INFRASTRUCTURE',
+  INSTITUTIONAL: 'INSTITUTIONAL'
+} as const
+
+export type ProjectCategory = (typeof ProjectCategory)[keyof typeof ProjectCategory]
+
+
+export const PropertyType = {
+  RESIDENTIAL_PLOT: 'RESIDENTIAL_PLOT',
+  COMMERCIAL_LAND: 'COMMERCIAL_LAND',
+  INDUSTRIAL_LAND: 'INDUSTRIAL_LAND',
+  ESTATE_PLOT: 'ESTATE_PLOT',
+  OTHER: 'OTHER'
+} as const
+
+export type PropertyType = (typeof PropertyType)[keyof typeof PropertyType]
+
+
+export const LandSizeUnit = {
+  ACRES: 'ACRES',
+  HECTARES: 'HECTARES',
+  PLOTS: 'PLOTS'
+} as const
+
+export type LandSizeUnit = (typeof LandSizeUnit)[keyof typeof LandSizeUnit]
+
+
+export const LandCondition = {
+  DRY: 'DRY',
+  WET: 'WET',
+  FENCED: 'FENCED',
+  GATED_ESTATE: 'GATED_ESTATE'
+} as const
+
+export type LandCondition = (typeof LandCondition)[keyof typeof LandCondition]
+
+
+export const TitleType = {
+  C_OF_O: 'C_OF_O',
+  GOVERNORS_CONSENT: 'GOVERNORS_CONSENT',
+  EXCISION: 'EXCISION',
+  GOVERNMENT_ALLOCATION: 'GOVERNMENT_ALLOCATION',
+  DEED_OF_ASSIGNMENT: 'DEED_OF_ASSIGNMENT',
+  OTHER: 'OTHER'
+} as const
+
+export type TitleType = (typeof TitleType)[keyof typeof TitleType]
+
+
+export const PropertyAvailabilityStatus = {
+  AVAILABLE: 'AVAILABLE',
+  UNDER_OFFER: 'UNDER_OFFER',
+  SOLD: 'SOLD',
+  DRAFT: 'DRAFT'
+} as const
+
+export type PropertyAvailabilityStatus = (typeof PropertyAvailabilityStatus)[keyof typeof PropertyAvailabilityStatus]
+
+
+export const PriceType = {
+  TOTAL: 'TOTAL',
+  PER_ACRE: 'PER_ACRE',
+  PER_HECTARE: 'PER_HECTARE',
+  PER_PLOT: 'PER_PLOT'
+} as const
+
+export type PriceType = (typeof PriceType)[keyof typeof PriceType]
+
+
+export const NearbyPlaceType = {
+  SCHOOL: 'SCHOOL',
+  HOSPITAL: 'HOSPITAL',
+  COMPANY_OFFICE: 'COMPANY_OFFICE',
+  BRIDGE: 'BRIDGE',
+  FUEL_STATION: 'FUEL_STATION',
+  HIGHWAY: 'HIGHWAY'
+} as const
+
+export type NearbyPlaceType = (typeof NearbyPlaceType)[keyof typeof NearbyPlaceType]

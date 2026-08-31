@@ -17,6 +17,12 @@ import { DepartmentsModule } from './modules/departments/departments.module';
 import { TeamMembersModule } from './modules/team-member/team-member.module';
 import { QuoteRequestsModule } from './modules/quote-requests/quote-requests.module';
 import { ContactMessagesModule } from './modules/contact-message/contact-message.module';
+import { SiteSettingsModule } from './modules/site-settings/site-settings.module';
+import { CoreValuesModule } from './modules/core-values/core-values.module';
+import { SiteStatsModule } from './modules/site-stats/site-stats.module';
+import { SeoMetaModule } from './modules/seo-meta/seo-meta.module';
+import { ProjectsModule } from './modules/projects/projects.module';
+import { PropertiesModule } from './modules/properties/properties.module';
 
 @Module({
   imports: [
@@ -42,6 +48,12 @@ import { ContactMessagesModule } from './modules/contact-message/contact-message
     QuoteRequestsModule,
     ContactMessagesModule,
     ServicesModule,
+    SiteStatsModule,
+    SiteSettingsModule,
+    CoreValuesModule,
+    SeoMetaModule,
+    ProjectsModule,
+    PropertiesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

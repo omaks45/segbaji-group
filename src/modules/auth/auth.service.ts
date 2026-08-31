@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -8,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { MailService } from '../../modules/mail/mail.service';
 import { InviteUserDto } from './dto/invite-user.dto';
@@ -128,22 +130,29 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
-    await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: { id: invite.userId },
-        data: {
-          fullName: dto.fullName,
-          phone: dto.phone,
-          passwordHash,
-          status: 'ACTIVE',
-          joinedAt: new Date(),
-        },
-      }),
-      this.prisma.inviteToken.update({
-        where: { id: invite.id },
-        data: { acceptedAt: new Date() },
-      }),
-    ]);
+    try {
+      await this.prisma.$transaction([
+        this.prisma.user.update({
+          where: { id: invite.userId },
+          data: {
+            fullName: dto.fullName,
+            phone: dto.phone,
+            passwordHash,
+            status: 'ACTIVE',
+            joinedAt: new Date(),
+          },
+        }),
+        this.prisma.inviteToken.update({
+          where: { id: invite.id },
+          data: { acceptedAt: new Date() },
+        }),
+      ]);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new ConflictException('This phone number is already registered to another account');
+      }
+      throw err;
+    }
 
     return { message: 'Registration complete — you can now log in' };
   }

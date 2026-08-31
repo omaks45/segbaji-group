@@ -87,3 +87,28 @@ export type CoreValue = Prisma.CoreValueModel
  * 
  */
 export type SeoMeta = Prisma.SeoMetaModel
+/**
+ * Model Project
+ * 
+ */
+export type Project = Prisma.ProjectModel
+/**
+ * Model ProjectImage
+ * 
+ */
+export type ProjectImage = Prisma.ProjectImageModel
+/**
+ * Model Property
+ * 
+ */
+export type Property = Prisma.PropertyModel
+/**
+ * Model PropertyImage
+ * 
+ */
+export type PropertyImage = Prisma.PropertyImageModel
+/**
+ * Model PropertyNearbyPlace
+ * 
+ */
+export type PropertyNearbyPlace = Prisma.PropertyNearbyPlaceModel
