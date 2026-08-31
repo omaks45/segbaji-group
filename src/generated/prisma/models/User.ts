@@ -266,6 +266,7 @@ export type UserWhereInput = {
   role?: Prisma.XOR<Prisma.RoleNullableScalarRelationFilter, Prisma.RoleWhereInput> | null
   inviteToken?: Prisma.XOR<Prisma.InviteTokenNullableScalarRelationFilter, Prisma.InviteTokenWhereInput> | null
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+  generatedReports?: Prisma.GeneratedReportListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -288,6 +289,7 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.RoleOrderByWithRelationInput
   inviteToken?: Prisma.InviteTokenOrderByWithRelationInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
+  generatedReports?: Prisma.GeneratedReportOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -313,6 +315,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.XOR<Prisma.RoleNullableScalarRelationFilter, Prisma.RoleWhereInput> | null
   inviteToken?: Prisma.XOR<Prisma.InviteTokenNullableScalarRelationFilter, Prisma.InviteTokenWhereInput> | null
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+  generatedReports?: Prisma.GeneratedReportListRelationFilter
 }, "id" | "email" | "phone">
 
 export type UserOrderByWithAggregationInput = {
@@ -375,6 +378,7 @@ export type UserCreateInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -395,6 +399,7 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserUpdateInput = {
@@ -415,6 +420,7 @@ export type UserUpdateInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -435,6 +441,7 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -690,6 +697,20 @@ export type UserUpdateOneRequiredWithoutPasswordResetTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordResetTokensInput, Prisma.UserUpdateWithoutPasswordResetTokensInput>, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
 }
 
+export type UserCreateNestedOneWithoutGeneratedReportsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGeneratedReportsInput, Prisma.UserUncheckedCreateWithoutGeneratedReportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGeneratedReportsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutGeneratedReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGeneratedReportsInput, Prisma.UserUncheckedCreateWithoutGeneratedReportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGeneratedReportsInput
+  upsert?: Prisma.UserUpsertWithoutGeneratedReportsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGeneratedReportsInput, Prisma.UserUpdateWithoutGeneratedReportsInput>, Prisma.UserUncheckedUpdateWithoutGeneratedReportsInput>
+}
+
 export type UserCreateWithoutDepartmentInput = {
   id?: string
   fullName?: string | null
@@ -707,6 +728,7 @@ export type UserCreateWithoutDepartmentInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -726,6 +748,7 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   updatedAt?: Date | string
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -792,6 +815,7 @@ export type UserCreateWithoutRoleInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserUncheckedCreateWithoutRoleInput = {
@@ -811,6 +835,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   updatedAt?: Date | string
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserCreateOrConnectWithoutRoleInput = {
@@ -856,6 +881,7 @@ export type UserCreateWithoutInviteTokenInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserUncheckedCreateWithoutInviteTokenInput = {
@@ -875,6 +901,7 @@ export type UserUncheckedCreateWithoutInviteTokenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserCreateOrConnectWithoutInviteTokenInput = {
@@ -910,6 +937,7 @@ export type UserUpdateWithoutInviteTokenInput = {
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInviteTokenInput = {
@@ -929,6 +957,7 @@ export type UserUncheckedUpdateWithoutInviteTokenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserCreateWithoutPasswordResetTokensInput = {
@@ -948,6 +977,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -967,6 +997,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -1002,6 +1033,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -1021,6 +1053,103 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+}
+
+export type UserCreateWithoutGeneratedReportsInput = {
+  id?: string
+  fullName?: string | null
+  email: string
+  passwordHash?: string | null
+  phone?: string | null
+  bio?: string | null
+  profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
+  status?: $Enums.UserStatus
+  invitedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutGeneratedReportsInput = {
+  id?: string
+  fullName?: string | null
+  email: string
+  passwordHash?: string | null
+  phone?: string | null
+  bio?: string | null
+  profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
+  status?: $Enums.UserStatus
+  departmentId?: string | null
+  roleId?: string | null
+  invitedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutGeneratedReportsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutGeneratedReportsInput, Prisma.UserUncheckedCreateWithoutGeneratedReportsInput>
+}
+
+export type UserUpsertWithoutGeneratedReportsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutGeneratedReportsInput, Prisma.UserUncheckedUpdateWithoutGeneratedReportsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutGeneratedReportsInput, Prisma.UserUncheckedCreateWithoutGeneratedReportsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutGeneratedReportsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutGeneratedReportsInput, Prisma.UserUncheckedUpdateWithoutGeneratedReportsInput>
+}
+
+export type UserUpdateWithoutGeneratedReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutGeneratedReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyDepartmentInput = {
@@ -1057,6 +1186,7 @@ export type UserUpdateWithoutDepartmentInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -1076,6 +1206,7 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -1129,6 +1260,7 @@ export type UserUpdateWithoutRoleInput = {
   department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoleInput = {
@@ -1148,6 +1280,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -1174,10 +1307,12 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
 
 export type UserCountOutputType = {
   passwordResetTokens: number
+  generatedReports: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
+  generatedReports?: boolean | UserCountOutputTypeCountGeneratedReportsArgs
 }
 
 /**
@@ -1195,6 +1330,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PasswordResetTokenWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountGeneratedReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GeneratedReportWhereInput
 }
 
 
@@ -1218,6 +1360,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
   inviteToken?: boolean | Prisma.User$inviteTokenArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
+  generatedReports?: boolean | Prisma.User$generatedReportsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1285,6 +1428,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
   inviteToken?: boolean | Prisma.User$inviteTokenArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
+  generatedReports?: boolean | Prisma.User$generatedReportsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1303,6 +1447,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: Prisma.$RolePayload<ExtArgs> | null
     inviteToken: Prisma.$InviteTokenPayload<ExtArgs> | null
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
+    generatedReports: Prisma.$GeneratedReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1718,6 +1863,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   role<T extends Prisma.User$roleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roleArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   inviteToken<T extends Prisma.User$inviteTokenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$inviteTokenArgs<ExtArgs>>): Prisma.Prisma__InviteTokenClient<runtime.Types.Result.GetResult<Prisma.$InviteTokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  generatedReports<T extends Prisma.User$generatedReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$generatedReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GeneratedReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2241,6 +2387,30 @@ export type User$passwordResetTokensArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
+}
+
+/**
+ * User.generatedReports
+ */
+export type User$generatedReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GeneratedReport
+   */
+  select?: Prisma.GeneratedReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GeneratedReport
+   */
+  omit?: Prisma.GeneratedReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GeneratedReportInclude<ExtArgs> | null
+  where?: Prisma.GeneratedReportWhereInput
+  orderBy?: Prisma.GeneratedReportOrderByWithRelationInput | Prisma.GeneratedReportOrderByWithRelationInput[]
+  cursor?: Prisma.GeneratedReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GeneratedReportScalarFieldEnum | Prisma.GeneratedReportScalarFieldEnum[]
 }
 
 /**

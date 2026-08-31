@@ -1,0 +1,1 @@
+export const REPORTS_EXPORT_QUEUE = 'reports-export';

@@ -15,6 +15,7 @@ export const PERMISSIONS = {
     CONTENT_READ: 'content:read',
     CONTENT_WRITE: 'content:write',
     REPORTS_READ: 'reports:read',
+    REPORTS_WRITE: 'reports:write',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

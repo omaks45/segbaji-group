@@ -69,7 +69,8 @@ export const ModelName = {
   ProjectImage: 'ProjectImage',
   Property: 'Property',
   PropertyImage: 'PropertyImage',
-  PropertyNearbyPlace: 'PropertyNearbyPlace'
+  PropertyNearbyPlace: 'PropertyNearbyPlace',
+  GeneratedReport: 'GeneratedReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -395,6 +396,26 @@ export const PropertyNearbyPlaceScalarFieldEnum = {
 } as const
 
 export type PropertyNearbyPlaceScalarFieldEnum = (typeof PropertyNearbyPlaceScalarFieldEnum)[keyof typeof PropertyNearbyPlaceScalarFieldEnum]
+
+
+export const GeneratedReportScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  format: 'format',
+  preset: 'preset',
+  rangeFrom: 'rangeFrom',
+  rangeTo: 'rangeTo',
+  status: 'status',
+  fileUrl: 'fileUrl',
+  filePublicId: 'filePublicId',
+  errorMessage: 'errorMessage',
+  generatedById: 'generatedById',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type GeneratedReportScalarFieldEnum = (typeof GeneratedReportScalarFieldEnum)[keyof typeof GeneratedReportScalarFieldEnum]
 
 
 export const SortOrder = {

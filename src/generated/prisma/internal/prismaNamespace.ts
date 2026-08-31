@@ -415,7 +415,8 @@ export const ModelName = {
   ProjectImage: 'ProjectImage',
   Property: 'Property',
   PropertyImage: 'PropertyImage',
-  PropertyNearbyPlace: 'PropertyNearbyPlace'
+  PropertyNearbyPlace: 'PropertyNearbyPlace',
+  GeneratedReport: 'GeneratedReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -431,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "department" | "role" | "service" | "serviceFeature" | "inviteToken" | "passwordResetToken" | "quoteRequest" | "contactMessage" | "client" | "siteStat" | "siteSettings" | "coreValue" | "seoMeta" | "project" | "projectImage" | "property" | "propertyImage" | "propertyNearbyPlace"
+    modelProps: "user" | "department" | "role" | "service" | "serviceFeature" | "inviteToken" | "passwordResetToken" | "quoteRequest" | "contactMessage" | "client" | "siteStat" | "siteSettings" | "coreValue" | "seoMeta" | "project" | "projectImage" | "property" | "propertyImage" | "propertyNearbyPlace" | "generatedReport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1841,6 +1842,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GeneratedReport: {
+      payload: Prisma.$GeneratedReportPayload<ExtArgs>
+      fields: Prisma.GeneratedReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GeneratedReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GeneratedReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>
+        }
+        findFirst: {
+          args: Prisma.GeneratedReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GeneratedReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>
+        }
+        findMany: {
+          args: Prisma.GeneratedReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>[]
+        }
+        create: {
+          args: Prisma.GeneratedReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>
+        }
+        createMany: {
+          args: Prisma.GeneratedReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GeneratedReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>[]
+        }
+        delete: {
+          args: Prisma.GeneratedReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>
+        }
+        update: {
+          args: Prisma.GeneratedReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.GeneratedReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GeneratedReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GeneratedReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.GeneratedReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeneratedReportPayload>
+        }
+        aggregate: {
+          args: Prisma.GeneratedReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGeneratedReport>
+        }
+        groupBy: {
+          args: Prisma.GeneratedReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeneratedReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GeneratedReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeneratedReportCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2189,6 +2264,26 @@ export const PropertyNearbyPlaceScalarFieldEnum = {
 export type PropertyNearbyPlaceScalarFieldEnum = (typeof PropertyNearbyPlaceScalarFieldEnum)[keyof typeof PropertyNearbyPlaceScalarFieldEnum]
 
 
+export const GeneratedReportScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  format: 'format',
+  preset: 'preset',
+  rangeFrom: 'rangeFrom',
+  rangeTo: 'rangeTo',
+  status: 'status',
+  fileUrl: 'fileUrl',
+  filePublicId: 'filePublicId',
+  errorMessage: 'errorMessage',
+  generatedById: 'generatedById',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type GeneratedReportScalarFieldEnum = (typeof GeneratedReportScalarFieldEnum)[keyof typeof GeneratedReportScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2477,6 +2572,34 @@ export type EnumNearbyPlaceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$
 export type ListEnumNearbyPlaceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NearbyPlaceType[]'>
     
 
+
+/**
+ * Reference to a field of type 'ReportFormat'
+ */
+export type EnumReportFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportFormat'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportFormat[]'
+ */
+export type ListEnumReportFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportFormat[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportGenerationStatus'
+ */
+export type EnumReportGenerationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportGenerationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportGenerationStatus[]'
+ */
+export type ListEnumReportGenerationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportGenerationStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2647,6 +2770,7 @@ export type GlobalOmitConfig = {
   property?: Prisma.PropertyOmit
   propertyImage?: Prisma.PropertyImageOmit
   propertyNearbyPlace?: Prisma.PropertyNearbyPlaceOmit
+  generatedReport?: Prisma.GeneratedReportOmit
 }
 
 /* Types for Logging */

@@ -112,3 +112,8 @@ export type PropertyImage = Prisma.PropertyImageModel
  * 
  */
 export type PropertyNearbyPlace = Prisma.PropertyNearbyPlaceModel
+/**
+ * Model GeneratedReport
+ * 
+ */
+export type GeneratedReport = Prisma.GeneratedReportModel

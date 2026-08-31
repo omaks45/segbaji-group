@@ -55,20 +55,20 @@ export function resolveDateRange(preset: DateRangePreset, from?: string, to?: st
         return { start, end };
         }
         case DateRangePreset.CUSTOM: {
-        if (!from || !to) {
-            throw new BadRequestException('from and to are required when preset=CUSTOM');
-        }
-        const start = new Date(from);
-        const inclusiveEnd = new Date(to);
-        if (Number.isNaN(start.getTime()) || Number.isNaN(inclusiveEnd.getTime())) {
-            throw new BadRequestException('from/to must be valid dates');
-        }
-        if (start >= inclusiveEnd) {
-            throw new BadRequestException('from must be before to');
-        }
-        const end = new Date(inclusiveEnd);
-        end.setDate(end.getDate() + 1); // make "to" inclusive of its whole day
-        return { start, end };
+            if (!from || !to) {
+                throw new BadRequestException('from and to are required when preset=CUSTOM');
+            }
+            const start = new Date(from);
+            const inclusiveEnd = new Date(to);
+            if (Number.isNaN(start.getTime()) || Number.isNaN(inclusiveEnd.getTime())) {
+                throw new BadRequestException('from/to must be valid dates');
+            }
+            if (start > inclusiveEnd) {
+                throw new BadRequestException('from must be after to');
+            }
+            const end = new Date(inclusiveEnd);
+            end.setDate(end.getDate() + 1); // make "to" inclusive of its whole day
+            return { start, end };
         }
     }
 }

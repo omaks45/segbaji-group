@@ -89,4 +89,35 @@ export class CloudinaryService implements OnModuleInit {
       return false;
     }
   }
+
+    /**
+   * For non-image files (generated CSV/XLSX reports). Skips the
+   * magic-byte image check that uploadBuffer() enforces — that check
+   * exists to validate untrusted client uploads; this content is
+   * generated server-side by trusted code, not submitted by a user, so
+   * there's nothing to validate against.
+   */
+  async uploadRawBuffer(
+    buffer: Buffer,
+    options: { folder: string; filename: string; format: 'csv' | 'xlsx' },
+  ): Promise<CloudinaryUploadResult> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: options.folder,
+          resource_type: 'raw',
+          public_id: `${options.filename}.${options.format}`,
+          use_filename: true,
+        },
+        (error, result) => {
+          if (error || !result) {
+            this.logger.error(`Cloudinary raw upload failed: ${error?.message}`);
+            return reject(error ?? new Error('Cloudinary raw upload failed'));
+          }
+          resolve({ url: result.secure_url, publicId: result.public_id });
+        },
+      );
+      Readable.from(buffer).pipe(uploadStream);
+    });
+  }
 }

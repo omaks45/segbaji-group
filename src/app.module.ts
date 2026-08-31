@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { envValidationSchema } from './common/config/env.validation';
@@ -23,6 +23,9 @@ import { SiteStatsModule } from './modules/site-stats/site-stats.module';
 import { SeoMetaModule } from './modules/seo-meta/seo-meta.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { PropertiesModule } from './modules/properties/properties.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { BullModule } from '@nestjs/bullmq';
+import { buildBullConnection } from './common/queue/bullmq-connection.factory';
 
 @Module({
   imports: [
@@ -33,6 +36,13 @@ import { PropertiesModule } from './modules/properties/properties.module';
     }),
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 60 }], // generous default: 60 req/min per IP
+    }),
+        BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: buildBullConnection(config),
+      }),
     }),
     PrismaModule,
     RedisModule,
@@ -54,6 +64,7 @@ import { PropertiesModule } from './modules/properties/properties.module';
     SeoMetaModule,
     ProjectsModule,
     PropertiesModule,
+    ReportsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

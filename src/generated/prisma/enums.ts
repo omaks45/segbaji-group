@@ -56,19 +56,6 @@ export const ClientSource = {
 export type ClientSource = (typeof ClientSource)[keyof typeof ClientSource]
 
 
-export const PageKey = {
-  HOME: 'HOME',
-  ABOUT: 'ABOUT',
-  SERVICES: 'SERVICES',
-  PROPERTIES: 'PROPERTIES',
-  PROJECTS: 'PROJECTS',
-  CONTACT: 'CONTACT',
-  QUOTE: 'QUOTE'
-} as const
-
-export type PageKey = (typeof PageKey)[keyof typeof PageKey]
-
-
 export const ProjectCategory = {
   RESIDENTIAL: 'RESIDENTIAL',
   COMMERCIAL: 'COMMERCIAL',
@@ -152,3 +139,46 @@ export const NearbyPlaceType = {
 } as const
 
 export type NearbyPlaceType = (typeof NearbyPlaceType)[keyof typeof NearbyPlaceType]
+
+
+export const DateRangePreset = {
+  TODAY: 'TODAY',
+  THIS_WEEK: 'THIS_WEEK',
+  THIS_MONTH: 'THIS_MONTH',
+  THIS_QUARTER: 'THIS_QUARTER',
+  THIS_YEAR: 'THIS_YEAR',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type DateRangePreset = (typeof DateRangePreset)[keyof typeof DateRangePreset]
+
+
+export const ReportFormat = {
+  CSV: 'CSV',
+  XLSX: 'XLSX'
+} as const
+
+export type ReportFormat = (typeof ReportFormat)[keyof typeof ReportFormat]
+
+
+export const ReportGenerationStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type ReportGenerationStatus = (typeof ReportGenerationStatus)[keyof typeof ReportGenerationStatus]
+
+
+export const PageKey = {
+  HOME: 'HOME',
+  ABOUT: 'ABOUT',
+  SERVICES: 'SERVICES',
+  PROPERTIES: 'PROPERTIES',
+  PROJECTS: 'PROJECTS',
+  CONTACT: 'CONTACT',
+  QUOTE: 'QUOTE'
+} as const
+
+export type PageKey = (typeof PageKey)[keyof typeof PageKey]

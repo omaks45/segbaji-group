@@ -43,12 +43,96 @@ enum ClientSource {
   MANUAL
 }
 
+enum ProjectCategory {
+  RESIDENTIAL
+  COMMERCIAL
+  INDUSTRIAL
+  INFRASTRUCTURE
+  INSTITUTIONAL
+}
+
+enum PropertyType {
+  RESIDENTIAL_PLOT
+  COMMERCIAL_LAND
+  INDUSTRIAL_LAND
+  ESTATE_PLOT
+  OTHER
+}
+
+enum LandSizeUnit {
+  ACRES
+  HECTARES
+  PLOTS
+}
+
+enum LandCondition {
+  DRY
+  WET
+  FENCED
+  GATED_ESTATE
+}
+
+enum TitleType {
+  C_OF_O
+  GOVERNORS_CONSENT
+  EXCISION
+  GOVERNMENT_ALLOCATION
+  DEED_OF_ASSIGNMENT
+  OTHER
+}
+
+enum PropertyAvailabilityStatus {
+  AVAILABLE
+  UNDER_OFFER
+  SOLD
+  DRAFT
+}
+
+enum PriceType {
+  TOTAL
+  PER_ACRE
+  PER_HECTARE
+  PER_PLOT
+}
+
+enum NearbyPlaceType {
+  SCHOOL
+  HOSPITAL
+  COMPANY_OFFICE
+  BRIDGE
+  FUEL_STATION
+  HIGHWAY
+}
+
+
+
+enum DateRangePreset {
+  TODAY
+  THIS_WEEK
+  THIS_MONTH
+  THIS_QUARTER
+  THIS_YEAR
+  CUSTOM
+}
+
+enum ReportFormat {
+  CSV
+  XLSX
+}
+
+enum ReportGenerationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 model User {
   id                String     @id @default(cuid())
   fullName          String?    // unknown until the invitee completes registration
   email             String     @unique
   passwordHash      String?    // unset until registration is completed
-  phone             String?
+  phone String? @unique
   bio               String?
   profilePictureUrl String?
   profilePicturePublicId String?
@@ -69,6 +153,7 @@ model User {
 
   @@index([departmentId])
   @@index([roleId])
+  generatedReports GeneratedReport[]
 }
 
 model Department {
@@ -265,4 +350,143 @@ model SeoMeta {
   title       String
   description String
   updatedAt   DateTime @updatedAt
+}
+
+
+
+model Project {
+  id                 String          @id @default(cuid())
+  slug               String          @unique
+  title              String
+  category           ProjectCategory
+  location           String
+  state              String
+  status             ProjectStatus   @default(IN_PROGRESS)
+  description        String?
+  clientName         String?
+  contractValue      Float?
+  coverImageUrl      String?
+  coverImagePublicId String?
+  isFeatured         Boolean         @default(false)
+  isPublished        Boolean         @default(true)
+  order              Int             @default(0)
+  completedAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  images ProjectImage[]
+
+  @@index([category])
+  @@index([state])
+  @@index([status])
+  @@index([isPublished])
+}
+
+model ProjectImage {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  publicId  String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+
+model Property {
+  id                 String                     @id @default(cuid())
+  slug               String                     @unique
+  title              String
+  description        String?
+  propertyType       PropertyType
+  landSizeValue      Float
+  landSizeUnit       LandSizeUnit
+  price              Float
+  priceType          PriceType                  @default(TOTAL)
+  isPriceNegotiable  Boolean                    @default(false)
+  location           String
+  state              String
+  landCondition      LandCondition
+  titleType          TitleType
+  availabilityStatus PropertyAvailabilityStatus @default(DRAFT)
+  latitude           Float?
+  longitude          Float?
+  coverImageUrl      String?
+  coverImagePublicId String?
+  isFeatured         Boolean                    @default(false)
+  order              Int                        @default(0)
+
+  // Fixed 8-boolean features checklist — matches your call to keep this
+  // as flat columns rather than a flexible child table.
+  hasVerifiedTitle     Boolean @default(false)
+  hasDryLand           Boolean @default(false)
+  hasGoodRoadNetwork   Boolean @default(false)
+  hasSecureEnvironment Boolean @default(false)
+  hasElectricityNearby Boolean @default(false)
+  hasDrainageSystem    Boolean @default(false)
+  hasSurveyPlan        Boolean @default(false)
+  isGovernmentApproved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       PropertyImage[]
+  nearbyPlaces PropertyNearbyPlace[]
+
+  @@index([propertyType])
+  @@index([state])
+  @@index([availabilityStatus])
+  @@index([price])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  imageUrl   String
+  publicId   String
+  caption    String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+model PropertyNearbyPlace {
+  id             String          @id @default(cuid())
+  propertyId     String
+  property       Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type           NearbyPlaceType
+  label          String?
+  distanceOrTime String
+
+  @@unique([propertyId, type])
+  @@index([propertyId])
+}
+
+
+model GeneratedReport {
+  id          String                 @id @default(cuid())
+  name        String
+  description String?
+  format      ReportFormat
+  preset      String // stores the DateRangePreset used, so the record shows what it actually covers
+  rangeFrom   DateTime
+  rangeTo     DateTime
+  status      ReportGenerationStatus @default(PENDING)
+  fileUrl     String?
+  filePublicId String?
+  errorMessage String?
+
+  generatedById String
+  generatedBy   User     @relation(fields: [generatedById], references: [id])
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([status])
+  @@index([generatedById])
 }
