@@ -69,17 +69,7 @@ export class ClientsService {
   }
 
   async findAll(query: ClientQueryDto) {
-    const where: Prisma.ClientWhereInput = {
-      ...(query.isActive !== undefined && { isActive: query.isActive === 'true' }),
-      ...(query.source && { source: query.source }),
-      ...(query.search && {
-        OR: [
-          { fullName: { contains: query.search, mode: 'insensitive' } },
-          { email: { contains: query.search, mode: 'insensitive' } },
-          { organization: { contains: query.search, mode: 'insensitive' } },
-        ],
-      }),
-    };
+    const where = this.buildFilterWhere(query);
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.client.findMany({
@@ -91,6 +81,28 @@ export class ClientsService {
     ]);
 
     return { items, meta: buildPaginationMeta(query.page, query.pageSize, total) };
+  }
+
+  private buildFilterWhere(query: ClientQueryDto): Prisma.ClientWhereInput {
+    return {
+      ...(query.isActive !== undefined && { isActive: query.isActive === 'true' }),
+      ...(query.source && { source: query.source }),
+      ...(query.search && {
+        OR: [
+          { fullName: { contains: query.search, mode: 'insensitive' } },
+          { email: { contains: query.search, mode: 'insensitive' } },
+          { organization: { contains: query.search, mode: 'insensitive' } },
+        ],
+      }),
+    };
+  }
+
+  findAllForExport(query: ClientQueryDto) {
+    return this.prisma.client.findMany({
+      where: this.buildFilterWhere(query),
+      orderBy: { createdAt: 'desc' },
+      take: 5000,
+    });
   }
 
   async findOne(id: string) {

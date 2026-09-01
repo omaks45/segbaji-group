@@ -11,7 +11,28 @@ import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
 import { ConvertToClientResponseDto } from '../clients/dto/client-responses.dto';
+import { Res } from '@nestjs/common';
+import type { Response as ExpressResponse } from 'express';
+import { Prisma } from '../../generated/prisma/client';
+import { buildTableCsv, buildTableXlsx, ExportColumn } from '../../common/export/table-export.util';
+import { sendFileResponse } from '../../common/export/send-file-response.util';
+import { parseExportFormat } from '../../common/export/parse-export-format.util';
 
+
+
+type QuoteRequestExportRow = Prisma.QuoteRequestGetPayload<{ include: { service: { select: { name: true } } } }>;
+
+const QUOTE_REQUEST_EXPORT_COLUMNS: ExportColumn<QuoteRequestExportRow>[] = [
+  { header: 'Full Name', value: (q) => q.fullName },
+  { header: 'Email', value: (q) => q.email },
+  { header: 'Phone', value: (q) => q.phone },
+  { header: 'Service', value: (q) => q.service.name },
+  { header: 'Location', value: (q) => q.projectLocation },
+  { header: 'Budget', value: (q) => q.budgetRange },
+  { header: 'Desired Start', value: (q) => q.desiredStartDate.toISOString().slice(0, 10) },
+  { header: 'Status', value: (q) => q.status },
+  { header: 'Created', value: (q) => q.createdAt.toISOString() },
+];
 @ApiTags('Quote Requests')
 @Controller('quote-requests')
 export class QuoteRequestsController {
@@ -70,5 +91,23 @@ export class QuoteRequestsController {
   @Post(':id/convert-to-client')
   convertToClient(@Param('id') id: string) {
     return this.quoteRequestsService.convertToClient(id);
+  }
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Export quote requests as CSV or XLSX' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @Get('export')
+  async exportQuoteRequests(
+    @Query() query: QuoteRequestQueryDto,
+    @Query('format') formatQuery: unknown,
+    @Res() res: ExpressResponse,
+  ) {
+    const format = parseExportFormat(formatQuery);
+    const rows = await this.quoteRequestsService.findAllForExport(query);
+    const buffer = format === 'xlsx'
+      ? await buildTableXlsx(rows, QUOTE_REQUEST_EXPORT_COLUMNS, 'Quote Requests')
+      : buildTableCsv(rows, QUOTE_REQUEST_EXPORT_COLUMNS);
+    sendFileResponse(res, buffer, 'quote-requests-export', format);
   }
 }

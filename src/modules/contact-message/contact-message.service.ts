@@ -51,15 +51,7 @@ export class ContactMessagesService {
   }
 
   async findAll(query: ContactMessageQueryDto) {
-    const where: Prisma.ContactMessageWhereInput = {
-      ...(query.status && { status: query.status }),
-      ...(query.search && {
-        OR: [
-          { fullName: { contains: query.search, mode: 'insensitive' } },
-          { email: { contains: query.search, mode: 'insensitive' } },
-        ],
-      }),
-    };
+    const where = this.buildFilterWhere(query);
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.contactMessage.findMany({
@@ -71,6 +63,26 @@ export class ContactMessagesService {
     ]);
 
     return { items, meta: buildPaginationMeta(query.page, query.pageSize, total) };
+  }
+
+  private buildFilterWhere(query: ContactMessageQueryDto): Prisma.ContactMessageWhereInput {
+    return {
+      ...(query.status && { status: query.status }),
+      ...(query.search && {
+        OR: [
+          { fullName: { contains: query.search, mode: 'insensitive' } },
+          { email: { contains: query.search, mode: 'insensitive' } },
+        ],
+      }),
+    };
+  }
+
+  findAllForExport(query: ContactMessageQueryDto) {
+    return this.prisma.contactMessage.findMany({
+      where: this.buildFilterWhere(query),
+      orderBy: { createdAt: 'desc' },
+      take: 5000,
+    });
   }
 
   /** Opening a message's detail view is what marks it read — standard inbox UX. */

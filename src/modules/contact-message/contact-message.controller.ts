@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ContactMessagesService } from './contact-message.service';
@@ -11,6 +11,23 @@ import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
 import { ConvertToClientResponseDto } from '../clients/dto/client-responses.dto';
+import type { ContactMessage } from '../../generated/prisma/client';
+import { ExportColumn } from 'src/common/export/table-export.util';
+import type { Response as ExpressResponse } from 'express';
+import { buildTableCsv, buildTableXlsx} from '../../common/export/table-export.util';
+import { sendFileResponse } from '../../common/export/send-file-response.util';
+import { parseExportFormat } from '../../common/export/parse-export-format.util';
+
+
+const CONTACT_MESSAGE_EXPORT_COLUMNS: ExportColumn<ContactMessage>[] = [
+  { header: 'Full Name', value: (c) => c.fullName },
+  { header: 'Email', value: (c) => c.email },
+  { header: 'Phone', value: (c) => c.phone },
+  { header: 'Subject', value: (c) => c.subject },
+  { header: 'Message', value: (c) => c.message },
+  { header: 'Status', value: (c) => c.status },
+  { header: 'Created', value: (c) => c.createdAt.toISOString() },
+];
 
 @ApiTags('Contact Messages')
 @Controller('contact-messages')
@@ -71,5 +88,24 @@ export class ContactMessagesController {
   @Post(':id/convert-to-client')
   convertToClient(@Param('id') id: string) {
     return this.contactMessagesService.convertToClient(id);
+  }
+
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Export contact messages as CSV or XLSX' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @Get('export')
+  async exportContactMessages(
+    @Query() query: ContactMessageQueryDto,
+    @Query('format') formatQuery: unknown,
+    @Res() res: ExpressResponse,
+  ) {
+    const format = parseExportFormat(formatQuery);
+    const rows = await this.contactMessagesService.findAllForExport(query);
+    const buffer = format === 'xlsx'
+      ? await buildTableXlsx(rows, CONTACT_MESSAGE_EXPORT_COLUMNS, 'Contact Messages')
+      : buildTableCsv(rows, CONTACT_MESSAGE_EXPORT_COLUMNS);
+    sendFileResponse(res, buffer, 'contact-messages-export', format);
   }
 }

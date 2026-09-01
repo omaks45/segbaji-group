@@ -69,18 +69,9 @@ export class PropertiesService {
     return property;
   }
 
+  /// --- Admin-only methods (drafts, sold, etc.) ---
   async findAllForAdmin(query: PropertyAdminQueryDto) {
-    const where: Prisma.PropertyWhereInput = {
-      ...(query.propertyType && { propertyType: query.propertyType }),
-      ...(query.state && { state: { equals: query.state, mode: 'insensitive' } }),
-      ...(query.availabilityStatus && { availabilityStatus: query.availabilityStatus }),
-      ...(query.search && {
-        OR: [
-          { title: { contains: query.search, mode: 'insensitive' } },
-          { location: { contains: query.search, mode: 'insensitive' } },
-        ],
-      }),
-    };
+    const where = this.buildAdminWhere(query);
 
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.property.findMany({
@@ -95,6 +86,20 @@ export class PropertiesService {
     return {
       items: rows.map((p) => ({ ...p, imageCount: p._count.images })),
       meta: buildPaginationMeta(query.page, query.pageSize, total),
+    };
+  }
+
+  private buildAdminWhere(query: PropertyAdminQueryDto): Prisma.PropertyWhereInput {
+    return {
+      ...(query.propertyType && { propertyType: query.propertyType }),
+      ...(query.state && { state: { equals: query.state, mode: 'insensitive' } }),
+      ...(query.availabilityStatus && { availabilityStatus: query.availabilityStatus }),
+      ...(query.search && {
+        OR: [
+          { title: { contains: query.search, mode: 'insensitive' } },
+          { location: { contains: query.search, mode: 'insensitive' } },
+        ],
+      }),
     };
   }
 
@@ -224,5 +229,13 @@ export class PropertiesService {
       return new ConflictException(`A property with this ${target} already exists`);
     }
     return err;
+  }
+
+  findAllForExport(query: PropertyAdminQueryDto) {
+    return this.prisma.property.findMany({
+      where: this.buildAdminWhere(query),
+      orderBy: { createdAt: 'desc' },
+      take: 5000,
+    });
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException, Body, Controller, Delete, Get, Param, ParseEnumPipe, Patch, Post, Put, Query,
+  Res,
   UploadedFile, UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -11,14 +12,33 @@ import { PropertyQueryDto } from './dto/property-query.dto';
 import { PropertyAdminQueryDto } from './dto/property-admin-query.dto';
 import { ReorderPropertyImagesDto } from './dto/reorder-property-images.dto';
 import { UpsertNearbyPlaceDto } from './dto/upsert-nearby-place.dto';
-import { NearbyPlaceType } from '../../generated/prisma/client';
+import { NearbyPlaceType, Property } from '../../generated/prisma/client';
 import { imageUploadOptions } from '../../common/upload/image-upload.options';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
+import { buildTableCsv, buildTableXlsx, ExportColumn } from '../../common/export/table-export.util';
+import { sendFileResponse } from '../../common/export/send-file-response.util';
+import { parseExportFormat } from '../../common/export/parse-export-format.util';
+import type { Response as ExpressResponse } from 'express';
+
 
 const IMAGE_BODY_SCHEMA = { schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } };
+
+const PROPERTY_EXPORT_COLUMNS: ExportColumn<Property>[] = [
+  { header: 'Title', value: (p) => p.title },
+  { header: 'Type', value: (p) => p.propertyType },
+  { header: 'Land Size', value: (p) => `${p.landSizeValue} ${p.landSizeUnit}` },
+  { header: 'Price', value: (p) => p.price },
+  { header: 'Price Type', value: (p) => p.priceType },
+  { header: 'Negotiable', value: (p) => p.isPriceNegotiable },
+  { header: 'Location', value: (p) => p.location },
+  { header: 'State', value: (p) => p.state },
+  { header: 'Title Type', value: (p) => p.titleType },
+  { header: 'Status', value: (p) => p.availabilityStatus },
+  { header: 'Created', value: (p) => p.createdAt.toISOString() },
+];
 
 @ApiTags('Properties')
 @Controller('properties')
@@ -149,4 +169,22 @@ export class PropertiesController {
   removeNearbyPlace(@Param('id') id: string, @Param('type', new ParseEnumPipe(NearbyPlaceType)) type: NearbyPlaceType) {
     return this.propertiesService.removeNearbyPlace(id, type);
   }
+
+@ApiBearerAuth('access-token')
+@ApiOperation({ summary: 'Export properties as CSV or XLSX' })
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermissions(PERMISSIONS.CONTENT_READ)
+@Get('admin/export')
+async exportProperties(
+  @Query() query: PropertyAdminQueryDto,
+  @Query('format') formatQuery: unknown,
+  @Res() res: ExpressResponse,
+) {
+  const format = parseExportFormat(formatQuery);
+  const rows = await this.propertiesService.findAllForExport(query);
+  const buffer = format === 'xlsx'
+    ? await buildTableXlsx(rows, PROPERTY_EXPORT_COLUMNS, 'Properties')
+    : buildTableCsv(rows, PROPERTY_EXPORT_COLUMNS);
+  sendFileResponse(res, buffer, 'properties-export', format);
+}
 }

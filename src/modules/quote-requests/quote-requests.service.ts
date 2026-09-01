@@ -65,7 +65,26 @@ export class QuoteRequestsService {
   }
 
   async findAll(query: QuoteRequestQueryDto) {
-    const where: Prisma.QuoteRequestWhereInput = {
+      const where = this.buildFilterWhere(query);
+
+      const [rows, total] = await this.prisma.$transaction([
+        this.prisma.quoteRequest.findMany({
+          where,
+          ...paginationSkipTake(query.page, query.pageSize),
+          orderBy: { createdAt: 'desc' },
+          include: { service: { select: { name: true } } },
+        }),
+        this.prisma.quoteRequest.count({ where }),
+      ]);
+
+      return {
+        items: rows.map((r) => ({ ...r, serviceName: r.service.name })),
+        meta: buildPaginationMeta(query.page, query.pageSize, total),
+      };
+    }
+
+  private buildFilterWhere(query: QuoteRequestQueryDto): Prisma.QuoteRequestWhereInput {
+    return {
       ...(query.status && { status: query.status }),
       ...(query.serviceId && { serviceId: query.serviceId }),
       ...(query.search && {
@@ -75,21 +94,15 @@ export class QuoteRequestsService {
         ],
       }),
     };
+  }
 
-    const [rows, total] = await this.prisma.$transaction([
-      this.prisma.quoteRequest.findMany({
-        where,
-        ...paginationSkipTake(query.page, query.pageSize),
-        orderBy: { createdAt: 'desc' },
-        include: { service: { select: { name: true } } },
-      }),
-      this.prisma.quoteRequest.count({ where }),
-    ]);
-
-    return {
-      items: rows.map((r) => ({ ...r, serviceName: r.service.name })),
-      meta: buildPaginationMeta(query.page, query.pageSize, total),
-    };
+  findAllForExport(query: QuoteRequestQueryDto) {
+    return this.prisma.quoteRequest.findMany({
+      where: this.buildFilterWhere(query),
+      orderBy: { createdAt: 'desc' },
+      take: 5000,
+      include: { service: { select: { name: true } } },
+    });
   }
 
   async findOne(id: string) {
