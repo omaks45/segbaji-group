@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, IsUrl, Matches, MaxLength } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, IsUrl, Matches, MaxLength } from 'class-validator';
 
 export class UpdateSiteSettingsDto {
     @ApiPropertyOptional({ example: '26A, Adeshina Street, Off Awolowo Road, Ikeja.' })
@@ -37,6 +37,10 @@ export class UpdateSiteSettingsDto {
     @ApiPropertyOptional({ example: '+2348030513175' })
     @IsOptional() @Matches(/^\+?[0-9]{7,15}$/, { message: 'whatsappNumber must be a valid phone number' })
     whatsappNumber?: string;
+
+    @ApiPropertyOptional({ example: 6.5966 }) @IsOptional() @IsNumber() officeLatitude?: number;
+
+    @ApiPropertyOptional({ example: 3.3428 }) @IsOptional() @IsNumber() officeLongitude?: number;
 
     @ApiPropertyOptional({ maxLength: 2000 })
     @IsOptional() @IsString() @MaxLength(2000)

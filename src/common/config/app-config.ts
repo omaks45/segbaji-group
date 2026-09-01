@@ -24,6 +24,7 @@ export interface AppConfig {
     jwt: {
         secret: string;
         expiresIn: string;
+        refreshTtlDays: number;
     };
     cloudinary: {
         cloudName: string;
@@ -60,6 +61,7 @@ export default (): AppConfig => ({
     jwt: {
         secret: process.env.JWT_SECRET!,
         expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
+        refreshTtlDays: parseInt(process.env.JWT_REFRESH_TTL_DAYS ?? '30', 10),
     },
     cloudinary: {
         cloudName: process.env.CLOUDINARY_CLOUD_NAME!,

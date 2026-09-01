@@ -11,6 +11,8 @@ export class SiteSettingsResponseDto {
     @ApiProperty({ nullable: true }) twitterUrl!: string | null;
     @ApiProperty({ nullable: true }) linkedinUrl!: string | null;
     @ApiProperty({ nullable: true }) whatsappNumber!: string | null;
+    @ApiProperty({ nullable: true }) officeLatitude!: number | null;
+    @ApiProperty({ nullable: true }) officeLongitude!: number | null;
     @ApiProperty({ nullable: true }) missionStatement!: string | null;
     @ApiProperty({ nullable: true }) visionStatement!: string | null;
     @ApiProperty({ nullable: true }) companyStory!: string | null;

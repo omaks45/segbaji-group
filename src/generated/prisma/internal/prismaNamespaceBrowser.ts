@@ -53,6 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Department: 'Department',
+  Session: 'Session',
+  LoginActivity: 'LoginActivity',
   Role: 'Role',
   Service: 'Service',
   ServiceFeature: 'ServiceFeature',
@@ -99,6 +101,9 @@ export const UserScalarFieldEnum = {
   profilePictureUrl: 'profilePictureUrl',
   profilePicturePublicId: 'profilePicturePublicId',
   status: 'status',
+  isPubliclyListed: 'isPubliclyListed',
+  publicDisplayTitle: 'publicDisplayTitle',
+  publicDisplayOrder: 'publicDisplayOrder',
   departmentId: 'departmentId',
   roleId: 'roleId',
   invitedAt: 'invitedAt',
@@ -120,6 +125,35 @@ export const DepartmentScalarFieldEnum = {
 } as const
 
 export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  refreshTokenHash: 'refreshTokenHash',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const LoginActivityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  success: 'success',
+  reason: 'reason',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type LoginActivityScalarFieldEnum = (typeof LoginActivityScalarFieldEnum)[keyof typeof LoginActivityScalarFieldEnum]
 
 
 export const RoleScalarFieldEnum = {

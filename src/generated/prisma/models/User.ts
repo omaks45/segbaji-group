@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  publicDisplayOrder: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  publicDisplayOrder: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -34,6 +44,9 @@ export type UserMinAggregateOutputType = {
   profilePictureUrl: string | null
   profilePicturePublicId: string | null
   status: $Enums.UserStatus | null
+  isPubliclyListed: boolean | null
+  publicDisplayTitle: string | null
+  publicDisplayOrder: number | null
   departmentId: string | null
   roleId: string | null
   invitedAt: Date | null
@@ -52,6 +65,9 @@ export type UserMaxAggregateOutputType = {
   profilePictureUrl: string | null
   profilePicturePublicId: string | null
   status: $Enums.UserStatus | null
+  isPubliclyListed: boolean | null
+  publicDisplayTitle: string | null
+  publicDisplayOrder: number | null
   departmentId: string | null
   roleId: string | null
   invitedAt: Date | null
@@ -70,6 +86,9 @@ export type UserCountAggregateOutputType = {
   profilePictureUrl: number
   profilePicturePublicId: number
   status: number
+  isPubliclyListed: number
+  publicDisplayTitle: number
+  publicDisplayOrder: number
   departmentId: number
   roleId: number
   invitedAt: number
@@ -79,6 +98,14 @@ export type UserCountAggregateOutputType = {
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  publicDisplayOrder?: true
+}
+
+export type UserSumAggregateInputType = {
+  publicDisplayOrder?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -90,6 +117,9 @@ export type UserMinAggregateInputType = {
   profilePictureUrl?: true
   profilePicturePublicId?: true
   status?: true
+  isPubliclyListed?: true
+  publicDisplayTitle?: true
+  publicDisplayOrder?: true
   departmentId?: true
   roleId?: true
   invitedAt?: true
@@ -108,6 +138,9 @@ export type UserMaxAggregateInputType = {
   profilePictureUrl?: true
   profilePicturePublicId?: true
   status?: true
+  isPubliclyListed?: true
+  publicDisplayTitle?: true
+  publicDisplayOrder?: true
   departmentId?: true
   roleId?: true
   invitedAt?: true
@@ -126,6 +159,9 @@ export type UserCountAggregateInputType = {
   profilePictureUrl?: true
   profilePicturePublicId?: true
   status?: true
+  isPubliclyListed?: true
+  publicDisplayTitle?: true
+  publicDisplayOrder?: true
   departmentId?: true
   roleId?: true
   invitedAt?: true
@@ -173,6 +209,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -203,6 +251,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -217,6 +267,9 @@ export type UserGroupByOutputType = {
   profilePictureUrl: string | null
   profilePicturePublicId: string | null
   status: $Enums.UserStatus
+  isPubliclyListed: boolean
+  publicDisplayTitle: string | null
+  publicDisplayOrder: number
   departmentId: string | null
   roleId: string | null
   invitedAt: Date | null
@@ -224,6 +277,8 @@ export type UserGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -256,6 +311,9 @@ export type UserWhereInput = {
   profilePictureUrl?: Prisma.StringNullableFilter<"User"> | string | null
   profilePicturePublicId?: Prisma.StringNullableFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFilter<"User"> | boolean
+  publicDisplayTitle?: Prisma.StringNullableFilter<"User"> | string | null
+  publicDisplayOrder?: Prisma.IntFilter<"User"> | number
   departmentId?: Prisma.StringNullableFilter<"User"> | string | null
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -267,6 +325,8 @@ export type UserWhereInput = {
   inviteToken?: Prisma.XOR<Prisma.InviteTokenNullableScalarRelationFilter, Prisma.InviteTokenWhereInput> | null
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
   generatedReports?: Prisma.GeneratedReportListRelationFilter
+  loginActivities?: Prisma.LoginActivityListRelationFilter
+  sessions?: Prisma.SessionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -279,6 +339,9 @@ export type UserOrderByWithRelationInput = {
   profilePictureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePicturePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  isPubliclyListed?: Prisma.SortOrder
+  publicDisplayTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicDisplayOrder?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -290,6 +353,8 @@ export type UserOrderByWithRelationInput = {
   inviteToken?: Prisma.InviteTokenOrderByWithRelationInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
   generatedReports?: Prisma.GeneratedReportOrderByRelationAggregateInput
+  loginActivities?: Prisma.LoginActivityOrderByRelationAggregateInput
+  sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -305,6 +370,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   profilePictureUrl?: Prisma.StringNullableFilter<"User"> | string | null
   profilePicturePublicId?: Prisma.StringNullableFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFilter<"User"> | boolean
+  publicDisplayTitle?: Prisma.StringNullableFilter<"User"> | string | null
+  publicDisplayOrder?: Prisma.IntFilter<"User"> | number
   departmentId?: Prisma.StringNullableFilter<"User"> | string | null
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -316,6 +384,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   inviteToken?: Prisma.XOR<Prisma.InviteTokenNullableScalarRelationFilter, Prisma.InviteTokenWhereInput> | null
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
   generatedReports?: Prisma.GeneratedReportListRelationFilter
+  loginActivities?: Prisma.LoginActivityListRelationFilter
+  sessions?: Prisma.SessionListRelationFilter
 }, "id" | "email" | "phone">
 
 export type UserOrderByWithAggregationInput = {
@@ -328,6 +398,9 @@ export type UserOrderByWithAggregationInput = {
   profilePictureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePicturePublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  isPubliclyListed?: Prisma.SortOrder
+  publicDisplayTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicDisplayOrder?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -335,8 +408,10 @@ export type UserOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -352,6 +427,9 @@ export type UserScalarWhereWithAggregatesInput = {
   profilePictureUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   profilePicturePublicId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  publicDisplayTitle?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  publicDisplayOrder?: Prisma.IntWithAggregatesFilter<"User"> | number
   departmentId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   roleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   invitedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -370,6 +448,9 @@ export type UserCreateInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
   createdAt?: Date | string
@@ -379,6 +460,8 @@ export type UserCreateInput = {
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -391,6 +474,9 @@ export type UserUncheckedCreateInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -400,6 +486,8 @@ export type UserUncheckedCreateInput = {
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -412,6 +500,9 @@ export type UserUpdateInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -421,6 +512,8 @@ export type UserUpdateInput = {
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -433,6 +526,9 @@ export type UserUncheckedUpdateInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -442,6 +538,8 @@ export type UserUncheckedUpdateInput = {
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -454,6 +552,9 @@ export type UserCreateManyInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -472,6 +573,9 @@ export type UserUpdateManyMutationInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -488,6 +592,9 @@ export type UserUncheckedUpdateManyInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -506,12 +613,19 @@ export type UserCountOrderByAggregateInput = {
   profilePictureUrl?: Prisma.SortOrder
   profilePicturePublicId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isPubliclyListed?: Prisma.SortOrder
+  publicDisplayTitle?: Prisma.SortOrder
+  publicDisplayOrder?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  publicDisplayOrder?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -524,6 +638,9 @@ export type UserMaxOrderByAggregateInput = {
   profilePictureUrl?: Prisma.SortOrder
   profilePicturePublicId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isPubliclyListed?: Prisma.SortOrder
+  publicDisplayTitle?: Prisma.SortOrder
+  publicDisplayOrder?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
@@ -542,12 +659,19 @@ export type UserMinOrderByAggregateInput = {
   profilePictureUrl?: Prisma.SortOrder
   profilePicturePublicId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isPubliclyListed?: Prisma.SortOrder
+  publicDisplayTitle?: Prisma.SortOrder
+  publicDisplayOrder?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  publicDisplayOrder?: Prisma.SortOrder
 }
 
 export type UserListRelationFilter = {
@@ -565,6 +689,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -575,6 +704,18 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type EnumUserStatusFieldUpdateOperationsInput = {
   set?: $Enums.UserStatus
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -625,6 +766,36 @@ export type UserUncheckedUpdateManyWithoutDepartmentNestedInput = {
   update?: Prisma.UserUpdateWithWhereUniqueWithoutDepartmentInput | Prisma.UserUpdateWithWhereUniqueWithoutDepartmentInput[]
   updateMany?: Prisma.UserUpdateManyWithWhereWithoutDepartmentInput | Prisma.UserUpdateManyWithWhereWithoutDepartmentInput[]
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionsInput
+  upsert?: Prisma.UserUpsertWithoutSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type UserCreateNestedOneWithoutLoginActivitiesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLoginActivitiesInput, Prisma.UserUncheckedCreateWithoutLoginActivitiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLoginActivitiesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutLoginActivitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLoginActivitiesInput, Prisma.UserUncheckedCreateWithoutLoginActivitiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLoginActivitiesInput
+  upsert?: Prisma.UserUpsertWithoutLoginActivitiesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLoginActivitiesInput, Prisma.UserUpdateWithoutLoginActivitiesInput>, Prisma.UserUncheckedUpdateWithoutLoginActivitiesInput>
 }
 
 export type UserCreateNestedManyWithoutRoleInput = {
@@ -721,6 +892,9 @@ export type UserCreateWithoutDepartmentInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
   createdAt?: Date | string
@@ -729,6 +903,8 @@ export type UserCreateWithoutDepartmentInput = {
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -741,6 +917,9 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   roleId?: string | null
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -749,6 +928,8 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -790,12 +971,247 @@ export type UserScalarWhereInput = {
   profilePictureUrl?: Prisma.StringNullableFilter<"User"> | string | null
   profilePicturePublicId?: Prisma.StringNullableFilter<"User"> | string | null
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFilter<"User"> | boolean
+  publicDisplayTitle?: Prisma.StringNullableFilter<"User"> | string | null
+  publicDisplayOrder?: Prisma.IntFilter<"User"> | number
   departmentId?: Prisma.StringNullableFilter<"User"> | string | null
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
   invitedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   joinedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+}
+
+export type UserCreateWithoutSessionsInput = {
+  id?: string
+  fullName?: string | null
+  email: string
+  passwordHash?: string | null
+  phone?: string | null
+  bio?: string | null
+  profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
+  status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
+  invitedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSessionsInput = {
+  id?: string
+  fullName?: string | null
+  email: string
+  passwordHash?: string | null
+  phone?: string | null
+  bio?: string | null
+  profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
+  status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
+  departmentId?: string | null
+  roleId?: string | null
+  invitedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+}
+
+export type UserUpsertWithoutSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSessionsInput, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSessionsInput, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type UserUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLoginActivitiesInput = {
+  id?: string
+  fullName?: string | null
+  email: string
+  passwordHash?: string | null
+  phone?: string | null
+  bio?: string | null
+  profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
+  status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
+  invitedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLoginActivitiesInput = {
+  id?: string
+  fullName?: string | null
+  email: string
+  passwordHash?: string | null
+  phone?: string | null
+  bio?: string | null
+  profilePictureUrl?: string | null
+  profilePicturePublicId?: string | null
+  status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
+  departmentId?: string | null
+  roleId?: string | null
+  invitedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLoginActivitiesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLoginActivitiesInput, Prisma.UserUncheckedCreateWithoutLoginActivitiesInput>
+}
+
+export type UserUpsertWithoutLoginActivitiesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLoginActivitiesInput, Prisma.UserUncheckedUpdateWithoutLoginActivitiesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLoginActivitiesInput, Prisma.UserUncheckedCreateWithoutLoginActivitiesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLoginActivitiesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLoginActivitiesInput, Prisma.UserUncheckedUpdateWithoutLoginActivitiesInput>
+}
+
+export type UserUpdateWithoutLoginActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLoginActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRoleInput = {
@@ -808,6 +1224,9 @@ export type UserCreateWithoutRoleInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
   createdAt?: Date | string
@@ -816,6 +1235,8 @@ export type UserCreateWithoutRoleInput = {
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRoleInput = {
@@ -828,6 +1249,9 @@ export type UserUncheckedCreateWithoutRoleInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -836,6 +1260,8 @@ export type UserUncheckedCreateWithoutRoleInput = {
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRoleInput = {
@@ -874,6 +1300,9 @@ export type UserCreateWithoutInviteTokenInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
   createdAt?: Date | string
@@ -882,6 +1311,8 @@ export type UserCreateWithoutInviteTokenInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInviteTokenInput = {
@@ -894,6 +1325,9 @@ export type UserUncheckedCreateWithoutInviteTokenInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -902,6 +1336,8 @@ export type UserUncheckedCreateWithoutInviteTokenInput = {
   updatedAt?: Date | string
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInviteTokenInput = {
@@ -930,6 +1366,9 @@ export type UserUpdateWithoutInviteTokenInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -938,6 +1377,8 @@ export type UserUpdateWithoutInviteTokenInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInviteTokenInput = {
@@ -950,6 +1391,9 @@ export type UserUncheckedUpdateWithoutInviteTokenInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -958,6 +1402,8 @@ export type UserUncheckedUpdateWithoutInviteTokenInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetTokensInput = {
@@ -970,6 +1416,9 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
   createdAt?: Date | string
@@ -978,6 +1427,8 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   generatedReports?: Prisma.GeneratedReportCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -990,6 +1441,9 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -998,6 +1452,8 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   updatedAt?: Date | string
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   generatedReports?: Prisma.GeneratedReportUncheckedCreateNestedManyWithoutGeneratedByInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -1026,6 +1482,9 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1034,6 +1493,8 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -1046,6 +1507,9 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1054,6 +1518,8 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGeneratedReportsInput = {
@@ -1066,6 +1532,9 @@ export type UserCreateWithoutGeneratedReportsInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
   createdAt?: Date | string
@@ -1074,6 +1543,8 @@ export type UserCreateWithoutGeneratedReportsInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   inviteToken?: Prisma.InviteTokenCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  loginActivities?: Prisma.LoginActivityCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGeneratedReportsInput = {
@@ -1086,6 +1557,9 @@ export type UserUncheckedCreateWithoutGeneratedReportsInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   roleId?: string | null
   invitedAt?: Date | string | null
@@ -1094,6 +1568,8 @@ export type UserUncheckedCreateWithoutGeneratedReportsInput = {
   updatedAt?: Date | string
   inviteToken?: Prisma.InviteTokenUncheckedCreateNestedOneWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  loginActivities?: Prisma.LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGeneratedReportsInput = {
@@ -1122,6 +1598,9 @@ export type UserUpdateWithoutGeneratedReportsInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1130,6 +1609,8 @@ export type UserUpdateWithoutGeneratedReportsInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGeneratedReportsInput = {
@@ -1142,6 +1623,9 @@ export type UserUncheckedUpdateWithoutGeneratedReportsInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1150,6 +1634,8 @@ export type UserUncheckedUpdateWithoutGeneratedReportsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyDepartmentInput = {
@@ -1162,6 +1648,9 @@ export type UserCreateManyDepartmentInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   roleId?: string | null
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -1179,6 +1668,9 @@ export type UserUpdateWithoutDepartmentInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1187,6 +1679,8 @@ export type UserUpdateWithoutDepartmentInput = {
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -1199,6 +1693,9 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1207,6 +1704,8 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -1219,6 +1718,9 @@ export type UserUncheckedUpdateManyWithoutDepartmentInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1236,6 +1738,9 @@ export type UserCreateManyRoleInput = {
   profilePictureUrl?: string | null
   profilePicturePublicId?: string | null
   status?: $Enums.UserStatus
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: string | null
+  publicDisplayOrder?: number
   departmentId?: string | null
   invitedAt?: Date | string | null
   joinedAt?: Date | string | null
@@ -1253,6 +1758,9 @@ export type UserUpdateWithoutRoleInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1261,6 +1769,8 @@ export type UserUpdateWithoutRoleInput = {
   inviteToken?: Prisma.InviteTokenUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoleInput = {
@@ -1273,6 +1783,9 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1281,6 +1794,8 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   inviteToken?: Prisma.InviteTokenUncheckedUpdateOneWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   generatedReports?: Prisma.GeneratedReportUncheckedUpdateManyWithoutGeneratedByNestedInput
+  loginActivities?: Prisma.LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -1293,6 +1808,9 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
   profilePictureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicturePublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicDisplayTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicDisplayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   departmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1308,11 +1826,15 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
 export type UserCountOutputType = {
   passwordResetTokens: number
   generatedReports: number
+  loginActivities: number
+  sessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
   generatedReports?: boolean | UserCountOutputTypeCountGeneratedReportsArgs
+  loginActivities?: boolean | UserCountOutputTypeCountLoginActivitiesArgs
+  sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
 
 /**
@@ -1339,6 +1861,20 @@ export type UserCountOutputTypeCountGeneratedReportsArgs<ExtArgs extends runtime
   where?: Prisma.GeneratedReportWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLoginActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LoginActivityWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SessionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1350,6 +1886,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   profilePictureUrl?: boolean
   profilePicturePublicId?: boolean
   status?: boolean
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: boolean
+  publicDisplayOrder?: boolean
   departmentId?: boolean
   roleId?: boolean
   invitedAt?: boolean
@@ -1361,6 +1900,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   inviteToken?: boolean | Prisma.User$inviteTokenArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   generatedReports?: boolean | Prisma.User$generatedReportsArgs<ExtArgs>
+  loginActivities?: boolean | Prisma.User$loginActivitiesArgs<ExtArgs>
+  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1374,6 +1915,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   profilePictureUrl?: boolean
   profilePicturePublicId?: boolean
   status?: boolean
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: boolean
+  publicDisplayOrder?: boolean
   departmentId?: boolean
   roleId?: boolean
   invitedAt?: boolean
@@ -1394,6 +1938,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   profilePictureUrl?: boolean
   profilePicturePublicId?: boolean
   status?: boolean
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: boolean
+  publicDisplayOrder?: boolean
   departmentId?: boolean
   roleId?: boolean
   invitedAt?: boolean
@@ -1414,6 +1961,9 @@ export type UserSelectScalar = {
   profilePictureUrl?: boolean
   profilePicturePublicId?: boolean
   status?: boolean
+  isPubliclyListed?: boolean
+  publicDisplayTitle?: boolean
+  publicDisplayOrder?: boolean
   departmentId?: boolean
   roleId?: boolean
   invitedAt?: boolean
@@ -1422,13 +1972,15 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "phone" | "bio" | "profilePictureUrl" | "profilePicturePublicId" | "status" | "departmentId" | "roleId" | "invitedAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "phone" | "bio" | "profilePictureUrl" | "profilePicturePublicId" | "status" | "isPubliclyListed" | "publicDisplayTitle" | "publicDisplayOrder" | "departmentId" | "roleId" | "invitedAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   department?: boolean | Prisma.User$departmentArgs<ExtArgs>
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
   inviteToken?: boolean | Prisma.User$inviteTokenArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   generatedReports?: boolean | Prisma.User$generatedReportsArgs<ExtArgs>
+  loginActivities?: boolean | Prisma.User$loginActivitiesArgs<ExtArgs>
+  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1448,6 +2000,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     inviteToken: Prisma.$InviteTokenPayload<ExtArgs> | null
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
     generatedReports: Prisma.$GeneratedReportPayload<ExtArgs>[]
+    loginActivities: Prisma.$LoginActivityPayload<ExtArgs>[]
+    sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1459,6 +2013,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     profilePictureUrl: string | null
     profilePicturePublicId: string | null
     status: $Enums.UserStatus
+    isPubliclyListed: boolean
+    publicDisplayTitle: string | null
+    publicDisplayOrder: number
     departmentId: string | null
     roleId: string | null
     invitedAt: Date | null
@@ -1864,6 +2421,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   inviteToken<T extends Prisma.User$inviteTokenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$inviteTokenArgs<ExtArgs>>): Prisma.Prisma__InviteTokenClient<runtime.Types.Result.GetResult<Prisma.$InviteTokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   generatedReports<T extends Prisma.User$generatedReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$generatedReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GeneratedReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  loginActivities<T extends Prisma.User$loginActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$loginActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoginActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1902,6 +2461,9 @@ export interface UserFieldRefs {
   readonly profilePictureUrl: Prisma.FieldRef<"User", 'String'>
   readonly profilePicturePublicId: Prisma.FieldRef<"User", 'String'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
+  readonly isPubliclyListed: Prisma.FieldRef<"User", 'Boolean'>
+  readonly publicDisplayTitle: Prisma.FieldRef<"User", 'String'>
+  readonly publicDisplayOrder: Prisma.FieldRef<"User", 'Int'>
   readonly departmentId: Prisma.FieldRef<"User", 'String'>
   readonly roleId: Prisma.FieldRef<"User", 'String'>
   readonly invitedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2411,6 +2973,54 @@ export type User$generatedReportsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.GeneratedReportScalarFieldEnum | Prisma.GeneratedReportScalarFieldEnum[]
+}
+
+/**
+ * User.loginActivities
+ */
+export type User$loginActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LoginActivity
+   */
+  select?: Prisma.LoginActivitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LoginActivity
+   */
+  omit?: Prisma.LoginActivityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LoginActivityInclude<ExtArgs> | null
+  where?: Prisma.LoginActivityWhereInput
+  orderBy?: Prisma.LoginActivityOrderByWithRelationInput | Prisma.LoginActivityOrderByWithRelationInput[]
+  cursor?: Prisma.LoginActivityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LoginActivityScalarFieldEnum | Prisma.LoginActivityScalarFieldEnum[]
+}
+
+/**
+ * User.sessions
+ */
+export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Session
+   */
+  select?: Prisma.SessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Session
+   */
+  omit?: Prisma.SessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SessionInclude<ExtArgs> | null
+  where?: Prisma.SessionWhereInput
+  orderBy?: Prisma.SessionOrderByWithRelationInput | Prisma.SessionOrderByWithRelationInput[]
+  cursor?: Prisma.SessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
 }
 
 /**

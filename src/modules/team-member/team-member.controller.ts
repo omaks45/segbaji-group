@@ -9,6 +9,10 @@ import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
 import { CurrentUser, JwtPayload } from '../auth/decorators/current-user.decorator';
+import { UpdatePublicListingDto } from './dto/update-public-listing.dto';
+import { ReorderPublicTeamDto } from './dto/reorder-public-team.dto';
+import { PublicTeamMemberDto } from './dto/public-team-member.dto';
+
 
 @ApiTags('Team Members')
 @ApiBearerAuth('access-token')
@@ -23,6 +27,20 @@ export class TeamMembersController {
   @Get('summary')
   summary() {
     return this.teamMembersService.findSummary();
+  }
+
+  @ApiOperation({ summary: 'Set whether a team member appears on the public "Meet the Team" page, their public title, and display order' })
+  @RequirePermissions(PERMISSIONS.CONTENT_WRITE)
+  @Patch(':id/public-listing')
+  updatePublicListing(@Param('id') id: string, @Body() dto: UpdatePublicListingDto) {
+    return this.teamMembersService.updatePublicListing(id, dto);
+  }
+
+  @ApiOperation({ summary: 'Reorder the public "Meet the Team" page' })
+  @RequirePermissions(PERMISSIONS.CONTENT_WRITE)
+  @Patch('public-listing/reorder')
+  reorderPublicTeam(@Body() dto: ReorderPublicTeamDto) {
+    return this.teamMembersService.reorderPublicTeam(dto);
   }
 
   @ApiOperation({ summary: 'List team members — filter by role/department/status/search, paginated' })

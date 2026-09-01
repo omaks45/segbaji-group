@@ -6,6 +6,9 @@ import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination
 import { AuthService } from '../auth/auth.service';
 import { TeamMemberQueryDto } from './dto/team-member-query.dto';
 import { UpdateTeamMemberDto } from './dto/update-team-member.dto';
+import { assertExactIdSet } from '../../common/ordering/assert-exact-id-set.util';
+import { ReorderPublicTeamDto } from './dto/reorder-public-team.dto';
+import { UpdatePublicListingDto } from './dto/update-public-listing.dto';
 
 @Injectable()
 export class TeamMembersService {
@@ -70,6 +73,52 @@ export class TeamMembersService {
       meta: buildPaginationMeta(query.page, query.pageSize, total),
     };
   }
+
+  // add these methods inside the class:
+
+/** Public "Meet the Team" — only opted-in, active staff, in curated order. */
+findPublicTeam() {
+  return this.prisma.user.findMany({
+    where: { isPubliclyListed: true, status: 'ACTIVE' },
+    select: { id: true, fullName: true, publicDisplayTitle: true, profilePictureUrl: true, bio: true },
+    orderBy: { publicDisplayOrder: 'asc' },
+  });
+}
+
+async updatePublicListing(id: string, dto: UpdatePublicListingDto) {
+  const user = await this.prisma.user.findUnique({ where: { id } });
+  if (!user) throw new NotFoundException('Team member not found');
+
+  // Being listed with no public title would render a blank line on the
+  // public page — catch that at the point it's turned on, not after
+  // someone notices a nameless card live on the site.
+  const willBeListed = dto.isPubliclyListed ?? user.isPubliclyListed;
+  const titleAfterUpdate = dto.publicDisplayTitle ?? user.publicDisplayTitle;
+  if (willBeListed && !titleAfterUpdate) {
+    throw new BadRequestException('publicDisplayTitle is required before a team member can be publicly listed');
+  }
+
+  return this.prisma.user.update({
+    where: { id },
+    data: dto,
+    select: { id: true, isPubliclyListed: true, publicDisplayTitle: true, publicDisplayOrder: true },
+  });
+}
+
+async reorderPublicTeam(dto: ReorderPublicTeamDto) {
+  const existing = await this.prisma.user.findMany({
+    where: { isPubliclyListed: true },
+    select: { id: true },
+  });
+  assertExactIdSet(existing.map((u) => u.id), dto.userIds, 'userIds');
+
+  await this.prisma.$transaction(
+    dto.userIds.map((id, index) =>
+      this.prisma.user.update({ where: { id }, data: { publicDisplayOrder: index } }),
+    ),
+  );
+  return { message: 'Order updated' };
+}
 
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({

@@ -1,27 +1,19 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { CompleteRegistrationDto } from './dto/complete-registration.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import {
-  InviteResponseDto,
-  LoginResponseDto,
-  MessageResponseDto,
-  ValidateInviteResponseDto,
-} from './dto/auth-responses.dto';
+import { InviteResponseDto, LoginResponseDto, MessageResponseDto, ValidateInviteResponseDto } from './dto/auth-responses.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CurrentUser, JwtPayload } from './decorators/current-user.decorator';
 import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
+import { CurrentUser, JwtPayload } from './decorators/current-user.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -31,8 +23,6 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Invite a new team member by email, role, and department' })
   @ApiResponse({ status: 201, type: InviteResponseDto })
-  @ApiResponse({ status: 401, description: 'Missing or invalid bearer token' })
-  @ApiResponse({ status: 403, description: 'Missing team:write permission' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.TEAM_WRITE)
   @Post('invite')
@@ -42,7 +32,6 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Check whether an invite token is still valid' })
   @ApiResponse({ status: 200, type: ValidateInviteResponseDto })
-  @ApiResponse({ status: 400, description: 'Invite is invalid or expired' })
   @Get('invite/:token')
   validateInvite(@Param('token') token: string) {
     return this.authService.validateInviteToken(token);
@@ -50,18 +39,31 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Complete registration from an invite link' })
   @ApiResponse({ status: 201, type: MessageResponseDto })
-  @ApiResponse({ status: 400, description: 'Invite is invalid or expired' })
   @Post('invite/:token/accept')
   acceptInvite(@Param('token') token: string, @Body() dto: CompleteRegistrationDto) {
     return this.authService.completeRegistration(token, dto);
   }
 
-  @ApiOperation({ summary: 'Log in with email and password' })
+  @ApiOperation({ summary: 'Log in with email and password — returns a short-lived access token and a refresh token' })
   @ApiResponse({ status: 201, type: LoginResponseDto })
-  @ApiResponse({ status: 401, description: 'Invalid credentials or inactive account' })
   @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  login(@Body() dto: LoginDto, @Req() req: Request) {
+    return this.authService.login(dto, { ipAddress: req.ip, userAgent: req.headers['user-agent'] });
+  }
+
+  @ApiOperation({ summary: 'Exchange a refresh token for a new access token (rotates the refresh token)' })
+  @ApiResponse({ status: 201, type: LoginResponseDto })
+  @Post('refresh')
+  refresh(@Body() dto: RefreshTokenDto, @Req() req: Request) {
+    return this.authService.refreshTokens(dto.refreshToken, { ipAddress: req.ip, userAgent: req.headers['user-agent'] });
+  }
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Log out — revokes the current session' })
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  logout(@CurrentUser() user: JwtPayload) {
+    return this.authService.logout(user.sessionId);
   }
 
   @ApiOperation({ summary: 'Request a password reset email' })
@@ -73,7 +75,6 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Reset password using a token from the reset email' })
   @ApiResponse({ status: 201, type: MessageResponseDto })
-  @ApiResponse({ status: 400, description: 'Reset link is invalid or expired' })
   @Post('reset-password/:token')
   resetPassword(@Param('token') token: string, @Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(token, dto);

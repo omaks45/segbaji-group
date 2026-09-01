@@ -50,6 +50,16 @@ export type User = Prisma.UserModel
  */
 export type Department = Prisma.DepartmentModel
 /**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model LoginActivity
+ * 
+ */
+export type LoginActivity = Prisma.LoginActivityModel
+/**
  * Model Role
  * 
  */

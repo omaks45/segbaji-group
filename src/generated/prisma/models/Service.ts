@@ -478,14 +478,6 @@ export type ServiceScalarRelationFilter = {
   isNot?: Prisma.ServiceWhereInput
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ServiceCreateNestedOneWithoutFeaturesInput = {
   create?: Prisma.XOR<Prisma.ServiceCreateWithoutFeaturesInput, Prisma.ServiceUncheckedCreateWithoutFeaturesInput>
   connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutFeaturesInput

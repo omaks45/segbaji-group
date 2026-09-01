@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import * as dns from 'dns';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -10,7 +11,9 @@ import { sanitizeRequestBody } from './common/security/sanitize-request-body.mid
 dns.setDefaultResultOrder('ipv4first'); // prefer IPv4 app-wide — avoids ECONNREFUSED on networks with broken IPv6 routing
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set('trust proxy', 1);
+
   const config = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 

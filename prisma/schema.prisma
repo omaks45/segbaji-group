@@ -138,6 +138,10 @@ model User {
   profilePicturePublicId String?
   status            UserStatus @default(PENDING)
 
+  isPubliclyListed  Boolean @default(false)
+  publicDisplayTitle String?
+  publicDisplayOrder Int     @default(0)
+
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])
   roleId       String?
@@ -154,6 +158,8 @@ model User {
   @@index([departmentId])
   @@index([roleId])
   generatedReports GeneratedReport[]
+  loginActivities LoginActivity[]
+  sessions Session[]
 }
 
 model Department {
@@ -164,6 +170,37 @@ model Department {
   users       User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash String    @unique
+  userAgent        String?
+  ipAddress        String?
+  createdAt        DateTime  @default(now())
+  lastUsedAt       DateTime  @default(now())
+  expiresAt        DateTime
+  revokedAt        DateTime?
+
+  @@index([userId])
+}
+
+model LoginActivity {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email     String
+  success   Boolean
+  reason    String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
+  @@index([createdAt])
 }
 
 model Role {
@@ -319,6 +356,8 @@ model SiteSettings {
   linkedinUrl      String?
   whatsappNumber   String?
   missionStatement String?
+  officeLatitude  Float?
+  officeLongitude Float?
   visionStatement  String?
   companyStory     String?
   updatedAt        DateTime @updatedAt

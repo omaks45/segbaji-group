@@ -355,10 +355,6 @@ export type DepartmentUpdateOneWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutUsersInput, Prisma.DepartmentUpdateWithoutUsersInput>, Prisma.DepartmentUncheckedUpdateWithoutUsersInput>
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type DepartmentCreateWithoutUsersInput = {
   id?: string
   name: string

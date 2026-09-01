@@ -36,6 +36,63 @@ function buildMockPrisma() {
         service = new TeamMembersService(prisma, authService);
     });
 
+    describe('updatePublicListing', () => {
+        it('rejects listing a member publicly with no display title set', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+            id: 'u1', isPubliclyListed: false, publicDisplayTitle: null,
+            });
+
+            await expect(
+            service.updatePublicListing('u1', { isPubliclyListed: true } as never),
+            ).rejects.toThrow(BadRequestException);
+        });
+
+        it('allows listing when a title is provided in the same request', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+            id: 'u1', isPubliclyListed: false, publicDisplayTitle: null,
+            });
+            (prisma.user.update as jest.Mock).mockResolvedValue({ id: 'u1', isPubliclyListed: true });
+
+            await expect(
+            service.updatePublicListing('u1', { isPubliclyListed: true, publicDisplayTitle: 'Team Leader' } as never),
+            ).resolves.toBeDefined();
+        });
+
+        it('allows listing when a title was already set on a previous update', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+            id: 'u1', isPubliclyListed: false, publicDisplayTitle: 'Site Engineer',
+            });
+            (prisma.user.update as jest.Mock).mockResolvedValue({ id: 'u1', isPubliclyListed: true });
+
+            await expect(
+            service.updatePublicListing('u1', { isPubliclyListed: true } as never),
+            ).resolves.toBeDefined();
+        });
+
+        it('throws NotFoundException for a missing user', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+            await expect(service.updatePublicListing('missing', {} as never)).rejects.toThrow(NotFoundException);
+        });
+        });
+
+        describe('reorderPublicTeam', () => {
+        it('rejects a reorder that omits a currently-listed member', async () => {
+            (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'u1' }, { id: 'u2' }]);
+            await expect(service.reorderPublicTeam({ userIds: ['u1'] })).rejects.toThrow(BadRequestException);
+        });
+
+        it('only reorders against currently publicly-listed members, not the whole staff list', async () => {
+            (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'u1' }, { id: 'u2' }]);
+            (prisma.user.update as jest.Mock).mockResolvedValue({});
+
+            await service.reorderPublicTeam({ userIds: ['u2', 'u1'] });
+
+            expect(prisma.user.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({ where: { isPubliclyListed: true } }),
+            );
+        });
+        });
+
     describe('findSummary', () => {
         it('aggregates status counts into total/active/inactive/pending', async () => {
         (prisma.user.groupBy as jest.Mock).mockResolvedValue([
