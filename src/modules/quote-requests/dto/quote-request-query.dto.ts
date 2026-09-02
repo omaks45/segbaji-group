@@ -14,4 +14,8 @@ export class QuoteRequestQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ description: 'Matches against name or email' })
   @IsOptional() @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ enum: ['csv', 'xlsx'], description: 'Only used by the export endpoint' })
+  @IsOptional() @IsIn(['csv', 'xlsx'])
+  format?: 'csv' | 'xlsx';
 }

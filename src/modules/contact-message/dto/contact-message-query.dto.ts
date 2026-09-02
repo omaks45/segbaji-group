@@ -10,4 +10,8 @@ export class ContactMessageQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional() @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ enum: ['csv', 'xlsx'], description: 'Only used by the export endpoint' })
+  @IsOptional() @IsIn(['csv', 'xlsx'])
+  format?: 'csv' | 'xlsx';
 }

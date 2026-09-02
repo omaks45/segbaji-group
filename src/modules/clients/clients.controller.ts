@@ -56,6 +56,21 @@ export class ClientsController {
     return this.clientsService.findAll(query);
   }
 
+  
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Export clients as CSV or XLSX' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @Get('export')
+  async exportClients(@Query() query: ClientQueryDto, @Res() res: ExpressResponse) {
+    const format = parseExportFormat(query.format);
+    const rows = await this.clientsService.findAllForExport(query);
+    const buffer = format === 'xlsx'
+      ? await buildTableXlsx(rows, CLIENT_EXPORT_COLUMNS, 'Clients')
+      : buildTableCsv(rows, CLIENT_EXPORT_COLUMNS);
+    sendFileResponse(res, buffer, 'clients-export', format);
+  }
+
   @ApiOperation({ summary: 'Get a client, including every lead that converted into them' })
   @RequirePermissions(PERMISSIONS.LEADS_READ)
   @Get(':id')
@@ -68,23 +83,5 @@ export class ClientsController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateClientDto) {
     return this.clientsService.update(id, dto);
-  }
-
-  @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Export clients as CSV or XLSX' })
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
-  @Get('export')
-  async exportClients(
-    @Query() query: ClientQueryDto,
-    @Query('format') formatQuery: unknown,
-    @Res() res: ExpressResponse,
-  ) {
-    const format = parseExportFormat(formatQuery);
-    const rows = await this.clientsService.findAllForExport(query);
-    const buffer = format === 'xlsx'
-      ? await buildTableXlsx(rows, CLIENT_EXPORT_COLUMNS, 'Clients')
-      : buildTableCsv(rows, CLIENT_EXPORT_COLUMNS);
-    sendFileResponse(res, buffer, 'clients-export', format);
   }
 }

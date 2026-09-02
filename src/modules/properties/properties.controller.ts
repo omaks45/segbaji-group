@@ -70,6 +70,20 @@ export class PropertiesController {
   }
 
   @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Export properties as CSV or XLSX' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.CONTENT_READ)
+  @Get('admin/export')
+  async exportProperties(@Query() query: PropertyAdminQueryDto, @Res() res: ExpressResponse) {
+    const format = parseExportFormat(query.format);
+    const rows = await this.propertiesService.findAllForExport(query);
+    const buffer = format === 'xlsx'
+      ? await buildTableXlsx(rows, PROPERTY_EXPORT_COLUMNS, 'Properties')
+      : buildTableCsv(rows, PROPERTY_EXPORT_COLUMNS);
+    sendFileResponse(res, buffer, 'properties-export', format);
+  }
+
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get full property detail for editing (any status) — admin' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.CONTENT_READ)
@@ -170,21 +184,5 @@ export class PropertiesController {
     return this.propertiesService.removeNearbyPlace(id, type);
   }
 
-@ApiBearerAuth('access-token')
-@ApiOperation({ summary: 'Export properties as CSV or XLSX' })
-@UseGuards(JwtAuthGuard, PermissionsGuard)
-@RequirePermissions(PERMISSIONS.CONTENT_READ)
-@Get('admin/export')
-async exportProperties(
-  @Query() query: PropertyAdminQueryDto,
-  @Query('format') formatQuery: unknown,
-  @Res() res: ExpressResponse,
-) {
-  const format = parseExportFormat(formatQuery);
-  const rows = await this.propertiesService.findAllForExport(query);
-  const buffer = format === 'xlsx'
-    ? await buildTableXlsx(rows, PROPERTY_EXPORT_COLUMNS, 'Properties')
-    : buildTableCsv(rows, PROPERTY_EXPORT_COLUMNS);
-  sendFileResponse(res, buffer, 'properties-export', format);
-}
+
 }

@@ -5,16 +5,20 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import * as nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
-import type { AppConfig } from './../../common/config/app-config';
+import type { AppConfig } from '../../common/config/app-config';
+import { wrapEmailTemplate, LOGO_CID } from '../../common/mail/email-template.util';
 
 @Injectable()
 export class MailService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MailService.name);
   private transporter!: Transporter;
   private fromAddress!: string;
+  private logoBuffer: Buffer | null = null;
 
   constructor(private readonly config: ConfigService) {}
 
@@ -23,15 +27,10 @@ export class MailService implements OnModuleInit, OnModuleDestroy {
 
     this.fromAddress = `"${mailConfig.fromName}" <${mailConfig.user}>`;
 
-    // `family: 4` is a genuine, working Nodemailer/Node runtime option —
-    // it's just missing from SMTPTransport.Options' type definitions.
-    // `as` (assertion) instead of `:` (annotation) skips TS's excess
-    // property check for this one known gap, without losing type
-    // checking on every other field.
     const transportOptions = {
       host: mailConfig.host,
       port: mailConfig.port,
-      secure: mailConfig.secure, // 465 = implicit TLS, 587 = STARTTLS
+      secure: mailConfig.secure,
       family: 4,
       auth: {
         user: mailConfig.user,
@@ -40,6 +39,19 @@ export class MailService implements OnModuleInit, OnModuleDestroy {
     } as SMTPTransport.Options;
 
     this.transporter = nodemailer.createTransport(transportOptions);
+
+    this.loadLogo();
+  }
+
+  private loadLogo() {
+    const logoPath = join(process.cwd(), 'assets', 'logo.png');
+    try {
+      this.logoBuffer = readFileSync(logoPath);
+    } catch (err) {
+      this.logger.warn(
+        `Could not load email logo at ${logoPath}: ${(err as Error).message}. Emails will send without the branded header.`,
+      );
+    }
   }
 
   async onModuleDestroy() {
@@ -56,12 +68,15 @@ export class MailService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async sendMail(to: string, subject: string, html: string): Promise<void> {
+  async sendMail(to: string, subject: string, bodyHtml: string): Promise<void> {
     await this.transporter.sendMail({
       from: this.fromAddress,
       to,
       subject,
-      html,
+      html: wrapEmailTemplate(bodyHtml),
+      attachments: this.logoBuffer
+        ? [{ filename: 'logo.png', content: this.logoBuffer, cid: LOGO_CID }]
+        : [],
     });
   }
 }

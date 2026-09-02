@@ -62,6 +62,20 @@ export class ContactMessagesController {
   }
 
   @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Export contact messages as CSV or XLSX' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @Get('export')
+  async exportContactMessages(@Query() query: ContactMessageQueryDto, @Res() res: ExpressResponse) {
+    const format = parseExportFormat(query.format);
+    const rows = await this.contactMessagesService.findAllForExport(query);
+    const buffer = format === 'xlsx'
+      ? await buildTableXlsx(rows, CONTACT_MESSAGE_EXPORT_COLUMNS, 'Contact Messages')
+      : buildTableCsv(rows, CONTACT_MESSAGE_EXPORT_COLUMNS);
+    sendFileResponse(res, buffer, 'contact-messages-export', format);
+  }
+
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get a single contact message (marks it read)' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_READ)
@@ -90,22 +104,4 @@ export class ContactMessagesController {
     return this.contactMessagesService.convertToClient(id);
   }
 
-
-  @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Export contact messages as CSV or XLSX' })
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
-  @Get('export')
-  async exportContactMessages(
-    @Query() query: ContactMessageQueryDto,
-    @Query('format') formatQuery: unknown,
-    @Res() res: ExpressResponse,
-  ) {
-    const format = parseExportFormat(formatQuery);
-    const rows = await this.contactMessagesService.findAllForExport(query);
-    const buffer = format === 'xlsx'
-      ? await buildTableXlsx(rows, CONTACT_MESSAGE_EXPORT_COLUMNS, 'Contact Messages')
-      : buildTableCsv(rows, CONTACT_MESSAGE_EXPORT_COLUMNS);
-    sendFileResponse(res, buffer, 'contact-messages-export', format);
-  }
 }

@@ -66,6 +66,20 @@ export class QuoteRequestsController {
   }
 
   @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Export quote requests as CSV or XLSX' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @Get('export')
+  async exportQuoteRequests(@Query() query: QuoteRequestQueryDto, @Res() res: ExpressResponse) {
+    const format = parseExportFormat(query.format);
+    const rows = await this.quoteRequestsService.findAllForExport(query);
+    const buffer = format === 'xlsx'
+      ? await buildTableXlsx(rows, QUOTE_REQUEST_EXPORT_COLUMNS, 'Quote Requests')
+      : buildTableCsv(rows, QUOTE_REQUEST_EXPORT_COLUMNS);
+    sendFileResponse(res, buffer, 'quote-requests-export', format);
+  }
+
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get a single quote request' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_READ)
@@ -93,21 +107,4 @@ export class QuoteRequestsController {
     return this.quoteRequestsService.convertToClient(id);
   }
 
-  @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Export quote requests as CSV or XLSX' })
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
-  @Get('export')
-  async exportQuoteRequests(
-    @Query() query: QuoteRequestQueryDto,
-    @Query('format') formatQuery: unknown,
-    @Res() res: ExpressResponse,
-  ) {
-    const format = parseExportFormat(formatQuery);
-    const rows = await this.quoteRequestsService.findAllForExport(query);
-    const buffer = format === 'xlsx'
-      ? await buildTableXlsx(rows, QUOTE_REQUEST_EXPORT_COLUMNS, 'Quote Requests')
-      : buildTableCsv(rows, QUOTE_REQUEST_EXPORT_COLUMNS);
-    sendFileResponse(res, buffer, 'quote-requests-export', format);
-  }
 }

@@ -302,6 +302,8 @@ export const SiteSettingsScalarFieldEnum = {
   linkedinUrl: 'linkedinUrl',
   whatsappNumber: 'whatsappNumber',
   missionStatement: 'missionStatement',
+  officeLatitude: 'officeLatitude',
+  officeLongitude: 'officeLongitude',
   visionStatement: 'visionStatement',
   companyStory: 'companyStory',
   updatedAt: 'updatedAt'

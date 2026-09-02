@@ -14,11 +14,11 @@ interface SiteSettingsDefaults {
   twitterUrl: string | null;
   linkedinUrl: string | null;
   whatsappNumber: string | null;
-  officeLatitude: number | null;
-  officeLongitude: number | null;
   missionStatement: string | null;
   visionStatement: string | null;
   companyStory: string | null;
+  officeLatitude: number | null;
+  officeLongitude: number | null;
 }
 
 const DEFAULTS: SiteSettingsDefaults = {
@@ -32,11 +32,11 @@ const DEFAULTS: SiteSettingsDefaults = {
   twitterUrl: null,
   linkedinUrl: null,
   whatsappNumber: null,
-  officeLatitude: null,
-  officeLongitude: null,
   missionStatement: null,
   visionStatement: null,
   companyStory: null,
+  officeLatitude: null,
+  officeLongitude: null,
 };
 
 @Injectable()

@@ -20,8 +20,20 @@ export type SiteSettingsModel = runtime.Types.Result.DefaultSelection<Prisma.$Si
 
 export type AggregateSiteSettings = {
   _count: SiteSettingsCountAggregateOutputType | null
+  _avg: SiteSettingsAvgAggregateOutputType | null
+  _sum: SiteSettingsSumAggregateOutputType | null
   _min: SiteSettingsMinAggregateOutputType | null
   _max: SiteSettingsMaxAggregateOutputType | null
+}
+
+export type SiteSettingsAvgAggregateOutputType = {
+  officeLatitude: number | null
+  officeLongitude: number | null
+}
+
+export type SiteSettingsSumAggregateOutputType = {
+  officeLatitude: number | null
+  officeLongitude: number | null
 }
 
 export type SiteSettingsMinAggregateOutputType = {
@@ -37,6 +49,8 @@ export type SiteSettingsMinAggregateOutputType = {
   linkedinUrl: string | null
   whatsappNumber: string | null
   missionStatement: string | null
+  officeLatitude: number | null
+  officeLongitude: number | null
   visionStatement: string | null
   companyStory: string | null
   updatedAt: Date | null
@@ -55,6 +69,8 @@ export type SiteSettingsMaxAggregateOutputType = {
   linkedinUrl: string | null
   whatsappNumber: string | null
   missionStatement: string | null
+  officeLatitude: number | null
+  officeLongitude: number | null
   visionStatement: string | null
   companyStory: string | null
   updatedAt: Date | null
@@ -73,12 +89,24 @@ export type SiteSettingsCountAggregateOutputType = {
   linkedinUrl: number
   whatsappNumber: number
   missionStatement: number
+  officeLatitude: number
+  officeLongitude: number
   visionStatement: number
   companyStory: number
   updatedAt: number
   _all: number
 }
 
+
+export type SiteSettingsAvgAggregateInputType = {
+  officeLatitude?: true
+  officeLongitude?: true
+}
+
+export type SiteSettingsSumAggregateInputType = {
+  officeLatitude?: true
+  officeLongitude?: true
+}
 
 export type SiteSettingsMinAggregateInputType = {
   id?: true
@@ -93,6 +121,8 @@ export type SiteSettingsMinAggregateInputType = {
   linkedinUrl?: true
   whatsappNumber?: true
   missionStatement?: true
+  officeLatitude?: true
+  officeLongitude?: true
   visionStatement?: true
   companyStory?: true
   updatedAt?: true
@@ -111,6 +141,8 @@ export type SiteSettingsMaxAggregateInputType = {
   linkedinUrl?: true
   whatsappNumber?: true
   missionStatement?: true
+  officeLatitude?: true
+  officeLongitude?: true
   visionStatement?: true
   companyStory?: true
   updatedAt?: true
@@ -129,6 +161,8 @@ export type SiteSettingsCountAggregateInputType = {
   linkedinUrl?: true
   whatsappNumber?: true
   missionStatement?: true
+  officeLatitude?: true
+  officeLongitude?: true
   visionStatement?: true
   companyStory?: true
   updatedAt?: true
@@ -173,6 +207,18 @@ export type SiteSettingsAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SiteSettingsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SiteSettingsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SiteSettingsMinAggregateInputType
@@ -203,6 +249,8 @@ export type SiteSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: SiteSettingsCountAggregateInputType | true
+  _avg?: SiteSettingsAvgAggregateInputType
+  _sum?: SiteSettingsSumAggregateInputType
   _min?: SiteSettingsMinAggregateInputType
   _max?: SiteSettingsMaxAggregateInputType
 }
@@ -220,10 +268,14 @@ export type SiteSettingsGroupByOutputType = {
   linkedinUrl: string | null
   whatsappNumber: string | null
   missionStatement: string | null
+  officeLatitude: number | null
+  officeLongitude: number | null
   visionStatement: string | null
   companyStory: string | null
   updatedAt: Date
   _count: SiteSettingsCountAggregateOutputType | null
+  _avg: SiteSettingsAvgAggregateOutputType | null
+  _sum: SiteSettingsSumAggregateOutputType | null
   _min: SiteSettingsMinAggregateOutputType | null
   _max: SiteSettingsMaxAggregateOutputType | null
 }
@@ -259,6 +311,8 @@ export type SiteSettingsWhereInput = {
   linkedinUrl?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   whatsappNumber?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   missionStatement?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
+  officeLatitude?: Prisma.FloatNullableFilter<"SiteSettings"> | number | null
+  officeLongitude?: Prisma.FloatNullableFilter<"SiteSettings"> | number | null
   visionStatement?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   companyStory?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"SiteSettings"> | Date | string
@@ -277,6 +331,8 @@ export type SiteSettingsOrderByWithRelationInput = {
   linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   missionStatement?: Prisma.SortOrderInput | Prisma.SortOrder
+  officeLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
   visionStatement?: Prisma.SortOrderInput | Prisma.SortOrder
   companyStory?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -298,6 +354,8 @@ export type SiteSettingsWhereUniqueInput = Prisma.AtLeast<{
   linkedinUrl?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   whatsappNumber?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   missionStatement?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
+  officeLatitude?: Prisma.FloatNullableFilter<"SiteSettings"> | number | null
+  officeLongitude?: Prisma.FloatNullableFilter<"SiteSettings"> | number | null
   visionStatement?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   companyStory?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"SiteSettings"> | Date | string
@@ -316,12 +374,16 @@ export type SiteSettingsOrderByWithAggregationInput = {
   linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   missionStatement?: Prisma.SortOrderInput | Prisma.SortOrder
+  officeLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
   visionStatement?: Prisma.SortOrderInput | Prisma.SortOrder
   companyStory?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SiteSettingsCountOrderByAggregateInput
+  _avg?: Prisma.SiteSettingsAvgOrderByAggregateInput
   _max?: Prisma.SiteSettingsMaxOrderByAggregateInput
   _min?: Prisma.SiteSettingsMinOrderByAggregateInput
+  _sum?: Prisma.SiteSettingsSumOrderByAggregateInput
 }
 
 export type SiteSettingsScalarWhereWithAggregatesInput = {
@@ -340,6 +402,8 @@ export type SiteSettingsScalarWhereWithAggregatesInput = {
   linkedinUrl?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   whatsappNumber?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   missionStatement?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
+  officeLatitude?: Prisma.FloatNullableWithAggregatesFilter<"SiteSettings"> | number | null
+  officeLongitude?: Prisma.FloatNullableWithAggregatesFilter<"SiteSettings"> | number | null
   visionStatement?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   companyStory?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SiteSettings"> | Date | string
@@ -358,6 +422,8 @@ export type SiteSettingsCreateInput = {
   linkedinUrl?: string | null
   whatsappNumber?: string | null
   missionStatement?: string | null
+  officeLatitude?: number | null
+  officeLongitude?: number | null
   visionStatement?: string | null
   companyStory?: string | null
   updatedAt?: Date | string
@@ -376,6 +442,8 @@ export type SiteSettingsUncheckedCreateInput = {
   linkedinUrl?: string | null
   whatsappNumber?: string | null
   missionStatement?: string | null
+  officeLatitude?: number | null
+  officeLongitude?: number | null
   visionStatement?: string | null
   companyStory?: string | null
   updatedAt?: Date | string
@@ -394,6 +462,8 @@ export type SiteSettingsUpdateInput = {
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   missionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  officeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  officeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   visionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyStory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -412,6 +482,8 @@ export type SiteSettingsUncheckedUpdateInput = {
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   missionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  officeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  officeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   visionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyStory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +502,8 @@ export type SiteSettingsCreateManyInput = {
   linkedinUrl?: string | null
   whatsappNumber?: string | null
   missionStatement?: string | null
+  officeLatitude?: number | null
+  officeLongitude?: number | null
   visionStatement?: string | null
   companyStory?: string | null
   updatedAt?: Date | string
@@ -448,6 +522,8 @@ export type SiteSettingsUpdateManyMutationInput = {
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   missionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  officeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  officeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   visionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyStory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -466,6 +542,8 @@ export type SiteSettingsUncheckedUpdateManyInput = {
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   missionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  officeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  officeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   visionStatement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyStory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -484,9 +562,16 @@ export type SiteSettingsCountOrderByAggregateInput = {
   linkedinUrl?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   missionStatement?: Prisma.SortOrder
+  officeLatitude?: Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrder
   visionStatement?: Prisma.SortOrder
   companyStory?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SiteSettingsAvgOrderByAggregateInput = {
+  officeLatitude?: Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrder
 }
 
 export type SiteSettingsMaxOrderByAggregateInput = {
@@ -502,6 +587,8 @@ export type SiteSettingsMaxOrderByAggregateInput = {
   linkedinUrl?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   missionStatement?: Prisma.SortOrder
+  officeLatitude?: Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrder
   visionStatement?: Prisma.SortOrder
   companyStory?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -520,9 +607,24 @@ export type SiteSettingsMinOrderByAggregateInput = {
   linkedinUrl?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   missionStatement?: Prisma.SortOrder
+  officeLatitude?: Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrder
   visionStatement?: Prisma.SortOrder
   companyStory?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SiteSettingsSumOrderByAggregateInput = {
+  officeLatitude?: Prisma.SortOrder
+  officeLongitude?: Prisma.SortOrder
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 
@@ -540,6 +642,8 @@ export type SiteSettingsSelect<ExtArgs extends runtime.Types.Extensions.Internal
   linkedinUrl?: boolean
   whatsappNumber?: boolean
   missionStatement?: boolean
+  officeLatitude?: boolean
+  officeLongitude?: boolean
   visionStatement?: boolean
   companyStory?: boolean
   updatedAt?: boolean
@@ -558,6 +662,8 @@ export type SiteSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   linkedinUrl?: boolean
   whatsappNumber?: boolean
   missionStatement?: boolean
+  officeLatitude?: boolean
+  officeLongitude?: boolean
   visionStatement?: boolean
   companyStory?: boolean
   updatedAt?: boolean
@@ -576,6 +682,8 @@ export type SiteSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   linkedinUrl?: boolean
   whatsappNumber?: boolean
   missionStatement?: boolean
+  officeLatitude?: boolean
+  officeLongitude?: boolean
   visionStatement?: boolean
   companyStory?: boolean
   updatedAt?: boolean
@@ -594,12 +702,14 @@ export type SiteSettingsSelectScalar = {
   linkedinUrl?: boolean
   whatsappNumber?: boolean
   missionStatement?: boolean
+  officeLatitude?: boolean
+  officeLongitude?: boolean
   visionStatement?: boolean
   companyStory?: boolean
   updatedAt?: boolean
 }
 
-export type SiteSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "officeAddress" | "phonePrimary" | "phoneSecondary" | "email" | "officeHours" | "facebookUrl" | "instagramUrl" | "twitterUrl" | "linkedinUrl" | "whatsappNumber" | "missionStatement" | "visionStatement" | "companyStory" | "updatedAt", ExtArgs["result"]["siteSettings"]>
+export type SiteSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "officeAddress" | "phonePrimary" | "phoneSecondary" | "email" | "officeHours" | "facebookUrl" | "instagramUrl" | "twitterUrl" | "linkedinUrl" | "whatsappNumber" | "missionStatement" | "officeLatitude" | "officeLongitude" | "visionStatement" | "companyStory" | "updatedAt", ExtArgs["result"]["siteSettings"]>
 
 export type $SiteSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteSettings"
@@ -617,6 +727,8 @@ export type $SiteSettingsPayload<ExtArgs extends runtime.Types.Extensions.Intern
     linkedinUrl: string | null
     whatsappNumber: string | null
     missionStatement: string | null
+    officeLatitude: number | null
+    officeLongitude: number | null
     visionStatement: string | null
     companyStory: string | null
     updatedAt: Date
@@ -1055,6 +1167,8 @@ export interface SiteSettingsFieldRefs {
   readonly linkedinUrl: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly whatsappNumber: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly missionStatement: Prisma.FieldRef<"SiteSettings", 'String'>
+  readonly officeLatitude: Prisma.FieldRef<"SiteSettings", 'Float'>
+  readonly officeLongitude: Prisma.FieldRef<"SiteSettings", 'Float'>
   readonly visionStatement: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly companyStory: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"SiteSettings", 'DateTime'>

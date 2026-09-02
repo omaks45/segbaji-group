@@ -1,4 +1,4 @@
-export const LOGO_CID = 'segbaji-logo';
+export const LOGO_CID = 'logo';
 
 /**
  * Wraps every outgoing email's body in a consistent branded header

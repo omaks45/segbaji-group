@@ -26,6 +26,8 @@ import { PropertiesModule } from './modules/properties/properties.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { BullModule } from '@nestjs/bullmq';
 import { buildBullConnection } from './common/queue/bullmq-connection.factory';
+import { SystemInfoModule } from './modules/system-info/system-info.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -65,6 +67,8 @@ import { buildBullConnection } from './common/queue/bullmq-connection.factory';
     ProjectsModule,
     PropertiesModule,
     ReportsModule,
+    DashboardModule,
+    SystemInfoModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
