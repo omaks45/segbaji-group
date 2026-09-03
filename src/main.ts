@@ -37,28 +37,27 @@ async function bootstrap() {
     }),
   );
 
-  if (config.get<string>('NODE_ENV') !== 'production') {
-    const swaggerConfig = new DocumentBuilder()
-      .setTitle('Segbaji & Son API')
-      .setDescription('Backend API for the Segbaji & Son website and admin portal')
-      .setVersion('0.1')
-      .addBearerAuth(
-        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-        'access-token',
-      )
-      .build();
+  // Swagger is intentionally mounted in every environment, including
+  // production — the team needs a shared, always-current reference
+  // (frontend dev, PM) without needing local backend setup to view it.
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Segbaji & Son API')
+    .setDescription('Backend API for the Segbaji & Son website and admin portal')
+    .setVersion('0.1')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
+    .build();
 
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api/docs', app, document);
-  }
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
 
   const port = config.get<number>('PORT') ?? 4000;
   await app.listen(port);
   logger.log(`Segbaji & Son API running on http://localhost:${port}`);
   logger.log(`Health check: http://localhost:${port}/health`);
-  if (config.get<string>('NODE_ENV') !== 'production') {
-    logger.log(`API docs: http://localhost:${port}/api/docs`);
-  }
+  logger.log(`API docs: http://localhost:${port}/api/docs`);
 }
 
 bootstrap();
