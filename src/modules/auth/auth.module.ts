@@ -8,6 +8,7 @@ import { SecurityService } from './security.service';
 import { SecurityController } from './security.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/permissions/permissions.guard';
+import { TokenValidatorService } from './token-validator.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { PermissionsGuard } from '../../common/permissions/permissions.guard';
     }),
   ],
   controllers: [AuthController, SecurityController],
-  providers: [AuthService, SecurityService, JwtAuthGuard, PermissionsGuard],
-  exports: [AuthService, JwtAuthGuard, JwtModule, PermissionsGuard],
+  providers: [AuthService, SecurityService, TokenValidatorService, JwtAuthGuard, PermissionsGuard],
+  exports: [AuthService, TokenValidatorService, JwtAuthGuard, JwtModule, PermissionsGuard],
 })
 export class AuthModule {}
