@@ -7,10 +7,23 @@ import type { CloudinaryService } from '../../common/cloudinary/cloudinary.servi
 function buildMockPrisma() {
   return {
     user: { count: jest.fn() },
-    conversation: { findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
-    conversationParticipant: { findUnique: jest.fn(), findMany: jest.fn(), updateMany: jest.fn() },
-    message: { create: jest.fn(), count: jest.fn(), findMany: jest.fn(), findUniqueOrThrow: jest.fn() },
-    messageAttachment: { create: jest.fn(), count: jest.fn(), updateMany: jest.fn() },
+    conversation: { findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+    conversationParticipant: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      updateMany: jest.fn(),
+      createMany: jest.fn(),
+      delete: jest.fn(),
+    },
+    message: {
+      create: jest.fn(),
+      count: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
+      update: jest.fn(),
+    },
+    messageAttachment: { create: jest.fn(), count: jest.fn(), updateMany: jest.fn(), deleteMany: jest.fn() },
     $transaction: jest.fn((ops: unknown) => (Array.isArray(ops) ? Promise.all(ops) : ops)),
   } as unknown as PrismaService;
 }
@@ -108,6 +121,72 @@ describe('MessagingService', () => {
       await expect(
         service.sendMessage('convo1', 'member1', undefined, ['someone-elses-attachment']),
       ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('editMessage', () => {
+    it('rejects editing another user\'s message', async () => {
+      (prisma.message.findUnique as jest.Mock).mockResolvedValue({ id: 'm1', senderId: 'someoneElse', deletedAt: null });
+      await expect(service.editMessage('m1', 'me', { content: 'hacked' })).rejects.toThrow(ForbiddenException);
+    });
+
+    it('rejects editing a deleted message', async () => {
+      (prisma.message.findUnique as jest.Mock).mockResolvedValue({ id: 'm1', senderId: 'me', deletedAt: new Date() });
+      await expect(service.editMessage('m1', 'me', { content: 'x' })).rejects.toThrow(NotFoundException);
+    });
+
+    it('allows the sender to edit their own message', async () => {
+      (prisma.message.findUnique as jest.Mock).mockResolvedValue({ id: 'm1', senderId: 'me', deletedAt: null });
+      (prisma.message.update as jest.Mock).mockResolvedValue({ id: 'm1', content: 'updated' });
+      const result = await service.editMessage('m1', 'me', { content: 'updated' });
+      expect(result.content).toBe('updated');
+    });
+  });
+
+  describe('deleteMessage', () => {
+    it('nulls content and sets deletedAt, and cleans up attachments', async () => {
+      (prisma.message.findUnique as jest.Mock).mockResolvedValue({
+        id: 'm1', senderId: 'me', deletedAt: null, conversationId: 'c1',
+        attachments: [{ publicId: 'cld1' }],
+      });
+      (prisma.$transaction as jest.Mock).mockResolvedValue([{}, {}]);
+
+      const cloudinary = { deleteAsset: jest.fn() } as unknown as CloudinaryService;
+      const svc = new MessagingService(prisma, cloudinary);
+      await svc.deleteMessage('m1', 'me');
+
+      expect(cloudinary.deleteAsset).toHaveBeenCalledWith('cld1');
+    });
+
+    it('rejects deleting someone else\'s message', async () => {
+      (prisma.message.findUnique as jest.Mock).mockResolvedValue({ id: 'm1', senderId: 'notMe', deletedAt: null, attachments: [] });
+      await expect(service.deleteMessage('m1', 'me')).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('group membership', () => {
+    it('rejects membership changes on a DIRECT conversation', async () => {
+      (prisma.conversation.findUnique as jest.Mock).mockResolvedValue({ id: 'c1', type: 'DIRECT' });
+      await expect(service.addParticipants('c1', 'me', { userIds: ['x'] })).rejects.toThrow(BadRequestException);
+    });
+
+    it('skips users who are already participants instead of erroring', async () => {
+      (prisma.conversation.findUnique as jest.Mock).mockResolvedValue({ id: 'c1', type: 'GROUP', createdById: 'me' });
+      (prisma.conversationParticipant.findUnique as jest.Mock).mockResolvedValue({ id: 'p1' });
+      (prisma.conversationParticipant.findMany as jest.Mock).mockResolvedValue([{ userId: 'alreadyIn' }]);
+
+      const result = await service.addParticipants('c1', 'me', { userIds: ['alreadyIn'] });
+      expect(result.added).toEqual([]);
+    });
+
+    it('only lets the creator remove another member', async () => {
+      (prisma.conversation.findUnique as jest.Mock).mockResolvedValue({ id: 'c1', type: 'GROUP', createdById: 'creator' });
+      await expect(service.removeParticipant('c1', 'notCreator', 'target')).rejects.toThrow(ForbiddenException);
+    });
+
+    it('rejects using removeParticipant on yourself', async () => {
+      (prisma.conversation.findUnique as jest.Mock).mockResolvedValue({ id: 'c1', type: 'GROUP', createdById: 'me' });
+      await expect(service.removeParticipant('c1', 'me', 'me')).rejects.toThrow(BadRequestException);
     });
   });
 

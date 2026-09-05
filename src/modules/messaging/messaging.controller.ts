@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseGuards, UseInterceptors, DefaultValuePipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseGuards, UseInterceptors, DefaultValuePipe, Patch, Delete } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MessagingService } from './messaging.service';
@@ -8,6 +8,8 @@ import { ConversationQueryDto } from './dto/conversation-query.dto';
 import { imageUploadOptions } from '../../common/upload/image-upload.options';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from '../auth/decorators/current-user.decorator';
+import { EditMessageDto } from './dto/edit-message.dto';
+import { AddParticipantsDto } from './dto/add-participants.dto';
 
 @ApiTags('Messaging')
 @ApiBearerAuth('access-token')
@@ -57,5 +59,39 @@ export class MessagingController {
   @UseInterceptors(FileInterceptor('file', imageUploadOptions(15 * 1024 * 1024))) // 15MB, any file type — this endpoint intentionally skips the image-only check imageUploadOptions was designed for
   uploadAttachment(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: JwtPayload) {
     return this.messagingService.uploadAttachment(file, user.sub);
+  }
+
+  @ApiOperation({ summary: 'Edit a message you sent' })
+  @Patch('messages/:id')
+  editMessage(@Param('id') id: string, @Body() dto: EditMessageDto, @CurrentUser() user: JwtPayload) {
+    return this.messagingService.editMessage(id, user.sub, dto);
+  }
+
+  @ApiOperation({ summary: 'Delete (tombstone) a message you sent' })
+  @Delete('messages/:id')
+  deleteMessage(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.messagingService.deleteMessage(id, user.sub);
+  }
+
+  @ApiOperation({ summary: 'Add members to a group conversation' })
+  @Post('conversations/:id/participants')
+  addParticipants(@Param('id') id: string, @Body() dto: AddParticipantsDto, @CurrentUser() user: JwtPayload) {
+    return this.messagingService.addParticipants(id, user.sub, dto);
+  }
+
+  @ApiOperation({ summary: 'Leave a group conversation' })
+  @Delete('conversations/:id/participants/me')
+  leaveConversation(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.messagingService.leaveConversation(id, user.sub);
+  }
+
+  @ApiOperation({ summary: 'Remove another member (conversation creator only)' })
+  @Delete('conversations/:id/participants/:userId')
+  removeParticipant(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.messagingService.removeParticipant(id, user.sub, userId);
   }
 }

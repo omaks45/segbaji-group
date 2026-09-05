@@ -13,6 +13,8 @@ import { TokenValidatorService } from '../auth/token-validator.service';
 import { MessagingService } from './messaging.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import type { JwtPayload } from '../auth/decorators/current-user.decorator';
+import { EditMessageDto } from './dto/edit-message.dto';
+import { AddParticipantsDto } from './dto/add-participants.dto';
 
 interface AuthenticatedSocket extends Socket {
     data: { user: JwtPayload };
@@ -45,7 +47,8 @@ export class MessagingGateway implements OnGatewayConnection, OnGatewayDisconnec
     async handleConnection(client: Socket) {
         const rawToken =
         (client.handshake.auth?.token as string | undefined) ??
-        client.handshake.headers.authorization?.replace('Bearer ', '');
+        client.handshake.headers.authorization?.replace('Bearer ', '') ??
+        (client.handshake.query?.token as string | undefined);
 
         if (!rawToken) {
         client.disconnect(true);
@@ -87,6 +90,46 @@ export class MessagingGateway implements OnGatewayConnection, OnGatewayDisconnec
         );
         this.server.to(`conversation:${data.conversationId}`).emit('newMessage', message);
         return message;
+    }
+
+    @SubscribeMessage('editMessage')
+    async handleEditMessage(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() data: { messageId: string } & EditMessageDto,
+    ) {
+    const message = await this.messagingService.editMessage(data.messageId, client.data.user.sub, {
+        content: data.content,
+    });
+    this.server.to(`conversation:${message.conversationId}`).emit('messageEdited', message);
+    return message;
+    }
+
+    @SubscribeMessage('deleteMessage')
+    async handleDeleteMessage(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() data: { messageId: string },
+    ) {
+    const result = await this.messagingService.deleteMessage(data.messageId, client.data.user.sub);
+    this.server.to(`conversation:${result.conversationId}`).emit('messageDeleted', {
+        messageId: data.messageId,
+        conversationId: result.conversationId,
+    });
+    return result;
+    }
+
+    @SubscribeMessage('addParticipants')
+    async handleAddParticipants(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() data: { conversationId: string } & AddParticipantsDto,
+    ) {
+    const result = await this.messagingService.addParticipants(data.conversationId, client.data.user.sub, {
+        userIds: data.userIds,
+    });
+    this.server.to(`conversation:${data.conversationId}`).emit('participantsAdded', {
+        conversationId: data.conversationId,
+        added: result.added,
+    });
+    return result;
     }
 
     @SubscribeMessage('markAsRead')

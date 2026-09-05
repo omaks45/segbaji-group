@@ -4,6 +4,8 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import { CloudinaryService } from '../../common/cloudinary/cloudinary.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { ConversationQueryDto } from './dto/conversation-query.dto';
+import { EditMessageDto } from './dto/edit-message.dto';
+import { AddParticipantsDto } from './dto/add-participants.dto';
 
 @Injectable()
 export class MessagingService {
@@ -207,6 +209,100 @@ export class MessagingService {
       where: { id: message.id },
       include: { sender: { select: { id: true, fullName: true, profilePictureUrl: true } }, attachments: true },
     });
+  }
+
+  async editMessage(messageId: string, userId: string, dto: EditMessageDto) {
+    const message = await this.prisma.message.findUnique({ where: { id: messageId } });
+    if (!message || message.deletedAt) throw new NotFoundException('Message not found');
+    if (message.senderId !== userId) throw new ForbiddenException('You can only edit your own messages');
+
+    return this.prisma.message.update({
+      where: { id: messageId },
+      data: { content: dto.content, editedAt: new Date() },
+      include: { sender: { select: { id: true, fullName: true, profilePictureUrl: true } }, attachments: true },
+    });
+  }
+
+  async deleteMessage(messageId: string, userId: string) {
+    const message = await this.prisma.message.findUnique({
+      where: { id: messageId },
+      include: { attachments: true },
+    });
+    if (!message || message.deletedAt) throw new NotFoundException('Message not found');
+    if (message.senderId !== userId) throw new ForbiddenException('You can only delete your own messages');
+
+    await this.prisma.$transaction([
+      this.prisma.message.update({
+        where: { id: messageId },
+        data: { content: null, deletedAt: new Date() },
+      }),
+      this.prisma.messageAttachment.deleteMany({ where: { messageId } }),
+    ]);
+
+    // Cloudinary cleanup runs after the DB transaction succeeds, same
+    // fire-and-forget pattern as every other asset deletion in this app.
+    message.attachments.forEach((att) => void this.cloudinary.deleteAsset(att.publicId));
+
+    return { message: 'Message deleted', conversationId: message.conversationId };
+  }
+
+  async addParticipants(conversationId: string, requesterId: string, dto: AddParticipantsDto) {
+    const conversation = await this.getGroupConversationOrThrow(conversationId);
+    await this.assertParticipant(conversationId, requesterId);
+
+    const existing = await this.prisma.conversationParticipant.findMany({
+      where: { conversationId },
+      select: { userId: true },
+    });
+    const existingIds = new Set(existing.map((p) => p.userId));
+    const newUserIds = dto.userIds.filter((id) => !existingIds.has(id));
+
+    if (newUserIds.length === 0) {
+      return { message: 'All listed users are already participants', added: [] };
+    }
+
+    await this.prisma.conversationParticipant.createMany({
+      data: newUserIds.map((userId) => ({ conversationId, userId })),
+    });
+
+    return { message: 'Participants added', added: newUserIds };
+  }
+
+  async leaveConversation(conversationId: string, userId: string) {
+    await this.getGroupConversationOrThrow(conversationId);
+    await this.assertParticipant(conversationId, userId);
+
+    await this.prisma.conversationParticipant.delete({
+      where: { conversationId_userId: { conversationId, userId } },
+    });
+    return { message: 'You left the conversation' };
+  }
+
+  async removeParticipant(conversationId: string, requesterId: string, targetUserId: string) {
+    const conversation = await this.getGroupConversationOrThrow(conversationId);
+    if (conversation.createdById !== requesterId) {
+      throw new ForbiddenException('Only the conversation creator can remove other members');
+    }
+    if (requesterId === targetUserId) {
+      throw new BadRequestException('Use "leave" to remove yourself, not this endpoint');
+    }
+
+    const target = await this.prisma.conversationParticipant.findUnique({
+      where: { conversationId_userId: { conversationId, userId: targetUserId } },
+    });
+    if (!target) throw new NotFoundException('That user is not a participant in this conversation');
+
+    await this.prisma.conversationParticipant.delete({ where: { id: target.id } });
+    return { message: 'Participant removed' };
+  }
+
+  private async getGroupConversationOrThrow(conversationId: string) {
+    const conversation = await this.prisma.conversation.findUnique({ where: { id: conversationId } });
+    if (!conversation) throw new NotFoundException('Conversation not found');
+    if (conversation.type !== ConversationType.GROUP) {
+      throw new BadRequestException('Membership changes only apply to GROUP conversations');
+    }
+    return conversation;
   }
 
   async markAsRead(conversationId: string, userId: string) {
