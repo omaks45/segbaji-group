@@ -200,7 +200,7 @@ function buildMockPrisma() {
 
         it('rejects an INACTIVE user even with the correct password, before ever checking it', async () => {
         (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-            id: '1', passwordHash: 'hash', status: 'INACTIVE', role: null,
+            id: '1', passwordHash: 'hash', status: 'INACTIVE', role: null, 
         });
         await expect(service.login(dto, meta)).rejects.toThrow(UnauthorizedException);
         expect(bcrypt.compare).not.toHaveBeenCalled();
@@ -228,7 +228,7 @@ function buildMockPrisma() {
 
         it('creates a Session and signs a JWT containing sub, role, permissions, and sessionId on success', async () => {
         (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-            id: 'user1', passwordHash: 'hash', status: 'ACTIVE',
+            id: 'user1', passwordHash: 'hash', status: 'ACTIVE', departmentId: 'dept1',
             fullName: 'Jane', email: dto.email,
             role: { name: 'Site Engineer', permissions: ['content:read', 'content:write'] },
         });
@@ -241,7 +241,8 @@ function buildMockPrisma() {
             data: expect.objectContaining({ userId: 'user1', ipAddress: meta.ipAddress, userAgent: meta.userAgent }),
         });
         expect(jwt.sign).toHaveBeenCalledWith({
-            sub: 'user1', role: 'Site Engineer', permissions: ['content:read', 'content:write'], sessionId: 'session1',
+            sub: 'user1', role: 'Site Engineer', permissions: ['content:read', 'content:write'],
+            departmentId: 'dept1', sessionId: 'session1',
         });
         expect(result.accessToken).toBe('signed.jwt.token');
         expect(result.refreshToken).toEqual(expect.any(String));
@@ -249,7 +250,8 @@ function buildMockPrisma() {
 
         it('logs a successful attempt on success', async () => {
         (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-            id: 'user1', passwordHash: 'hash', status: 'ACTIVE', fullName: 'Jane', email: dto.email,
+            id: 'user1', passwordHash: 'hash', status: 'ACTIVE', departmentId: 'dept1',
+            fullName: 'Jane', email: dto.email,
             role: { name: 'Site Engineer', permissions: [] },
         });
         (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -263,14 +265,15 @@ function buildMockPrisma() {
 
         it('signs an empty permissions array for a user with no role assigned, rather than throwing', async () => {
         (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-            id: 'user1', passwordHash: 'hash', status: 'ACTIVE', fullName: 'Jane', email: dto.email, role: null,
+            id: 'user1', passwordHash: 'hash', status: 'ACTIVE', departmentId: 'dept1',
+            fullName: 'Jane', email: dto.email, role: null,
         });
         (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
         await service.login(dto, meta);
 
         expect(jwt.sign).toHaveBeenCalledWith(
-            expect.objectContaining({ role: null, permissions: [] }),
+            expect.objectContaining({ role: null, permissions: [], departmentId: 'dept1' }),
         );
         });
     });
