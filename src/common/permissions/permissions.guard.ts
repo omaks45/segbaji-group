@@ -9,6 +9,7 @@ import type { Request } from 'express';
 import { PERMISSIONS_KEY } from './require-permissions.decorator';
 import type { PermissionKey } from './permission.constants';
 import type { JwtPayload } from '../../modules/auth/decorators/current-user.decorator';
+import { hasPermission } from './has-permission.util';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -40,9 +41,3 @@ export class PermissionsGuard implements CanActivate {
     }
 }
 
-function hasPermission(granted: string[], required: string): boolean {
-    if (granted.includes('*')) return true;
-    if (granted.includes(required)) return true;
-    const [, action] = required.split(':');
-    return granted.includes(`*:${action}`);
-}
