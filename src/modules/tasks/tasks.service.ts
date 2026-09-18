@@ -8,6 +8,7 @@ import type { JwtPayload } from '../auth/decorators/current-user.decorator';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
+import { translatePrismaWriteError } from 'src/common/prisma/prisma-error.util';
 
 const TASK_INCLUDE = {
   assignee: { select: { id: true, fullName: true, profilePictureUrl: true } },
@@ -52,6 +53,9 @@ export class TasksService {
   async create(dto: CreateTaskDto, creator: JwtPayload) {
     this.assertCanManageDepartment(creator, dto.departmentId);
 
+    const department = await this.prisma.department.findUnique({ where: { id: dto.departmentId } });
+    if (!department) throw new BadRequestException('departmentId does not match a real department');
+
     if (dto.assigneeId) {
       const assignee = await this.prisma.user.findUnique({ where: { id: dto.assigneeId } });
       if (!assignee || assignee.departmentId !== dto.departmentId) {
@@ -59,21 +63,37 @@ export class TasksService {
       }
     }
 
-    return this.prisma.task.create({
-      data: {
-        title: dto.title,
-        description: dto.description,
-        departmentId: dto.departmentId,
-        assigneeId: dto.assigneeId,
-        priority: dto.priority,
-        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
-        projectId: dto.projectId,
-        propertyId: dto.propertyId,
-        assignedById: creator.sub,
-        status: dto.assigneeId ? 'ASSIGNED' : 'PENDING',
-      },
-      include: TASK_INCLUDE,
-    });
+    if (dto.projectId) {
+      const project = await this.prisma.project.findUnique({ where: { id: dto.projectId } });
+      if (!project) throw new BadRequestException('projectId does not match a real project');
+    }
+
+    if (dto.propertyId) {
+      const property = await this.prisma.property.findUnique({ where: { id: dto.propertyId } });
+      if (!property) throw new BadRequestException('propertyId does not match a real property');
+    }
+
+    try {
+      return await this.prisma.task.create({
+        data: {
+          title: dto.title,
+          description: dto.description,
+          departmentId: dto.departmentId,
+          assigneeId: dto.assigneeId,
+          priority: dto.priority,
+          dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+          projectId: dto.projectId,
+          propertyId: dto.propertyId,
+          assignedById: creator.sub,
+          status: dto.assigneeId ? 'ASSIGNED' : 'PENDING',
+        },
+        include: TASK_INCLUDE,
+      });
+    } catch (err) {
+      throw translatePrismaWriteError(err, {
+        projectId: 'projectId', propertyId: 'propertyId', assigneeId: 'assigneeId', departmentId: 'departmentId',
+      });
+    }
   }
 
   async findDepartmentTasks(user: JwtPayload, query: TaskQueryDto) {
@@ -126,16 +146,20 @@ export class TasksService {
       }
     }
 
-    return this.prisma.task.update({
-      where: { id },
-      data: {
-        ...dto,
-        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
-        ...(dto.assigneeId && task.status === 'PENDING' && { status: 'ASSIGNED' }),
-        ...(dto.status === 'COMPLETED' && !task.completedAt && { completedAt: new Date() }),
-      },
-      include: TASK_INCLUDE,
-    });
+    try {
+      return await this.prisma.task.update({
+        where: { id },
+        data: {
+          ...dto,
+          dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+          ...(dto.assigneeId && task.status === 'PENDING' && { status: 'ASSIGNED' }),
+          ...(dto.status === 'COMPLETED' && !task.completedAt && { completedAt: new Date() }),
+        },
+        include: TASK_INCLUDE,
+      });
+    } catch (err) {
+      throw translatePrismaWriteError(err, { assigneeId: 'assigneeId' });
+    }
   }
 
   /** Self-service — the assignee moving their own task along, no department-authority check needed. */

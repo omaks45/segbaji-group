@@ -34,9 +34,8 @@ const SERVICES: { name: string; summary: string }[] = [
 // Simplified permission tiers, same approach as Phase 1 — real per-role
 // editing can replace this later without changing the table shape.
 const MANAGE = ['*:read', '*:write'];
-const EDIT = ['content:read', 'content:write', 'leads:read'];
-const VIEW = ['content:read', 'leads:read'];
-
+const EDIT = ['content:read', 'content:write', 'leads:read', 'tasks:read'];
+const VIEW = ['content:read', 'leads:read', 'tasks:read'];
 // Note: "Architecture" is seeded exactly as given in the filter list —
 // worth double-checking with whoever supplied it whether "Architect" was
 // meant instead, since every other entry here is a job title and this

@@ -31,7 +31,7 @@ function mockContext(authHeader: string | undefined) {
     });
 
     it('allows a valid token and attaches the payload to the request', async () => {
-        const payload: JwtPayload = { sub: 'u1', sessionId: 's1', role: null, permissions: [] };
+        const payload: JwtPayload = { sub: 'u1', sessionId: 's1', role: null, permissions: [], departmentId: 'dept1' };
         (tokenValidator.validate as jest.Mock).mockResolvedValue(payload);
 
         const context = mockContext('Bearer good');

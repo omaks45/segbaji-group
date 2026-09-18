@@ -127,6 +127,21 @@ enum ReportGenerationStatus {
   FAILED
 }
 
+enum TaskStatus {
+  PENDING      // assigned to a department as a whole, no individual owner yet
+  ASSIGNED     // has an assignee, not yet started
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model User {
   id                String     @id @default(cuid())
   fullName          String?    // unknown until the invitee completes registration
@@ -164,6 +179,8 @@ model User {
   conversationParticipants ConversationParticipant[]
   messages Message[]
   messageAttachments MessageAttachment[]
+  tasksAssigned Task[] @relation("TasksAssigned")
+  tasksCreated Task[] @relation("TasksCreated")
 }
 
 model Department {
@@ -174,6 +191,8 @@ model Department {
   users       User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  tasks Task[]
 }
 
 model Session {
@@ -420,6 +439,8 @@ model Project {
 
   images ProjectImage[]
 
+  tasks Task[]
+
   @@index([category])
   @@index([state])
   @@index([status])
@@ -480,6 +501,7 @@ model Property {
 
   images       PropertyImage[]
   nearbyPlaces PropertyNearbyPlace[]
+  tasks Task[]
 
   @@index([propertyType])
   @@index([state])
@@ -605,4 +627,35 @@ model MessageAttachment {
   createdAt DateTime @default(now())
 
   @@index([messageId])
+}
+
+model Task {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus   @default(PENDING)
+  priority     TaskPriority @default(MEDIUM)
+  dueDate      DateTime?
+
+  departmentId String
+  department   Department   @relation(fields: [departmentId], references: [id])
+
+  assigneeId   String?
+  assignee     User?        @relation("TasksAssigned", fields: [assigneeId], references: [id])
+
+  assignedById String
+  assignedBy   User         @relation("TasksCreated", fields: [assignedById], references: [id])
+
+  projectId    String?
+  project      Project?     @relation(fields: [projectId], references: [id])
+  propertyId   String?
+  property     Property?    @relation(fields: [propertyId], references: [id])
+
+  completedAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([departmentId])
+  @@index([assigneeId])
+  @@index([status])
 }
