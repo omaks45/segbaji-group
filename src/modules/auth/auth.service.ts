@@ -89,7 +89,7 @@ export class AuthService {
       email,
       "You've been invited to Segbaji & Son",
       `<p>You've been invited to join the Segbaji & Son admin portal as a <strong>${roleName}</strong> in <strong>${departmentName}</strong>.</p>
-       <p><a href="${acceptUrl}">Complete your registration</a> — this link expires in ${INVITE_TOKEN_TTL_HOURS} hours.</p>`,
+        <p><a href="${acceptUrl}">Complete your registration</a> — this link expires in ${INVITE_TOKEN_TTL_HOURS} hours.</p>`,
     );
   }
 
@@ -133,7 +133,7 @@ export class AuthService {
   // ---------- login / sessions (new logic) ----------
 
   async login(dto: LoginDto, meta: RequestMeta) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email }, include: { role: true } });
+    const user = await this.prisma.user.findUnique({ where: { email: dto.email }, include: { role: true, department: true } });
 
     if (!user || !user.passwordHash) {
       await this.recordLoginActivity({ email: dto.email, userId: user?.id, success: false, reason: 'invalid_credentials', ...meta });
@@ -164,7 +164,7 @@ export class AuthService {
     const refreshTokenHash = hashToken(refreshToken);
     const session = await this.prisma.session.findUnique({
       where: { refreshTokenHash },
-      include: { user: { include: { role: true } } },
+      include: { user: { include: { role: true, department: true } } },
     });
 
     if (!session || session.revokedAt || session.expiresAt < new Date()) {
@@ -196,6 +196,7 @@ export class AuthService {
       sub: session.user.id,
       role: session.user.role?.name ?? null,
       permissions: session.user.role?.permissions ?? [],
+      departmentId: session.user.departmentId,
       sessionId: session.id,
     });
 
@@ -208,8 +209,8 @@ export class AuthService {
   }
 
   private async issueTokenPair(
-    user: { id: string; role: { name: string; permissions: string[] } | null },
-    meta: RequestMeta,
+  user: { id: string; departmentId: string | null; role: { name: string; permissions: string[] } | null },
+  meta: RequestMeta,
   ) {
     const refreshToken = crypto.randomBytes(48).toString('hex');
     const refreshTtlDays = this.config.get<number>('jwt.refreshTtlDays')!;
@@ -229,6 +230,7 @@ export class AuthService {
       sub: user.id,
       role: user.role?.name ?? null,
       permissions: user.role?.permissions ?? [],
+      departmentId: user.departmentId,
       sessionId: session.id,
     });
 
