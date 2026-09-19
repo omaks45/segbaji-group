@@ -1,12 +1,17 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { TasksService } from './tasks.service';
 import type { PrismaService } from '../../common/prisma/prisma.service';
 import type { JwtPayload } from '../auth/decorators/current-user.decorator';
+import { MailService } from '../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 function buildMockPrisma() {
   return {
     task: { create: jest.fn(), findUnique: jest.fn(), update: jest.fn(), findMany: jest.fn(), count: jest.fn() },
-    user: { findUnique: jest.fn() },
+    user: { findUnique: jest.fn(), findMany: jest.fn() },
+    department: { findUnique: jest.fn() },
+    project: { findUnique: jest.fn() },
     $transaction: jest.fn((ops: unknown) => (Array.isArray(ops) ? Promise.all(ops) : ops)),
   } as unknown as PrismaService;
 }
@@ -18,10 +23,20 @@ const designStaff: JwtPayload = { sub: 'staff1', role: 'Interior Designer', perm
 describe('TasksService — department scoping', () => {
   let prisma: ReturnType<typeof buildMockPrisma>;
   let service: TasksService;
+  let mailService: MailService;
+  let configService: ConfigService;
 
   beforeEach(() => {
     prisma = buildMockPrisma();
-    service = new TasksService(prisma);
+    mailService = { sendMail: jest.fn().mockResolvedValue(undefined) } as unknown as MailService;
+    configService = { get: jest.fn().mockReturnValue('http://localhost:5173') } as unknown as ConfigService;
+    service = new TasksService(prisma, mailService, configService);
+    (prisma.department.findUnique as jest.Mock).mockResolvedValue({ id: 'deptEngineering' });
+    // Quiets the background "notify department leads" path for tests
+    // that don't care about it — without this, any test hitting the
+    // no-assignee branch logs an (expected, harmless) error because
+    // findMany() is otherwise unmocked and returns undefined.
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
   });
 
   describe('create', () => {
@@ -81,12 +96,62 @@ describe('TasksService — department scoping', () => {
 
     it('translates an unexpected foreign-key violation into a clean 400 rather than a raw Prisma error', async () => {
       (prisma.department.findUnique as jest.Mock).mockResolvedValue({ id: 'deptEngineering' });
-      (prisma.task.create as jest.Mock).mockRejectedValue(
-        Object.assign(new Error('FK violation'), { code: 'P2003', meta: { field_name: 'Task_projectId_fkey (index)' }, name: 'PrismaClientKnownRequestError' }),
-      );
+      const fkError = new Prisma.PrismaClientKnownRequestError('FK violation', {
+        code: 'P2003',
+        clientVersion: '7.9.1',
+        meta: { field_name: 'Task_projectId_fkey (index)' },
+      });
+      (prisma.task.create as jest.Mock).mockRejectedValue(fkError);
       await expect(
         service.create({ title: 'X', departmentId: 'deptEngineering' } as never, engineeringTeamLead),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('emails the assignee when a task is created with one', async () => {
+      (prisma.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce({ id: 'u1', departmentId: 'deptEngineering' }) // assignee validity check
+        .mockResolvedValueOnce({ email: 'assignee@example.com', fullName: 'Jane' }) // notifyAssignee's assignee lookup
+        .mockResolvedValueOnce({ fullName: 'Admin' }); // notifyAssignee's assignedBy lookup
+      (prisma.department.findUnique as jest.Mock).mockResolvedValue({ name: 'Engineering' });
+      (prisma.task.create as jest.Mock).mockResolvedValue({ id: 't1', title: 'X', departmentId: 'deptEngineering' });
+
+      await service.create({ title: 'X', departmentId: 'deptEngineering', assigneeId: 'u1' } as never, engineeringTeamLead);
+      await new Promise(process.nextTick); // let the fire-and-forget notification settle
+
+      expect(mailService.sendMail).toHaveBeenCalledWith(
+        'assignee@example.com',
+        expect.stringContaining('New task assigned to you'),
+        expect.any(String),
+      );
+    });
+
+    it('emails department leads (not the creator) when a task is created with no assignee', async () => {
+      (prisma.task.create as jest.Mock).mockResolvedValue({ id: 't1', title: 'X', departmentId: 'deptEngineering' });
+      (prisma.user.findMany as jest.Mock).mockResolvedValue([{ email: 'lead@example.com', fullName: 'Lead' }]);
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({ fullName: 'Admin' });
+      (prisma.department.findUnique as jest.Mock).mockResolvedValue({ name: 'Engineering' });
+
+      await service.create({ title: 'X', departmentId: 'deptEngineering' } as never, engineeringTeamLead);
+      await new Promise(process.nextTick);
+
+      expect(mailService.sendMail).toHaveBeenCalledWith(
+        'lead@example.com',
+        expect.stringContaining('needs delegation'),
+        expect.any(String),
+      );
+    });
+
+    it('does not throw when the assignee has no email on file', async () => {
+      (prisma.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce({ id: 'u1', departmentId: 'deptEngineering' })
+        .mockResolvedValueOnce({ email: null, fullName: 'Jane' });
+      (prisma.task.create as jest.Mock).mockResolvedValue({ id: 't1', title: 'X', departmentId: 'deptEngineering' });
+
+      await expect(
+        service.create({ title: 'X', departmentId: 'deptEngineering', assigneeId: 'u1' } as never, engineeringTeamLead),
+      ).resolves.toBeDefined();
+      await new Promise(process.nextTick);
+      expect(mailService.sendMail).not.toHaveBeenCalled();
     });
   });
 

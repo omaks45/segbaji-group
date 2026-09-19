@@ -1,14 +1,16 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { hasPermission } from '../../common/permissions/has-permission.util';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
+import { translatePrismaWriteError } from '../../common/prisma/prisma-error.util';
 import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination/pagination.util';
 import type { JwtPayload } from '../auth/decorators/current-user.decorator';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
-import { translatePrismaWriteError } from 'src/common/prisma/prisma-error.util';
 
 const TASK_INCLUDE = {
   assignee: { select: { id: true, fullName: true, profilePictureUrl: true } },
@@ -16,18 +18,25 @@ const TASK_INCLUDE = {
   department: { select: { id: true, name: true } },
 };
 
+interface NotifiableTask {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: string;
+  dueDate: Date | null;
+  departmentId: string;
+}
+
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(TasksService.name);
 
-  /**
-   * The one place that decides "can this user act on tasks in this
-   * department." Deliberately NOT a generic NestJS guard — this is the
-   * only feature that needs department-scoped authority right now, so
-   * the check lives here rather than as a new cross-cutting framework.
-   * Super Admin bypasses entirely; anyone else must hold tasks:write
-   * AND have this exact department on their own account.
-   */
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+    private readonly config: ConfigService,
+  ) {}
+
   private assertCanManageDepartment(user: JwtPayload, departmentId: string) {
     if (hasPermission(user.permissions, '*')) return;
     if (!hasPermission(user.permissions, PERMISSIONS.TASKS_WRITE) || user.departmentId !== departmentId) {
@@ -35,8 +44,6 @@ export class TasksService {
     }
   }
 
-  /** Read access is looser than write: any tasks:read holder can view
-   * their OWN department's board; only Super Admin can view another. */
   private resolveReadableDepartment(user: JwtPayload, requested?: string): string {
     const isSuperAdmin = hasPermission(user.permissions, '*');
     if (isSuperAdmin) {
@@ -73,8 +80,9 @@ export class TasksService {
       if (!property) throw new BadRequestException('propertyId does not match a real property');
     }
 
+    let task;
     try {
-      return await this.prisma.task.create({
+      task = await this.prisma.task.create({
         data: {
           title: dto.title,
           description: dto.description,
@@ -94,6 +102,20 @@ export class TasksService {
         projectId: 'projectId', propertyId: 'propertyId', assigneeId: 'assigneeId', departmentId: 'departmentId',
       });
     }
+
+    // Fire-and-forget — a failed notification should never undo or block
+    // an otherwise-successful task creation. Logged, not thrown.
+    if (dto.assigneeId) {
+      void this.notifyAssignee(task, dto.assigneeId, creator.sub).catch((err) =>
+        this.logger.error(`Failed to send task-assignment email: ${(err as Error).message}`),
+      );
+    } else {
+      void this.notifyDepartmentLeads(task, creator.sub).catch((err) =>
+        this.logger.error(`Failed to notify department leads of unassigned task: ${(err as Error).message}`),
+      );
+    }
+
+    return task;
   }
 
   async findDepartmentTasks(user: JwtPayload, query: TaskQueryDto) {
@@ -146,8 +168,9 @@ export class TasksService {
       }
     }
 
+    let updated;
     try {
-      return await this.prisma.task.update({
+      updated = await this.prisma.task.update({
         where: { id },
         data: {
           ...dto,
@@ -160,9 +183,19 @@ export class TasksService {
     } catch (err) {
       throw translatePrismaWriteError(err, { assigneeId: 'assigneeId' });
     }
+
+    // Covers both a first-time delegation (PENDING → ASSIGNED) and a
+    // reassignment to someone new — either way, the person who now owns
+    // it should hear about it.
+    if (dto.assigneeId) {
+      void this.notifyAssignee(updated, dto.assigneeId, user.sub).catch((err) =>
+        this.logger.error(`Failed to send task-assignment email: ${(err as Error).message}`),
+      );
+    }
+
+    return updated;
   }
 
-  /** Self-service — the assignee moving their own task along, no department-authority check needed. */
   async updateMyTaskStatus(id: string, userId: string, status: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED') {
     const task = await this.findOrThrow(id);
     if (task.assigneeId !== userId) {
@@ -179,5 +212,56 @@ export class TasksService {
     const task = await this.prisma.task.findUnique({ where: { id } });
     if (!task) throw new NotFoundException('Task not found');
     return task;
+  }
+
+  private async notifyAssignee(task: NotifiableTask, assigneeId: string, assignedById: string) {
+    const [assignee, assignedBy, department] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: assigneeId }, select: { email: true, fullName: true } }),
+      this.prisma.user.findUnique({ where: { id: assignedById }, select: { fullName: true } }),
+      this.prisma.department.findUnique({ where: { id: task.departmentId }, select: { name: true } }),
+    ]);
+    if (!assignee?.email) return;
+
+    const dashboardUrl = `${this.config.get<string>('appUrl')}/tasks`;
+    await this.mail.sendMail(
+      assignee.email,
+      `New task assigned to you: ${task.title}`,
+      `<p>Hi ${assignee.fullName ?? ''},</p>
+        <p><strong>${assignedBy?.fullName ?? 'An admin'}</strong> assigned you a new task in <strong>${department?.name ?? 'your department'}</strong>.</p>
+        <p><strong>${task.title}</strong></p>
+        ${task.description ? `<p>${task.description}</p>` : ''}
+        <p>Priority: ${task.priority}${task.dueDate ? ` &middot; Due: ${task.dueDate.toISOString().slice(0, 10)}` : ''}</p>
+        <p><a href="${dashboardUrl}">View it on your dashboard</a></p>`,
+    );
+  }
+
+  private async notifyDepartmentLeads(task: NotifiableTask, assignedById: string) {
+    const [leads, assignedBy, department] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { departmentId: task.departmentId, status: 'ACTIVE', role: { permissions: { has: '*:write' } } },
+        select: { email: true, fullName: true },
+      }),
+      this.prisma.user.findUnique({ where: { id: assignedById }, select: { fullName: true } }),
+      this.prisma.department.findUnique({ where: { id: task.departmentId }, select: { name: true } }),
+    ]);
+    if (leads.length === 0) return;
+
+    const dashboardUrl = `${this.config.get<string>('appUrl')}/tasks`;
+    await Promise.all(
+      leads
+        .filter((lead): lead is { email: string; fullName: string | null } => Boolean(lead.email))
+        .map((lead) =>
+          this.mail.sendMail(
+            lead.email,
+            `New task needs delegation: ${task.title}`,
+            `<p>Hi ${lead.fullName ?? ''},</p>
+              <p><strong>${assignedBy?.fullName ?? 'An admin'}</strong> assigned a new task to <strong>${department?.name ?? 'your department'}</strong> — it doesn't have an owner yet.</p>
+              <p><strong>${task.title}</strong></p>
+              ${task.description ? `<p>${task.description}</p>` : ''}
+              <p>Priority: ${task.priority}</p>
+              <p><a href="${dashboardUrl}">Assign it from your department dashboard</a></p>`,
+          ),
+        ),
+    );
   }
 }
