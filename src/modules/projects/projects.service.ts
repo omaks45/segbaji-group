@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { Prisma, ProjectStatus } from '../../generated/prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CloudinaryService } from '../../common/cloudinary/cloudinary.service';
 import { slugify } from '../../common/slug/slugify.util';
@@ -9,6 +9,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ReorderProjectsDto } from './dto/reorder-projects.dto';
 import { ReorderProjectImagesDto } from './dto/reorder-project-images.dto';
+import { ReorderProjectVideosDto } from './dto/reorder-project-video.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { ProjectAdminQueryDto } from './dto/project-admin-query.dto';
 
@@ -23,10 +24,6 @@ export class ProjectsService {
     const where: Prisma.ProjectWhereInput = {
       isPublished: true,
       ...(query.category && { category: query.category }),
-      // insensitive — "Lagos", "lagos", "LAGOS" must all match the same
-      // saved value, since state is free text, not an enum.
-      ...(query.state && { state: { equals: query.state, mode: 'insensitive' } }),
-      ...(query.featured !== undefined && { isFeatured: query.featured === 'true' }),
     };
 
     const [items, total] = await this.prisma.$transaction([
@@ -35,30 +32,45 @@ export class ProjectsService {
         ...paginationSkipTake(query.page, query.pageSize),
         orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
         select: {
-          id: true, slug: true, title: true, category: true,
-          location: true, state: true, coverImageUrl: true, isFeatured: true,
+          id: true,
+          slug: true,
+          title: true,
+          category: true,
+          images: {
+            take: 1,
+            orderBy: { order: 'asc' },
+            select: { imageUrl: true },
+          },
         },
       }),
       this.prisma.project.count({ where }),
     ]);
 
-    return { items, meta: buildPaginationMeta(query.page, query.pageSize, total) };
+    // Flatten the single cover-preview image for list-view cards, since the
+    // model no longer carries a dedicated coverImageUrl field — the first
+    // gallery image (by order) serves as the thumbnail instead.
+    return {
+      items: items.map(({ images, ...rest }) => ({ ...rest, coverImageUrl: images[0]?.imageUrl ?? null })),
+      meta: buildPaginationMeta(query.page, query.pageSize, total),
+    };
   }
 
-  /**
-   * Explicit select, not a fetch-then-omit — contractValue never enters
-   * this code path at all, rather than being fetched and stripped after
-   * the fact. Cheap insurance against ever accidentally leaking it.
-   */
   async findBySlug(slug: string) {
     const project = await this.prisma.project.findFirst({
       where: { slug, isPublished: true },
       select: {
-        id: true, slug: true, title: true, category: true, location: true, state: true,
-        status: true, description: true, clientName: true, coverImageUrl: true, completedAt: true,
+        id: true,
+        slug: true,
+        title: true,
+        category: true,
+        description: true,
         images: {
           orderBy: { order: 'asc' },
           select: { id: true, imageUrl: true, caption: true, order: true },
+        },
+        videos: {
+          orderBy: { order: 'asc' },
+          select: { id: true, videoUrl: true, thumbnailUrl: true, duration: true, caption: true, order: true },
         },
       },
     });
@@ -69,13 +81,8 @@ export class ProjectsService {
   async findAllForAdmin(query: ProjectAdminQueryDto) {
     const where: Prisma.ProjectWhereInput = {
       ...(query.category && { category: query.category }),
-      ...(query.state && { state: { equals: query.state, mode: 'insensitive' } }),
-      ...(query.status && { status: query.status }),
       ...(query.search && {
-        OR: [
-          { title: { contains: query.search, mode: 'insensitive' } },
-          { location: { contains: query.search, mode: 'insensitive' } },
-        ],
+        title: { contains: query.search, mode: 'insensitive' },
       }),
     };
 
@@ -84,13 +91,13 @@ export class ProjectsService {
         where,
         ...paginationSkipTake(query.page, query.pageSize),
         orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
-        include: { _count: { select: { images: true } } },
+        include: { _count: { select: { images: true, videos: true } } },
       }),
       this.prisma.project.count({ where }),
     ]);
 
     return {
-      items: rows.map((p) => ({ ...p, imageCount: p._count.images })),
+      items: rows.map((p) => ({ ...p, imageCount: p._count.images, videoCount: p._count.videos })),
       meta: buildPaginationMeta(query.page, query.pageSize, total),
     };
   }
@@ -98,7 +105,10 @@ export class ProjectsService {
   async findOneForAdmin(id: string) {
     const project = await this.prisma.project.findUnique({
       where: { id },
-      include: { images: { orderBy: { order: 'asc' } } },
+      include: {
+        images: { orderBy: { order: 'asc' } },
+        videos: { orderBy: { order: 'asc' } },
+      },
     });
     if (!project) throw new NotFoundException('Project not found');
     return project;
@@ -114,12 +124,10 @@ export class ProjectsService {
   }
 
   async update(id: string, dto: UpdateProjectDto) {
-    const existing = await this.findOneOrThrow(id);
+    await this.findOneOrThrow(id);
     const data: Prisma.ProjectUpdateInput = {
       ...dto,
       ...(dto.slug && { slug: slugify(dto.slug) }),
-      ...(dto.status === ProjectStatus.COMPLETED &&
-        !existing.completedAt && { completedAt: new Date() }),
     };
     try {
       return await this.prisma.project.update({ where: { id }, data });
@@ -128,17 +136,12 @@ export class ProjectsService {
     }
   }
 
-  async updateCoverImage(id: string, file: Express.Multer.File) {
-    const project = await this.findOneOrThrow(id);
-    const result = await this.cloudinary.uploadBuffer(file.buffer, { folder: 'segbaji/projects' });
-    const updated = await this.prisma.project.update({
-      where: { id },
-      data: { coverImageUrl: result.url, coverImagePublicId: result.publicId },
-      select: { id: true, coverImageUrl: true },
-    });
-    if (project.coverImagePublicId) void this.cloudinary.deleteAsset(project.coverImagePublicId);
-    return updated;
-  }
+  // updateCoverImage() has been REMOVED — there is no more dedicated
+  // coverImageUrl/coverImagePublicId field. The first gallery image (by
+  // order) now serves as the cover automatically (see findAll above).
+  // If you still want an explicit "pin this as cover" action, that's a
+  // one-line addition to reorderImages rather than a separate upload
+  // endpoint — say so and I'll add it back in that shape.
 
   async reorder(dto: ReorderProjectsDto) {
     const existing = await this.prisma.project.findMany({ select: { id: true } });
@@ -152,23 +155,43 @@ export class ProjectsService {
     return { message: 'Order updated' };
   }
 
-  // --- Gallery images ---
+  // ============================================================
+  // Gallery images
+  // ============================================================
 
-  async addImage(projectId: string, file: Express.Multer.File, caption?: string) {
+  async addImages(projectId: string, files: Express.Multer.File[], captions: (string | undefined)[]) {
     await this.findOneOrThrow(projectId);
-    const result = await this.cloudinary.uploadBuffer(file.buffer, { folder: 'segbaji/projects' });
+
     const maxOrder = await this.prisma.projectImage.aggregate({
       where: { projectId },
       _max: { order: true },
     });
-    return this.prisma.projectImage.create({
-      data: {
-        projectId,
-        imageUrl: result.url,
-        publicId: result.publicId,
-        caption,
-        order: (maxOrder._max.order ?? -1) + 1,
-      },
+    let nextOrder = (maxOrder._max.order ?? -1) + 1;
+
+    const uploaded = await Promise.all(
+      files.map((file) => this.cloudinary.uploadBuffer(file.buffer, { folder: 'segbaji/projects' })),
+    );
+
+    return this.prisma.$transaction(
+      uploaded.map((result, i) =>
+        this.prisma.projectImage.create({
+          data: {
+            projectId,
+            imageUrl: result.url,
+            publicId: result.publicId,
+            caption: captions[i],
+            order: nextOrder++,
+          },
+        }),
+      ),
+    );
+  }
+
+  async updateImageDescription(projectId: string, imageId: string, description?: string) {
+    await this.findImageOrThrow(projectId, imageId);
+    return this.prisma.projectImage.update({
+      where: { id: imageId },
+      data: { caption: description },
     });
   }
 
@@ -194,6 +217,74 @@ export class ProjectsService {
     return { message: 'Order updated' };
   }
 
+  // ============================================================
+  // Gallery videos — exact same shape as the image gallery above
+  // ============================================================
+
+  async addVideos(projectId: string, files: Express.Multer.File[], captions: (string | undefined)[]) {
+    await this.findOneOrThrow(projectId);
+
+    const maxOrder = await this.prisma.projectVideo.aggregate({
+      where: { projectId },
+      _max: { order: true },
+    });
+    let nextOrder = (maxOrder._max.order ?? -1) + 1;
+
+    const uploaded = await Promise.all(
+      files.map((file) => this.cloudinary.uploadVideoBuffer(file.buffer, { folder: 'segbaji/projects' })),
+    );
+
+    return this.prisma.$transaction(
+      uploaded.map((result, i) =>
+        this.prisma.projectVideo.create({
+          data: {
+            projectId,
+            videoUrl: result.url,
+            publicId: result.publicId,
+            thumbnailUrl: result.thumbnailUrl,
+            duration: result.duration,
+            caption: captions[i],
+            order: nextOrder++,
+          },
+        }),
+      ),
+    );
+  }
+
+  async updateVideoDescription(projectId: string, videoId: string, description?: string) {
+    await this.findVideoOrThrow(projectId, videoId);
+    return this.prisma.projectVideo.update({
+      where: { id: videoId },
+      data: { caption: description },
+    });
+  }
+
+  async removeVideo(projectId: string, videoId: string) {
+    const video = await this.findVideoOrThrow(projectId, videoId);
+    await this.prisma.projectVideo.delete({ where: { id: videoId } });
+    void this.cloudinary.deleteAsset(video.publicId, 'video');
+    return { message: 'Video deleted' };
+  }
+
+  async reorderVideos(projectId: string, dto: ReorderProjectVideosDto) {
+    const existing = await this.prisma.projectVideo.findMany({
+      where: { projectId },
+      select: { id: true },
+    });
+    assertExactIdSet(existing.map((v) => v.id), dto.videoIds, 'videoIds');
+
+    await this.prisma.$transaction(
+      dto.videoIds.map((id, index) =>
+        this.prisma.projectVideo.update({ where: { id }, data: { order: index } }),
+      ),
+    );
+    return { message: 'Order updated' };
+  }
+
+  // ============================================================
+  // Private lookups
+  // ============================================================
+
   private async findOneOrThrow(id: string) {
     const project = await this.prisma.project.findUnique({ where: { id } });
     if (!project) throw new NotFoundException('Project not found');
@@ -206,9 +297,12 @@ export class ProjectsService {
     return image;
   }
 
-  /** Names the actual conflicting field (from Prisma's own error meta)
-   * instead of a fixed guess — "title" was never unique, only "slug"
-   * ever was, so the old message was simply wrong. */
+  private async findVideoOrThrow(projectId: string, videoId: string) {
+    const video = await this.prisma.projectVideo.findFirst({ where: { id: videoId, projectId } });
+    if (!video) throw new NotFoundException('Video not found on this project');
+    return video;
+  }
+
   private translateUniqueConstraintError(err: unknown) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       const target = (err.meta?.target as string[] | undefined)?.join(', ') ?? 'slug';

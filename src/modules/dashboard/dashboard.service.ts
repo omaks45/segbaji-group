@@ -16,16 +16,28 @@ function summarize(grouped: { _count: number; [key: string]: unknown }[], field:
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Existing company-wide overview — unchanged, still Super-Admin/reports:read gated at the controller level. */
+  /**
+   * Existing company-wide overview — unchanged except for `projects`.
+   * Project no longer has a `status` enum (dropped along with location,
+   * state, clientName, isFeatured, completedAt when the module was
+   * simplified to a pure gallery), so there's nothing left to group by
+   * there. Swapped for a simple published/draft count using the one
+   * lifecycle-adjacent field that's left, isPublished — same shape
+   * pattern as the existing `clients` breakdown below it.
+   */
   async getOverview() {
-    const [team, quoteRequests, contactMessages, clientTotal, clientActive, properties, projects] = await Promise.all([
+    const [
+      team, quoteRequests, contactMessages, clientTotal, clientActive,
+      properties, projectsPublished, projectsDraft,
+    ] = await Promise.all([
       this.prisma.user.groupBy({ by: ['status'], _count: true }),
       this.prisma.quoteRequest.groupBy({ by: ['status'], _count: true }),
       this.prisma.contactMessage.groupBy({ by: ['status'], _count: true }),
       this.prisma.client.count(),
       this.prisma.client.count({ where: { isActive: true } }),
       this.prisma.property.groupBy({ by: ['availabilityStatus'], _count: true }),
-      this.prisma.project.groupBy({ by: ['status'], _count: true }),
+      this.prisma.project.count({ where: { isPublished: true } }),
+      this.prisma.project.count({ where: { isPublished: false } }),
     ]);
 
     return {
@@ -34,7 +46,7 @@ export class DashboardService {
       contactMessages: summarize(contactMessages, 'status', ['UNREAD', 'READ', 'RESPONDED']),
       clients: { total: clientTotal, active: clientActive, inactive: clientTotal - clientActive },
       properties: summarize(properties, 'availabilityStatus', ['AVAILABLE', 'UNDER_OFFER', 'SOLD', 'DRAFT']),
-      projects: summarize(projects, 'status', ['IN_PROGRESS', 'COMPLETED', 'ON_HOLD', 'CANCELLED']),
+      projects: { total: projectsPublished + projectsDraft, published: projectsPublished, draft: projectsDraft },
     };
   }
 

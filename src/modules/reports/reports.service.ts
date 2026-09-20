@@ -32,84 +32,57 @@ export class ReportsService {
     );
   }
 
+  /**
+   * "projectsCompleted" and "pendingProjects" are REMOVED here — both
+   * depended on Project.status/completedAt, which no longer exist since
+   * Project is now a pure title+description+category+media gallery with no
+   * lifecycle tracking. There's no clean substitute: isPublished is a
+   * draft/live toggle, not a project-progress state, so mapping it onto
+   * "pending" would misrepresent what it means. If you want a
+   * published-vs-draft count somewhere, say so and I'll add it back under
+   * an honestly-named field rather than reusing "pending".
+   */
   private async computeSummary(range: DateRange) {
     const prior = priorPeriod(range);
 
     const [
       quoteRequestsNow, quoteRequestsPrior,
       projectsCreatedNow, projectsCreatedPrior,
-      projectsCompletedNow, projectsCompletedPrior,
       revenueNow, revenuePrior,
-      pendingNow, pendingPrior,
     ] = await Promise.all([
       this.prisma.quoteRequest.count({ where: { createdAt: { gte: range.start, lt: range.end } } }),
       this.prisma.quoteRequest.count({ where: { createdAt: { gte: prior.start, lt: prior.end } } }),
       this.prisma.project.count({ where: { createdAt: { gte: range.start, lt: range.end } } }),
       this.prisma.project.count({ where: { createdAt: { gte: prior.start, lt: prior.end } } }),
-      this.prisma.project.count({ where: { completedAt: { gte: range.start, lt: range.end } } }),
-      this.prisma.project.count({ where: { completedAt: { gte: prior.start, lt: prior.end } } }),
       this.computeRevenue(range),
       this.computeRevenue(prior),
-      this.pendingAsOf(range.end),
-      this.pendingAsOf(prior.end),
     ]);
 
     return {
       totalQuoteRequests: { value: quoteRequestsNow, percentChange: percentChange(quoteRequestsNow, quoteRequestsPrior) },
       projectsCreated: { value: projectsCreatedNow, percentChange: percentChange(projectsCreatedNow, projectsCreatedPrior) },
-      projectsCompleted: { value: projectsCompletedNow, percentChange: percentChange(projectsCompletedNow, projectsCompletedPrior) },
       totalRevenue: {
-        value: revenueNow.construction + revenueNow.propertySales,
-        percentChange: percentChange(
-          revenueNow.construction + revenueNow.propertySales,
-          revenuePrior.construction + revenuePrior.propertySales,
-        ),
+        value: revenueNow.propertySales,
+        percentChange: percentChange(revenueNow.propertySales, revenuePrior.propertySales),
       },
-      revenueBreakdown: revenueNow,
-      pendingProjects: { value: pendingNow, percentChange: percentChange(pendingNow, pendingPrior) },
     };
   }
 
   /**
-   * Revenue = completed-project contract values (recognized at
-   * completion, not creation) + sold-property prices. Property has no
-   * `soldAt` field, so `updatedAt` stands in as an approximation of
-   * "when this was marked sold" — imprecise if a sold listing is edited
-   * again later for an unrelated reason. Flagged rather than presented
-   * as exact; a real `soldAt` timestamp is the honest fix if this KPI's
-   * precision ever matters more than it does right now.
+   * Revenue is now Property-sales-only. Project no longer carries a
+   * contractValue-recognition timestamp (completedAt is gone), and per
+   * your call, construction contract value isn't part of this KPI going
+   * forward. Property still has no `soldAt` field, so `updatedAt` remains
+   * the same approximation as before — flagged, not presented as exact.
    */
   private async computeRevenue(range: DateRange) {
-    const [projectRevenue, propertyRevenue] = await Promise.all([
-      this.prisma.project.aggregate({
-        where: { completedAt: { gte: range.start, lt: range.end } },
-        _sum: { contractValue: true },
-      }),
-      this.prisma.property.aggregate({
-        where: { availabilityStatus: 'SOLD', updatedAt: { gte: range.start, lt: range.end } },
-        _sum: { price: true },
-      }),
-    ]);
+    const propertyRevenue = await this.prisma.property.aggregate({
+      where: { availabilityStatus: 'SOLD', updatedAt: { gte: range.start, lt: range.end } },
+      _sum: { price: true },
+    });
     return {
-      construction: projectRevenue._sum.contractValue ?? 0,
       propertySales: propertyRevenue._sum.price ?? 0,
     };
-  }
-
-  /**
-   * Reconstructs "how many projects were pending as of `date`" without
-   * a status-history table: a project counts as pending at that moment
-   * if it existed by then, was never cancelled, and either never
-   * completed or completed after that moment.
-   */
-  private async pendingAsOf(date: Date): Promise<number> {
-    return this.prisma.project.count({
-      where: {
-        createdAt: { lte: date },
-        status: { not: 'CANCELLED' },
-        OR: [{ completedAt: null }, { completedAt: { gt: date } }],
-      },
-    });
   }
 
   async getQuoteRequestsOverTime(query: ReportsQueryDto) {
@@ -123,37 +96,38 @@ export class ReportsService {
     });
   }
 
+  /** Property-sales-only now, for the same reason as computeRevenue() above. */
   async getRevenueOverTime(query: ReportsQueryDto) {
     const range = this.range(query);
     return this.redis.getOrSetJson(this.cacheKey('revenue-over-time', range), CACHE_TTL_SECONDS, async () => {
-      const [projects, properties] = await Promise.all([
-        this.prisma.project.findMany({
-          where: { completedAt: { gte: range.start, lt: range.end } },
-          select: { completedAt: true, contractValue: true },
-        }),
-        this.prisma.property.findMany({
-          where: { availabilityStatus: 'SOLD', updatedAt: { gte: range.start, lt: range.end } },
-          select: { updatedAt: true, price: true },
-        }),
-      ]);
-
-      const entries = [
-        ...projects.map((p) => ({ date: p.completedAt!, value: p.contractValue ?? 0 })),
-        ...properties.map((p) => ({ date: p.updatedAt, value: p.price })),
-      ];
+      const properties = await this.prisma.property.findMany({
+        where: { availabilityStatus: 'SOLD', updatedAt: { gte: range.start, lt: range.end } },
+        select: { updatedAt: true, price: true },
+      });
+      const entries = properties.map((p) => ({ date: p.updatedAt, value: p.price }));
       return this.bucketByWeek(entries);
     });
   }
 
+  /**
+   * JUDGMENT CALL: previously grouped by Project.status (removed).
+   * Repurposed to group by isPublished — the only lifecycle-adjacent field
+   * left on Project — since a "breakdown by state" of some kind seemed
+   * more useful to keep than to delete outright. The response shape
+   * changed from { status: string, count } to { isPublished: boolean,
+   * count }, so your frontend's chart for this needs updating regardless
+   * of which fix you'd picked. If this isn't useful, tell me and I'll
+   * remove the endpoint/method entirely instead.
+   */
   async getProjectsByStatus(query: ReportsQueryDto) {
     const range = this.range(query);
     return this.redis.getOrSetJson(this.cacheKey('projects-by-status', range), CACHE_TTL_SECONDS, async () => {
       const grouped = await this.prisma.project.groupBy({
-        by: ['status'],
+        by: ['isPublished'],
         where: { createdAt: { gte: range.start, lt: range.end } },
         _count: true,
       });
-      return grouped.map((g) => ({ status: g.status, count: g._count }));
+      return grouped.map((g) => ({ isPublished: g.isPublished, count: g._count }));
     });
   }
 
@@ -182,18 +156,29 @@ export class ReportsService {
     });
   }
 
+  /**
+   * JUDGMENT CALL: previously grouped by Project.state (removed — location
+   * data no longer exists on Project at all). Repurposed to group by
+   * category, the only remaining Project taxonomy field. Method name kept
+   * as-is to avoid also renaming the route, but the response shape changed
+   * from { state, count, percentage } to { category, count, percentage } —
+   * your frontend's chart needs updating either way. If a location-based
+   * breakdown genuinely still matters to you, that data no longer exists
+   * anywhere on Project and would need a field added back deliberately —
+   * say so rather than assuming this repurposing covers it.
+   */
   async getProjectsByLocation(query: ReportsQueryDto) {
     const range = this.range(query);
     return this.redis.getOrSetJson(this.cacheKey('projects-by-location', range), CACHE_TTL_SECONDS, async () => {
       const grouped = await this.prisma.project.groupBy({
-        by: ['state'],
+        by: ['category'],
         where: { createdAt: { gte: range.start, lt: range.end } },
         _count: true,
-        orderBy: { _count: { state: 'desc' } },
+        orderBy: { _count: { category: 'desc' } },
       });
       const total = grouped.reduce((sum, g) => sum + g._count, 0);
       return grouped.map((g) => ({
-        state: g.state,
+        category: g.category,
         count: g._count,
         percentage: total === 0 ? 0 : Math.round((g._count / total) * 1000) / 10,
       }));
@@ -202,11 +187,12 @@ export class ReportsService {
 
   /** Deliberately NOT cached — an activity feed showing 5-minute-stale
    * "recent" items would defeat its own purpose. It's also cheap
-   * (5 small queries, small limits), unlike the aggregations above. */
+   * (4 small queries, small limits), unlike the aggregations above.
+   * PROJECT_COMPLETED activity type removed — no completedAt to source it from. */
   async getRecentActivity(query: ReportsQueryDto) {
     const range = this.range(query);
 
-    const [quoteRequests, projectsCreated, projectsCompleted, newClients, newTeamMembers] = await Promise.all([
+    const [quoteRequests, projectsCreated, newClients, newTeamMembers] = await Promise.all([
       this.prisma.quoteRequest.findMany({
         where: { createdAt: { gte: range.start, lt: range.end } },
         select: { fullName: true, createdAt: true },
@@ -216,11 +202,6 @@ export class ReportsService {
         where: { createdAt: { gte: range.start, lt: range.end } },
         select: { title: true, createdAt: true },
         orderBy: { createdAt: 'desc' }, take: RECENT_ACTIVITY_LIMIT,
-      }),
-      this.prisma.project.findMany({
-        where: { completedAt: { gte: range.start, lt: range.end } },
-        select: { title: true, completedAt: true },
-        orderBy: { completedAt: 'desc' }, take: RECENT_ACTIVITY_LIMIT,
       }),
       this.prisma.client.findMany({
         where: { createdAt: { gte: range.start, lt: range.end } },
@@ -237,7 +218,6 @@ export class ReportsService {
     const items = [
       ...quoteRequests.map((q) => ({ type: 'QUOTE_REQUEST', description: `New quote request from ${q.fullName}`, occurredAt: q.createdAt })),
       ...projectsCreated.map((p) => ({ type: 'PROJECT_CREATED', description: `Project created: ${p.title}`, occurredAt: p.createdAt })),
-      ...projectsCompleted.map((p) => ({ type: 'PROJECT_COMPLETED', description: `Project completed: ${p.title}`, occurredAt: p.completedAt! })),
       ...newClients.map((c) => ({ type: 'NEW_CLIENT', description: `New client: ${c.fullName}`, occurredAt: c.createdAt })),
       ...newTeamMembers.map((u) => ({ type: 'TEAM_MEMBER_ADDED', description: `${u.fullName ?? 'A team member'} joined`, occurredAt: u.joinedAt! })),
     ];
@@ -265,7 +245,10 @@ export class ReportsService {
       const daysSinceMonday = (weekStart.getDay() + 6) % 7;
       weekStart.setDate(weekStart.getDate() - daysSinceMonday);
       const key = weekStart.toISOString().slice(0, 10);
-      sums.set(key, (sums.get(key) ?? 0) + entry.value);
+      // entry.value is a Prisma Decimal for property prices — Number()
+      // converts it for safe addition (Decimal + number doesn't type-check,
+      // and won't arithmetically add correctly either).
+      sums.set(key, (sums.get(key) ?? 0) + Number(entry.value));
     }
     return [...sums.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, value]) => ({ date, value }));
   }

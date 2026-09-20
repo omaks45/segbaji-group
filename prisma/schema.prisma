@@ -418,34 +418,22 @@ model SeoMeta {
 
 
 model Project {
-  id                 String          @id @default(cuid())
-  slug               String          @unique
-  title              String
-  category           ProjectCategory
-  location           String
-  state              String
-  status             ProjectStatus   @default(IN_PROGRESS)
-  description        String?
-  clientName         String?
-  contractValue      Float?
-  coverImageUrl      String?
-  coverImagePublicId String?
-  isFeatured         Boolean         @default(false)
-  isPublished        Boolean         @default(true)
-  order              Int             @default(0)
-  completedAt        DateTime?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  description   String?
+  category      ProjectCategory?
+  contractValue Decimal?  @db.Decimal(14, 2)
+  isPublished   Boolean   @default(true)
+  order         Int       @default(0)
+  images        ProjectImage[]
+  videos        ProjectVideo[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  images ProjectImage[]
+  conversations Conversation[]
 
   tasks Task[]
-
-  @@index([category])
-  @@index([state])
-  @@index([status])
-  @@index([isPublished])
-  conversations Conversation[]
 }
 
 model ProjectImage {
@@ -457,6 +445,21 @@ model ProjectImage {
   caption   String?
   order     Int      @default(0)
   createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model ProjectVideo {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  videoUrl     String
+  publicId     String
+  thumbnailUrl String?
+  duration     Float?
+  caption      String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
 
   @@index([projectId])
 }
