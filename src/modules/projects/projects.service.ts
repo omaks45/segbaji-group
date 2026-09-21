@@ -142,15 +142,69 @@ export class ProjectsService {
 
   async update(id: string, dto: UpdateProjectDto) {
     await this.findOneOrThrow(id);
+
+    // Slug resolution:
+    //  - dto.slug sent explicitly       -> re-slugify whatever was sent (an
+    //    explicit slug always wins, even if title is also being changed in
+    //    the same request).
+    //  - dto.slug NOT sent, but dto.title IS -> regenerate the slug from the
+    //    new title, same as create() does. This is the behavior that was
+    //    added on request: renaming a project now keeps its slug in sync
+    //    unless the caller explicitly overrides it.
+    //  - neither sent -> slug is left untouched entirely.
+    const slug = dto.slug
+      ? slugify(dto.slug)
+      : dto.title
+        ? slugify(dto.title)
+        : undefined;
+
     const data: Prisma.ProjectUpdateInput = {
       ...dto,
-      ...(dto.slug && { slug: slugify(dto.slug) }),
+      ...(slug && { slug }),
     };
     try {
       return await this.prisma.project.update({ where: { id }, data });
     } catch (err) {
       throw this.translateUniqueConstraintError(err);
     }
+  }
+
+  async remove(id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: { images: true, videos: true },
+    });
+    if (!project) throw new NotFoundException('Project not found');
+
+    // Delete the DB rows first (project + its images/videos) inside one
+    // transaction, so a failure partway through never leaves a project
+    // gone while its media rows linger, or vice versa. This does NOT
+    // depend on whether the schema has onDelete: Cascade set on the
+    // images/videos relations — deleting them explicitly here works
+    // either way.
+    await this.prisma.$transaction(
+      [
+        this.prisma.projectImage.deleteMany({ where: { projectId: id } }),
+        this.prisma.projectVideo.deleteMany({ where: { projectId: id } }),
+        this.prisma.project.delete({ where: { id } }),
+      ],
+      WRITE_TX_OPTIONS,
+    );
+
+    // Cloudinary cleanup happens AFTER the DB transaction commits, and is
+    // fire-and-forget (same pattern as removeImage/removeVideo below) — a
+    // slow or failed Cloudinary delete should never block or fail the
+    // actual project deletion the admin asked for. Orphaned Cloudinary
+    // files from a failed cleanup are a much smaller problem than a
+    // project stuck undeletable because of a flaky third-party API call.
+    for (const image of project.images) {
+      void this.cloudinary.deleteAsset(image.publicId);
+    }
+    for (const video of project.videos) {
+      void this.cloudinary.deleteAsset(video.publicId, 'video');
+    }
+
+    return { message: 'Project deleted' };
   }
 
   // updateCoverImage() has been REMOVED — there is no more dedicated

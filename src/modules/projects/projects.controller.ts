@@ -89,7 +89,7 @@ export class ProjectsController {
     return this.projectsService.findAll(query);
   }
 
-   // ============================================================
+  // ============================================================
   // ADMIN — project CRUD
   // ============================================================
 
@@ -111,13 +111,11 @@ export class ProjectsController {
     return this.projectsService.findOneForAdmin(id);
   }
 
-
   @ApiOperation({ summary: 'Get a project detail page by slug — public (includes images[] and videos[])' })
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
     return this.projectsService.findBySlug(slug);
   }
-
 
   @ApiBearerAuth('access-token')
   @ApiOperation({
@@ -145,12 +143,35 @@ export class ProjectsController {
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Update a project — title, description, category, contractValue, order, isPublished' })
+  @ApiOperation({
+    summary: 'Update a project — title, slug, description, category, contractValue, order, isPublished',
+    description:
+      'JSON body, NOT multipart. All fields optional — send only what changes. Sending "slug" ' +
+      're-slugifies whatever string you send (spaces/casing handled server-side); sending "title" ' +
+      'alone does NOT auto-regenerate the slug on update (only on create) — send "slug" explicitly ' +
+      'if you want it changed too.',
+  })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.CONTENT_WRITE)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
     return this.projectsService.update(id, dto);
+  }
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Delete a project entirely',
+    description:
+      'Permanently deletes the project along with ALL of its gallery images and videos — both the ' +
+      'database records and the actual files stored on Cloudinary. This cannot be undone. Use the ' +
+      'individual image/video delete endpoints instead if you only want to remove specific media ' +
+      'while keeping the project itself.',
+  })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.CONTENT_WRITE)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.projectsService.remove(id);
   }
 
   // NOTE: the old POST :id/cover-image endpoint has been REMOVED. There is
