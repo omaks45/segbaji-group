@@ -13,6 +13,11 @@ import { ReorderProjectVideosDto } from './dto/reorder-project-video.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { ProjectAdminQueryDto } from './dto/project-admin-query.dto';
 
+// Transactions that only WRITE use this — gives Neon's pooled connection a
+// bit more room before Prisma gives up, since a cold/waking connection can
+// take a couple of seconds to become available.
+const WRITE_TX_OPTIONS = { maxWait: 10000, timeout: 15000 };
+
 @Injectable()
 export class ProjectsService {
   constructor(
@@ -26,7 +31,17 @@ export class ProjectsService {
       ...(query.category && { category: query.category }),
     };
 
-    const [items, total] = await this.prisma.$transaction([
+    // NOTE: this used to be this.prisma.$transaction([findMany, count]).
+    // findMany + count here are two independent READS with no atomicity
+    // requirement between them (a project created half a second apart from
+    // the count being taken is not a real consistency problem for a public
+    // gallery listing). Wrapping plain reads in $transaction forces Prisma
+    // to acquire and hold a dedicated transactional connection for both
+    // queries at once, which is exactly what was timing out against Neon's
+    // pooled connection ("Unable to start a transaction in the given
+    // time."). Promise.all runs them concurrently without that requirement
+    // and is both faster and far less likely to time out.
+    const [items, total] = await Promise.all([
       this.prisma.project.findMany({
         where,
         ...paginationSkipTake(query.page, query.pageSize),
@@ -86,7 +101,9 @@ export class ProjectsService {
       }),
     };
 
-    const [rows, total] = await this.prisma.$transaction([
+    // Same reasoning as findAll() above — two independent reads, no need
+    // for $transaction here.
+    const [rows, total] = await Promise.all([
       this.prisma.project.findMany({
         where,
         ...paginationSkipTake(query.page, query.pageSize),
@@ -151,6 +168,7 @@ export class ProjectsService {
       dto.projectIds.map((id, index) =>
         this.prisma.project.update({ where: { id }, data: { order: index } }),
       ),
+      WRITE_TX_OPTIONS,
     );
     return { message: 'Order updated' };
   }
@@ -184,6 +202,7 @@ export class ProjectsService {
           },
         }),
       ),
+      WRITE_TX_OPTIONS,
     );
   }
 
@@ -213,6 +232,7 @@ export class ProjectsService {
       dto.imageIds.map((id, index) =>
         this.prisma.projectImage.update({ where: { id }, data: { order: index } }),
       ),
+      WRITE_TX_OPTIONS,
     );
     return { message: 'Order updated' };
   }
@@ -248,6 +268,7 @@ export class ProjectsService {
           },
         }),
       ),
+      WRITE_TX_OPTIONS,
     );
   }
 
@@ -277,6 +298,7 @@ export class ProjectsService {
       dto.videoIds.map((id, index) =>
         this.prisma.projectVideo.update({ where: { id }, data: { order: index } }),
       ),
+      WRITE_TX_OPTIONS,
     );
     return { message: 'Order updated' };
   }

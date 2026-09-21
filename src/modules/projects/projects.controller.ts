@@ -89,13 +89,7 @@ export class ProjectsController {
     return this.projectsService.findAll(query);
   }
 
-  @ApiOperation({ summary: 'Get a project detail page by slug — public (includes images[] and videos[])' })
-  @Get(':slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.projectsService.findBySlug(slug);
-  }
-
-  // ============================================================
+   // ============================================================
   // ADMIN — project CRUD
   // ============================================================
 
@@ -116,6 +110,14 @@ export class ProjectsController {
   findOneForAdmin(@Param('id') id: string) {
     return this.projectsService.findOneForAdmin(id);
   }
+
+
+  @ApiOperation({ summary: 'Get a project detail page by slug — public (includes images[] and videos[])' })
+  @Get(':slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.projectsService.findBySlug(slug);
+  }
+
 
   @ApiBearerAuth('access-token')
   @ApiOperation({
