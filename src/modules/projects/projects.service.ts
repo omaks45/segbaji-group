@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CloudinaryService } from '../../common/cloudinary/cloudinary.service';
@@ -17,6 +17,12 @@ import { ProjectAdminQueryDto } from './dto/project-admin-query.dto';
 // bit more room before Prisma gives up, since a cold/waking connection can
 // take a couple of seconds to become available.
 const WRITE_TX_OPTIONS = { maxWait: 10000, timeout: 15000 };
+
+// Max allowed length for a single gallery video. Multer can only cap file
+// SIZE (it never decodes the file), so this is enforced separately, after
+// upload, using the "duration" value Cloudinary reports back for every
+// video it processes. Change this one number to adjust the policy.
+const MAX_VIDEO_DURATION_SECONDS = 120; // 2 minutes
 
 @Injectable()
 export class ProjectsService {
@@ -307,6 +313,24 @@ export class ProjectsService {
     const uploaded = await Promise.all(
       files.map((file) => this.cloudinary.uploadVideoBuffer(file.buffer, { folder: 'segbaji/projects' })),
     );
+
+    // Duration can only be known AFTER Cloudinary has processed the file —
+    // there's no reliable way to check it beforehand without decoding the
+    // video ourselves. If anything in this batch is over the limit, reject
+    // the WHOLE batch (all-or-nothing, same as the DB write below) and
+    // clean up every file we just uploaded to Cloudinary, so nothing is
+    // left orphaned there with no matching database row.
+    const tooLong = uploaded.filter((result) => (result.duration ?? 0) > MAX_VIDEO_DURATION_SECONDS);
+    if (tooLong.length > 0) {
+      for (const result of uploaded) {
+        void this.cloudinary.deleteAsset(result.publicId, 'video');
+      }
+      const durations = tooLong.map((r) => `${Math.round(r.duration ?? 0)}s`).join(', ');
+      throw new BadRequestException(
+        `Video${tooLong.length > 1 ? 's' : ''} exceed the ${MAX_VIDEO_DURATION_SECONDS}-second limit ` +
+        `(${durations}). Trim the video and try again.`,
+      );
+    }
 
     return this.prisma.$transaction(
       uploaded.map((result, i) =>

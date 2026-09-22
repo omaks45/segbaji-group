@@ -1,7 +1,10 @@
 import { memoryStorage } from 'multer';
 import type { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 
-const DEFAULT_MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+// Raised from 5MB -> 15MB: a single photo straight off a modern phone
+// camera routinely runs 6-12MB, so 5MB was rejecting ordinary uploads,
+// not just unusually large ones.
+const DEFAULT_MAX_IMAGE_BYTES = 15 * 1024 * 1024; // 15MB
 
 /**
  * Shared Multer config for every "upload one image" endpoint. Only
