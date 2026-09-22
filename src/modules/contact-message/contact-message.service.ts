@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma, NotificationType } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination/pagination.util';
@@ -23,6 +23,21 @@ export class ContactMessagesService {
   async create(dto: CreateContactMessageDto) {
     const contactMessage = await this.prisma.contactMessage.create({ data: dto });
 
+    // In-app notification to every Super Admin — fire-and-forget, same
+    // reasoning as everywhere else: never block or fail the visitor's
+    // submission over a notification hiccup. notifyUsers() already
+    // catches and logs its own errors, so no extra .catch() needed here.
+    void this.getSuperAdminIds().then((recipientIds) => {
+      if (!recipientIds.length) return;
+      void this.notifications.notifyUsers({
+        recipientIds,
+        type: NotificationType.CONTACT_MESSAGE,
+        title: `New contact message${dto.subject ? ` — ${dto.subject}` : ''}`,
+        body: `${dto.fullName} sent a message: ${dto.message.length > 140 ? `${dto.message.slice(0, 140)}…` : dto.message}`,
+        link: `/contact-messages/${contactMessage.id}`,
+      });
+    });
+
     await Promise.all([
       this.mail.sendMail(
         this.config.get<string>('mail.adminNotificationEmail')!,
@@ -38,6 +53,19 @@ export class ContactMessagesService {
     ]);
 
     return { message: "Thanks for reaching out — we'll respond soon.", id: contactMessage.id };
+  }
+
+  /**
+   * Every user whose role carries the org-wide write wildcard — same
+   * check TasksService uses to find "department leads", just without the
+   * departmentId scoping since a contact message isn't department-specific.
+   */
+  private async getSuperAdminIds(): Promise<string[]> {
+    const admins = await this.prisma.user.findMany({
+      where: { status: 'ACTIVE', role: { permissions: { has: '*:write' } } },
+      select: { id: true },
+    });
+    return admins.map((a) => a.id);
   }
 
   async findSummary() {

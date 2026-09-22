@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma, NotificationType } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination/pagination.util';
@@ -30,6 +30,21 @@ export class QuoteRequestsService {
       data: { ...dto, desiredStartDate: new Date(dto.desiredStartDate) },
     });
 
+    // In-app notification to every Super Admin — fire-and-forget, same
+    // pattern as everything else here: a failed notification never costs
+    // the visitor their submitted lead. notifyUsers() catches and logs
+    // its own errors internally, so no .catch() needed on this call.
+    void this.getSuperAdminIds().then((recipientIds) => {
+      if (!recipientIds.length) return;
+      void this.notifications.notifyUsers({
+        recipientIds,
+        type: NotificationType.QUOTE_REQUEST,
+        title: `New quote request — ${service.name}`,
+        body: `${dto.fullName} requested a quote for ${service.name}.`,
+        link: `/quote-requests/${quoteRequest.id}`,
+      });
+    });
+
     // Both emails fire after the record is safely saved — a failed send
     // shouldn't cost the visitor their submitted lead.
     await Promise.all([
@@ -49,6 +64,19 @@ export class QuoteRequestsService {
     ]);
 
     return { message: "Thanks — we'll be in touch shortly.", id: quoteRequest.id };
+  }
+
+  /**
+   * Every user whose role carries the org-wide write wildcard — same
+   * check TasksService uses to find "department leads", just without the
+   * departmentId scoping since a quote request isn't department-specific.
+   */
+  private async getSuperAdminIds(): Promise<string[]> {
+    const admins = await this.prisma.user.findMany({
+      where: { status: 'ACTIVE', role: { permissions: { has: '*:write' } } },
+      select: { id: true },
+    });
+    return admins.map((a) => a.id);
   }
 
   async findSummary() {

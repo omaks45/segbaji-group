@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { ConversationType } from '../../generated/prisma/client';
+import { ConversationType, NotificationType } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CloudinaryService } from '../../common/cloudinary/cloudinary.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
@@ -206,6 +206,28 @@ export class MessagingService {
         data: { messageId: message.id },
       });
     }
+
+    // In-app notification to every OTHER participant in the conversation
+    // (never the sender). Fire-and-forget — a failed notification should
+    // never affect whether the message itself sends successfully.
+    // notifyUsers() already catches and logs its own errors internally.
+    void this.prisma.conversationParticipant
+      .findMany({ where: { conversationId, userId: { not: senderId } }, select: { userId: true } })
+      .then((others) => {
+        if (!others.length) return;
+        const preview = content
+          ? content.length > 140
+            ? `${content.slice(0, 140)}…`
+            : content
+          : 'Sent an attachment';
+        void this.notifications.notifyUsers({
+          recipientIds: others.map((p) => p.userId),
+          type: NotificationType.NEW_MESSAGE,
+          title: `New message from ${message.sender.fullName ?? 'someone'}`,
+          body: preview,
+          link: `/messages/${conversationId}`,
+        });
+      });
 
     return this.prisma.message.findUniqueOrThrow({
       where: { id: message.id },

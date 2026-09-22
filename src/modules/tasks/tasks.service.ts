@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma, NotificationType } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { hasPermission } from '../../common/permissions/has-permission.util';
@@ -108,7 +108,8 @@ export class TasksService {
     // Fire-and-forget — a failed notification should never undo or block
     // an otherwise-successful task creation. Logged, not thrown.
     if (dto.assigneeId) {
-      void this.notifyAssignee(task, dto.assigneeId, creator.sub).catch((err) =>
+      // Brand-new task with an owner from the start -> TASK_ASSIGNED.
+      void this.notifyAssignee(task, dto.assigneeId, creator.sub, NotificationType.TASK_ASSIGNED).catch((err) =>
         this.logger.error(`Failed to send task-assignment email: ${(err as Error).message}`),
       );
     } else {
@@ -170,6 +171,11 @@ export class TasksService {
       }
     }
 
+    // Captured BEFORE the update so we can tell a first-time delegation
+    // (was unassigned) apart from a true reassignment (already had
+    // someone) — used below to pick the right notification type.
+    const hadNoPriorAssignee = !task.assigneeId;
+
     let updated;
     try {
       updated = await this.prisma.task.update({
@@ -190,7 +196,8 @@ export class TasksService {
     // reassignment to someone new — either way, the person who now owns
     // it should hear about it.
     if (dto.assigneeId) {
-      void this.notifyAssignee(updated, dto.assigneeId, user.sub).catch((err) =>
+      const type = hadNoPriorAssignee ? NotificationType.TASK_ASSIGNED : NotificationType.TASK_REASSIGNED;
+      void this.notifyAssignee(updated, dto.assigneeId, user.sub, type).catch((err) =>
         this.logger.error(`Failed to send task-assignment email: ${(err as Error).message}`),
       );
     }
@@ -216,15 +223,36 @@ export class TasksService {
     return task;
   }
 
-  private async notifyAssignee(task: NotifiableTask, assigneeId: string, assignedById: string) {
+  private async notifyAssignee(
+    task: NotifiableTask,
+    assigneeId: string,
+    assignedById: string,
+    type: NotificationType,
+  ) {
     const [assignee, assignedBy, department] = await Promise.all([
       this.prisma.user.findUnique({ where: { id: assigneeId }, select: { email: true, fullName: true } }),
       this.prisma.user.findUnique({ where: { id: assignedById }, select: { fullName: true } }),
       this.prisma.department.findUnique({ where: { id: task.departmentId }, select: { name: true } }),
     ]);
-    if (!assignee?.email) return;
 
     const dashboardUrl = `${this.config.get<string>('appUrl')}/tasks`;
+
+    // In-app notification — fire-and-forget, independent of the email
+    // below. notifyUsers() already catches and logs its own errors, so a
+    // failure here never affects the email send or the caller.
+    void this.notifications.notifyUsers({
+      recipientIds: [assigneeId],
+      type,
+      title:
+        type === NotificationType.TASK_REASSIGNED
+          ? `Task reassigned to you: ${task.title}`
+          : `New task assigned to you: ${task.title}`,
+      body: `${assignedBy?.fullName ?? 'An admin'} assigned you a task in ${department?.name ?? 'your department'}.`,
+      link: '/tasks',
+    });
+
+    if (!assignee?.email) return;
+
     await this.mail.sendMail(
       assignee.email,
       `New task assigned to you: ${task.title}`,
@@ -241,7 +269,7 @@ export class TasksService {
     const [leads, assignedBy, department] = await Promise.all([
       this.prisma.user.findMany({
         where: { departmentId: task.departmentId, status: 'ACTIVE', role: { permissions: { has: '*:write' } } },
-        select: { email: true, fullName: true },
+        select: { id: true, email: true, fullName: true },
       }),
       this.prisma.user.findUnique({ where: { id: assignedById }, select: { fullName: true } }),
       this.prisma.department.findUnique({ where: { id: task.departmentId }, select: { name: true } }),
@@ -249,9 +277,24 @@ export class TasksService {
     if (leads.length === 0) return;
 
     const dashboardUrl = `${this.config.get<string>('appUrl')}/tasks`;
+
+    // In-app notification to every department lead. There's no
+    // NotificationType that means "unassigned task needs delegation"
+    // specifically (the enum only has TASK_ASSIGNED / TASK_REASSIGNED) —
+    // using TASK_ASSIGNED here is a stand-in, not a perfect semantic
+    // match. If you want a dedicated type (e.g. TASK_NEEDS_ASSIGNMENT),
+    // say so and I'll add it to the enum + a small migration.
+    void this.notifications.notifyUsers({
+      recipientIds: leads.map((lead) => lead.id),
+      type: NotificationType.TASK_ASSIGNED,
+      title: `New task needs delegation: ${task.title}`,
+      body: `${assignedBy?.fullName ?? 'An admin'} added a task to ${department?.name ?? 'your department'} with no assignee yet.`,
+      link: '/tasks',
+    });
+
     await Promise.all(
       leads
-        .filter((lead): lead is { email: string; fullName: string | null } => Boolean(lead.email))
+        .filter((lead): lead is { id: string; email: string; fullName: string | null } => Boolean(lead.email))
         .map((lead) =>
           this.mail.sendMail(
             lead.email,
