@@ -6,12 +6,14 @@ import { CreateConversationDto } from './dto/create-conversation.dto';
 import { ConversationQueryDto } from './dto/conversation-query.dto';
 import { EditMessageDto } from './dto/edit-message.dto';
 import { AddParticipantsDto } from './dto/add-participants.dto';
+import { NotificationsService } from '../notification/notification.service';
 
 @Injectable()
 export class MessagingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
+    private readonly notifications: NotificationsService
   ) {}
 
   async createConversation(dto: CreateConversationDto, creatorId: string) {

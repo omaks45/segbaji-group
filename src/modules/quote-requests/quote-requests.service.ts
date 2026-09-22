@@ -7,7 +7,8 @@ import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination
 import { CreateQuoteRequestDto } from './dto/create-quote-request.dto';
 import { QuoteRequestQueryDto } from './dto/quote-request-query.dto';
 import { UpdateQuoteRequestStatusDto } from './dto/update-quote-request-status.dto';
-import { ClientsService } from '../clients/clients.service';
+import { ClientsService} from '../clients/clients.service';
+import { NotificationsService } from '../notification/notification.service';
 
 @Injectable()
 export class QuoteRequestsService {
@@ -16,6 +17,7 @@ export class QuoteRequestsService {
     private readonly mail: MailService,
     private readonly config: ConfigService,
     private readonly clientsService: ClientsService,
+    private readonly notifications: NotificationsService
   ) {}
 
   async create(dto: CreateQuoteRequestDto) {

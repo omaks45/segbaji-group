@@ -8,6 +8,7 @@ import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { ContactMessageQueryDto } from './dto/contact-message-query.dto';
 import { UpdateContactMessageStatusDto } from './dto/update-contact-message.dto';
 import { ClientsService } from '../clients/clients.service';
+import { NotificationsService } from '../notification/notification.service';
 
 @Injectable()
 export class ContactMessagesService {
@@ -16,6 +17,7 @@ export class ContactMessagesService {
     private readonly mail: MailService,
     private readonly config: ConfigService,
     private readonly clientsService: ClientsService,
+    private readonly notifications: NotificationsService
   ) {}
 
   async create(dto: CreateContactMessageDto) {

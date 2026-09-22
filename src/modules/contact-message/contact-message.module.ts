@@ -3,9 +3,10 @@ import { ContactMessagesController } from './contact-message.controller';
 import { ContactMessagesService } from './contact-message.service';
 import { AuthModule } from '../auth/auth.module';
 import { ClientsModule } from '../clients/clients.module';
+import { NotificationsModule } from '../notification/notification.module';
 
 @Module({
-  imports: [AuthModule, ClientsModule],
+  imports: [AuthModule, ClientsModule, NotificationsModule],
   controllers: [ContactMessagesController],
   providers: [ContactMessagesService],
 })

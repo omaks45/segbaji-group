@@ -11,6 +11,7 @@ import type { JwtPayload } from '../auth/decorators/current-user.decorator';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
+import { NotificationsService } from '../notification/notification.service';
 
 const TASK_INCLUDE = {
   assignee: { select: { id: true, fullName: true, profilePictureUrl: true } },
@@ -35,6 +36,7 @@ export class TasksService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly notifications: NotificationsService
   ) {}
 
   private assertCanManageDepartment(user: JwtPayload, departmentId: string) {

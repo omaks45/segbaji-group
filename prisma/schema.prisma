@@ -142,6 +142,14 @@ enum TaskPriority {
   URGENT
 }
 
+enum NotificationType {
+  QUOTE_REQUEST
+  CONTACT_MESSAGE
+  NEW_MESSAGE
+  TASK_ASSIGNED
+  TASK_REASSIGNED
+}
+
 model User {
   id                String     @id @default(cuid())
   fullName          String?    // unknown until the invitee completes registration
@@ -181,6 +189,7 @@ model User {
   messageAttachments MessageAttachment[]
   tasksAssigned Task[] @relation("TasksAssigned")
   tasksCreated Task[] @relation("TasksCreated")
+  notifications Notification[]
 }
 
 model Department {
@@ -661,4 +670,19 @@ model Task {
   @@index([departmentId])
   @@index([assigneeId])
   @@index([status])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String
+  recipient   User             @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  body        String
+  link        String?          // frontend route to deep-link into, e.g. "/quote-requests/abc123"
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([recipientId, isRead])
+  @@index([recipientId, createdAt])
 }

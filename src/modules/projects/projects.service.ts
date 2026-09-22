@@ -62,16 +62,29 @@ export class ProjectsService {
             orderBy: { order: 'asc' },
             select: { imageUrl: true },
           },
+          // A project can be showcased with an image OR a video — if there
+          // are no images, the first video's auto-generated poster-frame
+          // thumbnail (Cloudinary creates this for every uploaded video, no
+          // extra cost) serves as the cover instead, so video-only projects
+          // still show a preview on the public gallery grid.
+          videos: {
+            take: 1,
+            orderBy: { order: 'asc' },
+            select: { thumbnailUrl: true },
+          },
         },
       }),
       this.prisma.project.count({ where }),
     ]);
 
-    // Flatten the single cover-preview image for list-view cards, since the
-    // model no longer carries a dedicated coverImageUrl field — the first
-    // gallery image (by order) serves as the thumbnail instead.
+    // Flatten the single cover-preview for list-view cards: prefer the
+    // first gallery image; if there isn't one, fall back to the first
+    // video's thumbnail; if there's neither, null (no media uploaded yet).
     return {
-      items: items.map(({ images, ...rest }) => ({ ...rest, coverImageUrl: images[0]?.imageUrl ?? null })),
+      items: items.map(({ images, videos, ...rest }) => ({
+        ...rest,
+        coverImageUrl: images[0]?.imageUrl ?? videos[0]?.thumbnailUrl ?? null,
+      })),
       meta: buildPaginationMeta(query.page, query.pageSize, total),
     };
   }

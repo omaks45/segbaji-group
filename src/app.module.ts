@@ -29,6 +29,7 @@ import { buildBullConnection } from './common/queue/bullmq-connection.factory';
 import { SystemInfoModule } from './modules/system-info/system-info.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
+import { NotificationsModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { MessagingModule } from './modules/messaging/messaging.module';
     DashboardModule,
     SystemInfoModule,
     MessagingModule,
+    NotificationsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
