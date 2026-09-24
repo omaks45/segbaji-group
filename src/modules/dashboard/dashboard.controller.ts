@@ -10,12 +10,12 @@ import { CurrentUser, JwtPayload } from '../auth/decorators/current-user.decorat
 @ApiTags('Dashboard')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
-@RequirePermissions(PERMISSIONS.REPORTS_READ)
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @ApiOperation({ summary: 'At-a-glance counts across every module — admin home screen' })
+  @RequirePermissions(PERMISSIONS.REPORTS_READ)
   @Get('overview')
   overview() {
     return this.dashboardService.getOverview();
