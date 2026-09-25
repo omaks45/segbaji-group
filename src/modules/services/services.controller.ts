@@ -79,6 +79,15 @@ export class ServicesController {
   }
 
   @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Delete a service (blocked if quote requests already reference it — deactivate instead)' })
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(PERMISSIONS.CONTENT_WRITE)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.servicesService.remove(id);
+  }
+
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: "Upload/replace a service's hero image" })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
