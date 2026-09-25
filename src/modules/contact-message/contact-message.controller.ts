@@ -46,7 +46,7 @@ export class ContactMessagesController {
   @ApiOperation({ summary: 'Contact message counts by status' })
   @ApiOkResponse({ type: ContactMessageSummaryDto })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @RequirePermissions(PERMISSIONS.CONTACT_MESSAGES_READ)
   @Get('summary')
   summary() {
     return this.contactMessagesService.findSummary();
@@ -55,7 +55,7 @@ export class ContactMessagesController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'List contact messages — filter by status/search, paginated' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @RequirePermissions(PERMISSIONS.CONTACT_MESSAGES_READ)
   @Get()
   findAll(@Query() query: ContactMessageQueryDto) {
     return this.contactMessagesService.findAll(query);
@@ -64,7 +64,7 @@ export class ContactMessagesController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Export contact messages as CSV or XLSX' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @RequirePermissions(PERMISSIONS.CONTACT_MESSAGES_READ)
   @Get('export')
   async exportContactMessages(@Query() query: ContactMessageQueryDto, @Res() res: ExpressResponse) {
     const format = parseExportFormat(query.format);
@@ -78,16 +78,16 @@ export class ContactMessagesController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get a single contact message (marks it read)' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_READ)
+  @RequirePermissions(PERMISSIONS.CONTACT_MESSAGES_READ)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.contactMessagesService.findOne(id);
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Update a contact message\u2019s status' })
+  @ApiOperation({ summary: 'Update a contact message’s status' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_WRITE)
+  @RequirePermissions(PERMISSIONS.CONTACT_MESSAGES_WRITE)
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateContactMessageStatusDto) {
     return this.contactMessagesService.updateStatus(id, dto);
@@ -98,7 +98,7 @@ export class ContactMessagesController {
   @ApiOperation({ summary: 'Convert this contact message into a Client record' })
   @ApiOkResponse({ type: ConvertToClientResponseDto })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions(PERMISSIONS.LEADS_WRITE)
+  @RequirePermissions(PERMISSIONS.CONTACT_MESSAGES_WRITE)
   @Post(':id/convert-to-client')
   convertToClient(@Param('id') id: string) {
     return this.contactMessagesService.convertToClient(id);

@@ -12,6 +12,8 @@ export const PERMISSIONS = {
     TEAM_WRITE: 'team:write',
     LEADS_READ: 'leads:read',
     LEADS_WRITE: 'leads:write',
+    CONTACT_MESSAGES_READ: 'contact-messages:read',
+    CONTACT_MESSAGES_WRITE: 'contact-messages:write',
     CONTENT_READ: 'content:read',
     CONTENT_WRITE: 'content:write',
     REPORTS_READ: 'reports:read',
