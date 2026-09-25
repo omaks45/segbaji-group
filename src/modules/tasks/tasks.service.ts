@@ -4,7 +4,6 @@ import { Prisma, NotificationType } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { hasPermission } from '../../common/permissions/has-permission.util';
-import { PERMISSIONS } from '../../common/permissions/permission.constants';
 import { translatePrismaWriteError } from '../../common/prisma/prisma-error.util';
 import { buildPaginationMeta, paginationSkipTake } from '../../common/pagination/pagination.util';
 import type { JwtPayload } from '../auth/decorators/current-user.decorator';
@@ -39,9 +38,15 @@ export class TasksService {
     private readonly notifications: NotificationsService
   ) {}
 
+  /**
+   * `isTeamLead` is checked directly here rather than via a permission
+   * string — it's the actual source of truth for "manages this
+   * department's tasks," independent of whichever professional Role
+   * (Engineer, Surveyor, ...) the user also holds.
+   */
   private assertCanManageDepartment(user: JwtPayload, departmentId: string) {
     if (hasPermission(user.permissions, '*')) return;
-    if (!hasPermission(user.permissions, PERMISSIONS.TASKS_WRITE) || user.departmentId !== departmentId) {
+    if (!user.isTeamLead || user.departmentId !== departmentId) {
       throw new ForbiddenException('You can only manage tasks within your own department');
     }
   }
@@ -265,15 +270,30 @@ export class TasksService {
     );
   }
 
+  /**
+   * Notified when a task is created with no assignee: the department's
+   * actual Team Leads (isTeamLead: true), plus every org-wide Super Admin
+   * as a backstop — deduplicated so someone who's both never gets two
+   * notifications. Previously this only reached "whoever has the
+   * '*:write' wildcard," which was really just Super Admins standing in
+   * for a department-lead concept that didn't exist yet.
+   */
   private async notifyDepartmentLeads(task: NotifiableTask, assignedById: string) {
-    const [leads, assignedBy, department] = await Promise.all([
+    const [teamLeads, superAdmins, assignedBy, department] = await Promise.all([
       this.prisma.user.findMany({
-        where: { departmentId: task.departmentId, status: 'ACTIVE', role: { permissions: { has: '*:write' } } },
+        where: { departmentId: task.departmentId, status: 'ACTIVE', isTeamLead: true },
+        select: { id: true, email: true, fullName: true },
+      }),
+      this.prisma.user.findMany({
+        where: { status: 'ACTIVE', role: { permissions: { has: '*:write' } } },
         select: { id: true, email: true, fullName: true },
       }),
       this.prisma.user.findUnique({ where: { id: assignedById }, select: { fullName: true } }),
       this.prisma.department.findUnique({ where: { id: task.departmentId }, select: { name: true } }),
     ]);
+
+    const leadsById = new Map([...teamLeads, ...superAdmins].map((u) => [u.id, u]));
+    const leads = Array.from(leadsById.values());
     if (leads.length === 0) return;
 
     const dashboardUrl = `${this.config.get<string>('appUrl')}/tasks`;

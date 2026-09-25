@@ -152,18 +152,20 @@ enum NotificationType {
 
 model User {
   id                String     @id @default(cuid())
-  fullName          String?    // unknown until the invitee completes registration
+  fullName          String?
   email             String     @unique
-  passwordHash      String?    // unset until registration is completed
-  phone String? @unique
+  passwordHash      String?
+  phone             String?    @unique
   bio               String?
   profilePictureUrl String?
   profilePicturePublicId String?
   status            UserStatus @default(PENDING)
 
-  isPubliclyListed  Boolean @default(false)
+  isPubliclyListed   Boolean @default(false)
   publicDisplayTitle String?
   publicDisplayOrder Int     @default(0)
+
+  isTeamLead Boolean @default(false)   // new — leadership over their department, independent of professional role
 
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])

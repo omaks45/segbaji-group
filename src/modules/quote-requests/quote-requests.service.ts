@@ -9,7 +9,6 @@ import { QuoteRequestQueryDto } from './dto/quote-request-query.dto';
 import { UpdateQuoteRequestStatusDto } from './dto/update-quote-request-status.dto';
 import { ClientsService} from '../clients/clients.service';
 import { NotificationsService } from '../notification/notification.service';
-import { PERMISSIONS } from '../../common/permissions/permission.constants';
 import { JwtPayload } from '../auth/decorators/current-user.decorator';
 
 @Injectable()
@@ -94,24 +93,22 @@ export class QuoteRequestsService {
   }
 
   /**
-   * Active users in the given department whose role carries `leads:read`
-   * — i.e. Team Leads, not every profession-role in that department.
+   * Active users in the given department who are actually flagged as a
+   * Team Lead (isTeamLead: true) — not everyone whose role happens to
+   * grant leads:read. This is a direct column check, not a permission
+   * check, because it runs outside any request's JWT.
    */
   private async getDepartmentLeadIds(departmentId: string): Promise<string[]> {
     const leads = await this.prisma.user.findMany({
-      where: {
-        status: 'ACTIVE',
-        departmentId,
-        role: { permissions: { has: PERMISSIONS.LEADS_READ } },
-      },
+      where: { status: 'ACTIVE', departmentId, isTeamLead: true },
       select: { id: true },
     });
     return leads.map((l) => l.id);
   }
 
   /** A user with the org-wide write wildcard sees every department's
-   * quote requests; everyone else (Team Leads with `leads:read`) is
-   * scoped to their own department. */
+   * quote requests; everyone else (Team Leads) is scoped to their own
+   * department. */
   private isOrgWide(user: JwtPayload): boolean {
     return user.permissions.includes('*:write') || user.permissions.includes('*');
   }

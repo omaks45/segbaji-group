@@ -23,3 +23,18 @@ export const PERMISSIONS = {
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+/**
+ * Folded into a user's JWT `permissions` array at login/refresh whenever
+ * `User.isTeamLead` is true — on top of whatever their professional Role
+ * (Engineer, Surveyor, etc.) already grants. This is what lets someone
+ * keep their profession while also gaining department-lead capabilities,
+ * without every existing @RequirePermissions guard needing to know about
+ * `isTeamLead` at all.
+ */
+export const TEAM_LEAD_PERMISSIONS: string[] = [
+    PERMISSIONS.TASKS_WRITE,
+    PERMISSIONS.LEADS_READ,
+    PERMISSIONS.LEADS_WRITE,
+    PERMISSIONS.TEAM_READ,
+];

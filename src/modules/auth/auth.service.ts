@@ -13,6 +13,7 @@ import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { hashToken } from '../../common/crypto/hash-token.util';
 import { MailService } from '../../modules/mail/mail.service';
+import { TEAM_LEAD_PERMISSIONS } from '../../common/permissions/permission.constants';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { CompleteRegistrationDto } from './dto/complete-registration.dto';
 import { LoginDto } from './dto/login.dto';
@@ -35,7 +36,7 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  // ---------- invite flow (unchanged) ----------
+  // ---------- invite flow ----------
 
   async inviteUser(dto: InviteUserDto) {
     const [role, department] = await Promise.all([
@@ -53,10 +54,22 @@ export class AuthService {
     const user = existing
       ? await this.prisma.user.update({
           where: { id: existing.id },
-          data: { roleId: dto.roleId, departmentId: dto.departmentId, invitedAt: new Date() },
+          data: {
+            roleId: dto.roleId,
+            departmentId: dto.departmentId,
+            isTeamLead: dto.isTeamLead ?? false,
+            invitedAt: new Date(),
+          },
         })
       : await this.prisma.user.create({
-          data: { email: dto.email, roleId: dto.roleId, departmentId: dto.departmentId, status: 'PENDING', invitedAt: new Date() },
+          data: {
+            email: dto.email,
+            roleId: dto.roleId,
+            departmentId: dto.departmentId,
+            isTeamLead: dto.isTeamLead ?? false,
+            status: 'PENDING',
+            invitedAt: new Date(),
+          },
         });
 
     await this.issueInviteToken(user.id, dto.email, role.name, department.name);
@@ -130,7 +143,7 @@ export class AuthService {
     return { message: 'Registration complete — you can now log in' };
   }
 
-  // ---------- login / sessions (new logic) ----------
+  // ---------- login / sessions ----------
 
   async login(dto: LoginDto, meta: RequestMeta) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email }, include: { role: true, department: true } });
@@ -156,7 +169,13 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role?.name ?? null },
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role?.name ?? null,
+        isTeamLead: user.isTeamLead,
+      },
     };
   }
 
@@ -195,8 +214,9 @@ export class AuthService {
     const accessToken = this.jwt.sign({
       sub: session.user.id,
       role: session.user.role?.name ?? null,
-      permissions: session.user.role?.permissions ?? [],
+      permissions: this.buildEffectivePermissions(session.user.role, session.user.isTeamLead),
       departmentId: session.user.departmentId,
+      isTeamLead: session.user.isTeamLead,
       sessionId: session.id,
     });
 
@@ -209,7 +229,12 @@ export class AuthService {
   }
 
   private async issueTokenPair(
-  user: { id: string; departmentId: string | null; role: { name: string; permissions: string[] } | null },
+  user: {
+    id: string;
+    departmentId: string | null;
+    isTeamLead: boolean;
+    role: { name: string; permissions: string[] } | null;
+  },
   meta: RequestMeta,
   ) {
     const refreshToken = crypto.randomBytes(48).toString('hex');
@@ -229,12 +254,27 @@ export class AuthService {
     const accessToken = this.jwt.sign({
       sub: user.id,
       role: user.role?.name ?? null,
-      permissions: user.role?.permissions ?? [],
+      permissions: this.buildEffectivePermissions(user.role, user.isTeamLead),
       departmentId: user.departmentId,
+      isTeamLead: user.isTeamLead,
       sessionId: session.id,
     });
 
     return { accessToken, refreshToken };
+  }
+
+  /**
+   * A user's professional Role (Engineer, Surveyor, ...) grants its own
+   * baseline permissions. `isTeamLead` layers department-lead permissions
+   * on top, independent of whatever role they hold — this is the one
+   * place that fold happens, so every @RequirePermissions guard downstream
+   * just sees a flat permissions array and doesn't need to know
+   * `isTeamLead` exists at all.
+   */
+  private buildEffectivePermissions(role: { permissions: string[] } | null, isTeamLead: boolean): string[] {
+    const base = role?.permissions ?? [];
+    if (!isTeamLead) return base;
+    return Array.from(new Set([...base, ...TEAM_LEAD_PERMISSIONS]));
   }
 
   /** Logged for every login attempt, success or failure — the audit
@@ -316,7 +356,7 @@ export class AuthService {
       where: { id: userId },
       select: {
         id: true, fullName: true, email: true, phone: true, bio: true,
-        profilePictureUrl: true, status: true, joinedAt: true,
+        profilePictureUrl: true, status: true, joinedAt: true, isTeamLead: true,
         role: { select: { name: true } },
         department: { select: { name: true } },
       },

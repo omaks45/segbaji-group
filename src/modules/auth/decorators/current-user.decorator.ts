@@ -6,6 +6,7 @@ export interface JwtPayload {
     permissions: string[];
     sessionId: string;
     departmentId: string | null;
+    isTeamLead: boolean;
 }
 
 export const CurrentUser = createParamDecorator(

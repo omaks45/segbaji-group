@@ -56,7 +56,7 @@ export class TeamMembersService {
         orderBy: { createdAt: 'desc' },
         select: {
           id: true, fullName: true, email: true, phone: true, status: true,
-          joinedAt: true, invitedAt: true,
+          joinedAt: true, invitedAt: true, isTeamLead: true,
           role: { select: { name: true } },
           department: { select: { name: true } },
         },
@@ -125,7 +125,7 @@ async reorderPublicTeam(dto: ReorderPublicTeamDto) {
       where: { id },
       select: {
         id: true, fullName: true, email: true, phone: true, bio: true,
-        profilePictureUrl: true, status: true, joinedAt: true, invitedAt: true,
+        profilePictureUrl: true, status: true, joinedAt: true, invitedAt: true, isTeamLead: true,
         role: { select: { id: true, name: true } },
         department: { select: { id: true, name: true } },
       },
@@ -135,9 +135,12 @@ async reorderPublicTeam(dto: ReorderPublicTeamDto) {
   }
 
   async update(id: string, dto: UpdateTeamMemberDto, actingUserId: string) {
-    if (id === actingUserId && (dto.status !== undefined || dto.roleId !== undefined)) {
+    if (
+      id === actingUserId &&
+      (dto.status !== undefined || dto.roleId !== undefined || dto.isTeamLead !== undefined)
+    ) {
       throw new ForbiddenException(
-        'You cannot change your own role or status — ask another admin to do this.',
+        'You cannot change your own role, status, or team-lead status — ask another admin to do this.',
       );
     }
 
@@ -167,7 +170,7 @@ async reorderPublicTeam(dto: ReorderPublicTeamDto) {
       where: { id },
       data: dto,
       select: {
-        id: true, fullName: true, email: true, status: true,
+        id: true, fullName: true, email: true, status: true, isTeamLead: true,
         role: { select: { name: true } },
         department: { select: { name: true } },
       },

@@ -53,28 +53,23 @@ export class DashboardService {
   /**
    * The polymorphic personal dashboard — ONE method, whose returned
    * `widgets` object varies based on the caller's permissions and
-   * department. This is the whole answer to "what's different between
-   * departments": nothing here branches on a department NAME, only on
-   * what the caller's role actually grants.
-   *
-   * `capabilities` is the frontend-facing contract: pre-computed booleans
-   * so the UI never has to parse raw permission strings or guess from a
-   * role name. Staff / Team Lead / Admin dashboards are chosen by reading
-   * these flags, not by checking `role.name`.
+   * department. `capabilities` is the frontend-facing contract: computed
+   * from `isTeamLead` directly (the actual source of truth for
+   * department-lead status) rather than re-derived from a permission
+   * string, so it stays correct regardless of how permissions happen to
+   * be folded together at login.
    */
   async getPersonalizedOverview(user: JwtPayload) {
     const isSuperAdmin = hasPermission(user.permissions, '*');
-    const canManageTasks = hasPermission(user.permissions, PERMISSIONS.TASKS_WRITE);
-    const canReadTasks = canManageTasks || hasPermission(user.permissions, PERMISSIONS.TASKS_READ);
+    const canReadTasks = user.isTeamLead || hasPermission(user.permissions, PERMISSIONS.TASKS_READ) || isSuperAdmin;
     const canReadContent = hasPermission(user.permissions, PERMISSIONS.CONTENT_READ);
-    const canReadLeads = hasPermission(user.permissions, PERMISSIONS.LEADS_READ);
-    const canManageLeads = hasPermission(user.permissions, PERMISSIONS.LEADS_WRITE);
+    const canReadLeads = user.isTeamLead || hasPermission(user.permissions, PERMISSIONS.LEADS_READ) || isSuperAdmin;
 
     const capabilities = {
       isOrgWide: isSuperAdmin,
-      canManageDepartmentTasks: canManageTasks && !isSuperAdmin && !!user.departmentId,
-      canManageDepartmentLeads: canManageLeads && !isSuperAdmin,
-      canViewDepartmentRoster: canManageTasks && !isSuperAdmin && !!user.departmentId,
+      canManageDepartmentTasks: user.isTeamLead && !isSuperAdmin && !!user.departmentId,
+      canManageDepartmentLeads: user.isTeamLead && !isSuperAdmin,
+      canViewDepartmentRoster: user.isTeamLead && !isSuperAdmin && !!user.departmentId,
     };
 
     const widgets: Record<string, unknown> = {
@@ -84,7 +79,7 @@ export class DashboardService {
     if (canReadTasks && user.departmentId) {
       widgets.departmentTasks = await this.buildDepartmentTasksSummary(user.departmentId);
     }
-    if (canManageTasks && user.departmentId && !isSuperAdmin) {
+    if (capabilities.canManageDepartmentTasks && user.departmentId) {
       widgets.teamOverview = await this.buildDepartmentTeamSummary(user.departmentId);
     }
     if (canReadContent) {

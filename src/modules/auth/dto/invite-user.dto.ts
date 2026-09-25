@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class InviteUserDto {
     @ApiProperty({ example: 'jane.doe@example.com' })
@@ -13,4 +13,11 @@ export class InviteUserDto {
     @ApiProperty({ example: 'clx9z8y7x6w5v4u3t2s1r0q', description: 'Department ID — get from GET /departments' })
     @IsString()
     departmentId!: string;
+
+    @ApiPropertyOptional({
+        example: false,
+        description: 'Makes this person the lead of the given department, on top of whatever their role already grants',
+    })
+    @IsOptional() @IsBoolean()
+    isTeamLead?: boolean;
 }
