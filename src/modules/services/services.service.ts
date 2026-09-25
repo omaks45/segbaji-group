@@ -39,13 +39,20 @@ export class ServicesService {
   async findAllForAdmin() {
     const services = await this.prisma.service.findMany({
       orderBy: { order: 'asc' },
-      include: { _count: { select: { features: true } } },
+      include: {
+        _count: { select: { features: true } },
+        department: { select: { id: true, name: true } },
+      },
     });
     return services.map((s) => ({
       id: s.id,
       slug: s.slug,
       name: s.name,
       summary: s.summary,
+      description: s.description,
+      category: s.category,
+      departmentId: s.departmentId,
+      departmentName: s.department?.name ?? null,
       heroImageUrl: s.heroImageUrl,
       order: s.order,
       isActive: s.isActive,
@@ -54,10 +61,18 @@ export class ServicesService {
   }
 
   async create(dto: CreateServiceDto) {
+    await this.assertDepartmentExists(dto.departmentId);
     const slug = slugify(dto.slug ?? dto.name);
     try {
       return await this.prisma.service.create({
-        data: { name: dto.name, slug, summary: dto.summary },
+        data: {
+          name: dto.name,
+          slug,
+          summary: dto.summary,
+          description: dto.description,
+          category: dto.category,
+          departmentId: dto.departmentId,
+        },
       });
     } catch (err) {
       throw this.translateUniqueConstraintError(err);
@@ -66,12 +81,33 @@ export class ServicesService {
 
   async update(id: string, dto: UpdateServiceDto) {
     await this.findOneOrThrow(id);
+    if (dto.departmentId !== undefined) await this.assertDepartmentExists(dto.departmentId);
     const data = { ...dto, ...(dto.slug && { slug: slugify(dto.slug) }) };
     try {
       return await this.prisma.service.update({ where: { id }, data });
     } catch (err) {
       throw this.translateUniqueConstraintError(err);
     }
+  }
+
+  /**
+   * Blocked while quote requests still reference this service — deleting
+   * it would either orphan or (per the FK) fail those rows outright, and
+   * lead history shouldn't disappear because a service was retired.
+   * Deactivating (isActive: false) is the intended way to retire a
+   * service that already has leads against it.
+   */
+  async remove(id: string) {
+    const service = await this.findOneOrThrow(id);
+    const quoteRequestCount = await this.prisma.quoteRequest.count({ where: { serviceId: id } });
+    if (quoteRequestCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete — ${quoteRequestCount} quote request(s) reference this service. Set isActive to false instead to retire it.`,
+      );
+    }
+    await this.prisma.service.delete({ where: { id } }); // cascades ServiceFeature rows
+    if (service.heroImagePublicId) void this.cloudinary.deleteAsset(service.heroImagePublicId);
+    return { message: 'Service deleted' };
   }
 
   async updateHeroImage(id: string, file: Express.Multer.File) {
@@ -152,6 +188,12 @@ export class ServicesService {
     const feature = await this.prisma.serviceFeature.findFirst({ where: { id: featureId, serviceId } });
     if (!feature) throw new NotFoundException('Feature not found on this service');
     return feature;
+  }
+
+  private async assertDepartmentExists(departmentId?: string) {
+    if (!departmentId) return;
+    const department = await this.prisma.department.findUnique({ where: { id: departmentId } });
+    if (!department) throw new NotFoundException('departmentId does not match an existing department');
   }
 
   private translateUniqueConstraintError(err: unknown) {
