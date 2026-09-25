@@ -201,7 +201,9 @@ model Department {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  tasks Task[]
+  tasks         Task[]
+  services      Service[]        // new
+  quoteRequests QuoteRequest[]   // new
 }
 
 model Session {
@@ -247,19 +249,24 @@ model Role {
 
 model Service {
   id                String           @id @default(cuid())
-  slug              String          @unique
+  slug              String           @unique
   name              String           @unique
   summary           String?
+  description       String?          // new
+  category          String?          // new — free text, same call as budgetRange
   heroImageUrl      String?
   heroImagePublicId String?
   isActive          Boolean          @default(true)
   order             Int              @default(0)
+  departmentId      String?          // new
+  department        Department?      @relation(fields: [departmentId], references: [id])  // new
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   features          ServiceFeature[]
   quoteRequests     QuoteRequest[]
 
   @@index([isActive])
+  @@index([departmentId])   // new
 }
 
 model ServiceFeature {
@@ -306,11 +313,13 @@ model QuoteRequest {
   id               String             @id @default(cuid())
   serviceId        String
   service          Service            @relation(fields: [serviceId], references: [id])
+  departmentId     String?            // new — copied from service.departmentId at create time
+  department       Department?        @relation(fields: [departmentId], references: [id])  // new
   fullName         String
   email            String
   phone            String
   projectLocation  String
-  budgetRange      String             // free text, per your call
+  budgetRange      String
   desiredStartDate DateTime
   description      String
   status           QuoteRequestStatus @default(NEW)
@@ -319,10 +328,11 @@ model QuoteRequest {
 
   convertedToClientId String?
   convertedToClient   Client? @relation(fields: [convertedToClientId], references: [id])
-  @@index([convertedToClientId])
 
+  @@index([convertedToClientId])
   @@index([status])
   @@index([serviceId])
+  @@index([departmentId])   // new
 }
 
 model ContactMessage {

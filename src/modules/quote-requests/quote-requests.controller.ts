@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/permissions/permissions.guard';
 import { RequirePermissions } from '../../common/permissions/require-permissions.decorator';
 import { PERMISSIONS } from '../../common/permissions/permission.constants';
+import { CurrentUser, JwtPayload } from '../auth/decorators/current-user.decorator';
 import { ConvertToClientResponseDto } from '../clients/dto/client-responses.dto';
 import { Res } from '@nestjs/common';
 import type { Response as ExpressResponse } from 'express';
@@ -47,32 +48,36 @@ export class QuoteRequestsController {
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Quote request counts by status' })
+  @ApiOperation({ summary: 'Quote request counts by status — scoped to the caller’s department unless they hold org-wide access' })
   @ApiOkResponse({ type: QuoteRequestSummaryDto })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_READ)
   @Get('summary')
-  summary() {
-    return this.quoteRequestsService.findSummary();
+  summary(@CurrentUser() user: JwtPayload) {
+    return this.quoteRequestsService.findSummary(user);
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'List quote requests — filter by status/service/search, paginated' })
+  @ApiOperation({ summary: 'List quote requests — filter by status/service/search, paginated, department-scoped' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_READ)
   @Get()
-  findAll(@Query() query: QuoteRequestQueryDto) {
-    return this.quoteRequestsService.findAll(query);
+  findAll(@Query() query: QuoteRequestQueryDto, @CurrentUser() user: JwtPayload) {
+    return this.quoteRequestsService.findAll(query, user);
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Export quote requests as CSV or XLSX' })
+  @ApiOperation({ summary: 'Export quote requests as CSV or XLSX — department-scoped' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_READ)
   @Get('export')
-  async exportQuoteRequests(@Query() query: QuoteRequestQueryDto, @Res() res: ExpressResponse) {
+  async exportQuoteRequests(
+    @Query() query: QuoteRequestQueryDto,
+    @CurrentUser() user: JwtPayload,
+    @Res() res: ExpressResponse,
+  ) {
     const format = parseExportFormat(query.format);
-    const rows = await this.quoteRequestsService.findAllForExport(query);
+    const rows = await this.quoteRequestsService.findAllForExport(query, user);
     const buffer = format === 'xlsx'
       ? await buildTableXlsx(rows, QUOTE_REQUEST_EXPORT_COLUMNS, 'Quote Requests')
       : buildTableCsv(rows, QUOTE_REQUEST_EXPORT_COLUMNS);
@@ -80,21 +85,25 @@ export class QuoteRequestsController {
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get a single quote request' })
+  @ApiOperation({ summary: 'Get a single quote request — 404s if outside the caller’s department' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_READ)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.quoteRequestsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.quoteRequestsService.findOne(id, user);
   }
 
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Update a quote request\u2019s status' })
+  @ApiOperation({ summary: 'Update a quote request’s status' })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_WRITE)
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateQuoteRequestStatusDto) {
-    return this.quoteRequestsService.updateStatus(id, dto);
+  updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateQuoteRequestStatusDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.quoteRequestsService.updateStatus(id, dto, user);
   }
 
   @ApiBearerAuth('access-token')
@@ -103,8 +112,8 @@ export class QuoteRequestsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(PERMISSIONS.LEADS_WRITE)
   @Post(':id/convert-to-client')
-  convertToClient(@Param('id') id: string) {
-    return this.quoteRequestsService.convertToClient(id);
+  convertToClient(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.quoteRequestsService.convertToClient(id, user);
   }
 
 }
