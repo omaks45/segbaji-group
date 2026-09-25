@@ -14,6 +14,24 @@ export class UpdateServiceDto {
     @IsOptional() @IsString() @MaxLength(500)
     summary?: string;
 
+    @ApiPropertyOptional({
+        example: 'A full walkthrough of our civil engineering process, from site survey through handover, including the equipment and standards we work to.',
+        description: 'Longer body text shown on the service detail page',
+    })
+    @IsOptional() @IsString() @MaxLength(2000)
+    description?: string;
+
+    @ApiPropertyOptional({ example: 'Construction', description: 'Free-text category tag, used for filtering on the public services page' })
+    @IsOptional() @IsString() @MaxLength(60)
+    category?: string;
+
+    @ApiPropertyOptional({
+        example: 'cmu48p9t50005ikeq3roox84w',
+        description: 'Department this service routes quote requests to',
+    })
+    @IsOptional() @IsString()
+    departmentId?: string;
+
     @ApiPropertyOptional({ example: 0 })
     @IsOptional() @IsInt() @Min(0)
     order?: number;
