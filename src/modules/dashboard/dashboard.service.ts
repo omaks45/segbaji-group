@@ -56,6 +56,11 @@ export class DashboardService {
    * department. This is the whole answer to "what's different between
    * departments": nothing here branches on a department NAME, only on
    * what the caller's role actually grants.
+   *
+   * `capabilities` is the frontend-facing contract: pre-computed booleans
+   * so the UI never has to parse raw permission strings or guess from a
+   * role name. Staff / Team Lead / Admin dashboards are chosen by reading
+   * these flags, not by checking `role.name`.
    */
   async getPersonalizedOverview(user: JwtPayload) {
     const isSuperAdmin = hasPermission(user.permissions, '*');
@@ -63,6 +68,14 @@ export class DashboardService {
     const canReadTasks = canManageTasks || hasPermission(user.permissions, PERMISSIONS.TASKS_READ);
     const canReadContent = hasPermission(user.permissions, PERMISSIONS.CONTENT_READ);
     const canReadLeads = hasPermission(user.permissions, PERMISSIONS.LEADS_READ);
+    const canManageLeads = hasPermission(user.permissions, PERMISSIONS.LEADS_WRITE);
+
+    const capabilities = {
+      isOrgWide: isSuperAdmin,
+      canManageDepartmentTasks: canManageTasks && !isSuperAdmin && !!user.departmentId,
+      canManageDepartmentLeads: canManageLeads && !isSuperAdmin,
+      canViewDepartmentRoster: canManageTasks && !isSuperAdmin && !!user.departmentId,
+    };
 
     const widgets: Record<string, unknown> = {
       myTasks: await this.buildMyTasksSummary(user.sub),
@@ -78,7 +91,12 @@ export class DashboardService {
       widgets.contentSummary = await this.buildContentSummary();
     }
     if (canReadLeads) {
-      widgets.leadsSummary = await this.buildLeadsSummary();
+      // Org-wide callers (Super Admin) get the full picture including
+      // contact messages. Department-scoped callers (Team Leads) only
+      // get their department's quote requests — ContactMessage has no
+      // departmentId (by design), so it's left out entirely for them
+      // rather than showing a misleading 0.
+      widgets.leadsSummary = await this.buildLeadsSummary(isSuperAdmin ? undefined : user.departmentId);
     }
     if (isSuperAdmin) {
       widgets.companyOverview = await this.getOverview();
@@ -87,6 +105,7 @@ export class DashboardService {
     return {
       scope: isSuperAdmin ? 'COMPANY' : 'DEPARTMENT',
       departmentId: user.departmentId,
+      capabilities,
       widgets,
     };
   }
@@ -123,11 +142,22 @@ export class DashboardService {
     return { projects, properties, services };
   }
 
-  private async buildLeadsSummary() {
-    const [newQuoteRequests, unreadMessages] = await Promise.all([
-      this.prisma.quoteRequest.count({ where: { status: 'NEW' } }),
-      this.prisma.contactMessage.count({ where: { status: 'UNREAD' } }),
-    ]);
-    return { newQuoteRequests, unreadMessages };
+  /**
+   * `departmentId` present → scoped caller (Team Lead): quote requests
+   * filtered to their department, contact messages omitted entirely.
+   * `departmentId` undefined → org-wide caller (Super Admin): both counts,
+   * unscoped.
+   */
+  private async buildLeadsSummary(departmentId?: string) {
+    const newQuoteRequests = await this.prisma.quoteRequest.count({
+      where: { status: 'NEW', ...(departmentId && { departmentId }) },
+    });
+
+    if (!departmentId) {
+      const unreadMessages = await this.prisma.contactMessage.count({ where: { status: 'UNREAD' } });
+      return { newQuoteRequests, unreadMessages };
+    }
+
+    return { newQuoteRequests };
   }
 }
